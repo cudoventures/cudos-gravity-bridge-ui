@@ -1,5 +1,6 @@
 import Page from '../pages/Page';
 import PageNotFound from '../pages/general/not-found/PageNotFound';
+import CudosBridge from '../pages/general/cudos-bridge/CudosBridge';
 
 const Config = require('./../../../../config/config');
 
@@ -9,7 +10,7 @@ export default class GeneralFilter {
 
     static init() {
         GeneralFilter.map = new Map();
-        GeneralFilter.map.set(`${Config.URL.ROOT}/`, new PageNotFound());
+        GeneralFilter.map.set(`${Config.URL.ROOT}/`, new CudosBridge());
         GeneralFilter.map.set(PageNotFound.URL, new PageNotFound());
     }
 

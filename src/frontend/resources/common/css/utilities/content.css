@@ -1,19 +1,20 @@
 :root {
-    --color-primary: #FF314E;
+    --color-primary: #1B2031;
     --color-secondary: #262b31;
     --color-red:#bb0000;
     --color-green:#2AD791;
     --color-dark-gray: #425062;
+    --color-light-gray: #d3d0d0;
 
-    --color-body-background:#fff;
+    --color-body-background:rgb(199, 188, 188);
 
     /* theme */
-    --color-input-text: #000;
-    --color-input-label: var(--color-dark-gray);
+    --color-input-text: #FFF;
+    --color-input-label: var(--color-light-gray);
     --color-input-focused: #262b31;
-    --color-input-border: var(--color-dark-gray);
-    --color-input-border-hover: #262b31;
-    --color-select-icon: var(--color-dark-gray);
+    --color-input-border: var(--color-light-gray);
+    --color-input-border-hover: #FFF;
+    --color-select-icon: var(--color-light-gray);
     --color-select-icon-focused: #262b31;
     --color-select-highlight: rgba(0, 0, 0, 0.1);
     --color-select-multi-item-color: #fff;
@@ -46,7 +47,7 @@
 }
 
 html {
-	color:#000;
+	color:#FFF;
     font-family:BeseirCircle, sans-serif; font-weight:400; font-size:16px;
     scroll-behavior: smooth;
     background:var(--color-body-background);

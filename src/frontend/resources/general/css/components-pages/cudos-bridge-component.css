@@ -1,0 +1,27 @@
+.CudosBridge .Page {
+    position:relative;
+}
+
+.CudosBridge .PageContent {
+    align-items:center;
+    position:relative;
+    margin:64px 0;
+}
+
+.CudosBridge .PageContent .Heading2 {
+    text-align:center;
+    margin-bottom:48px;
+}
+
+.CudosBridge .SendForm {
+    background-color: var(--color-primary);
+    align-items: center;
+}
+
+.CudosBridge .SendForm .NetworkSelectMenu {
+    justify-content: space-around;
+}
+
+.CudosBridge .SendForm .NetworkSelectMenu .NetworkSelect {
+    align-items: center;
+}

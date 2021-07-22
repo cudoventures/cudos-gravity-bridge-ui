@@ -13,6 +13,7 @@ import Ajax from '../utilities/Ajax';
 import S from '../utilities/Main';
 
 import PageLayoutComponent from './PageLayoutComponent';
+import NetworkStore from '../stores/NetworkStore';
 
 configure({
     enforceActions: 'never',
@@ -31,8 +32,10 @@ export default class PageComponent < Pr extends PageComponentProps, St = {}, SS 
                 appStore = { new AppStore() }
                 accountSessionStore = { new AccountSessionStore() }
                 alertStore = { new AlertStore() }
-                popupPasswordStore = { new PopupPasswordStore() } >
-
+                popupPasswordStore = { new PopupPasswordStore() } 
+                networkStore = { new NetworkStore() }
+                >
+                
                 { componentNode }
 
             </Provider>
