@@ -29,32 +29,7 @@ function App() {
       // console.log(window.Web3.utils.asciiToHex(cosmosAddress));
 
       console.log(account);
-      var myContract = new window.web3.eth.Contract(gravityContractAbi, contractAddress, {
-          from: account,
-          gasPrice: '2000000008'
-      });
-
-
-      var erc20Instance = new window.web3.eth.Contract(ERC20TokenAbi,ERC20ContractAddress);
-
-      erc20Instance.methods.approve(contractAddress, amount)
-          .send({from: account, gas: 2000000}, 
-          function(err, transactionHash) {
-
-              myContract.methods.sendToCosmos(ERC20ContractAddress, '0x00000000000035991543142242222130103601299692251231174525577191', amount).send({gas: 200000})
-                  .on('transactionHash', function(hash){
-                      console.log('Hash: ' + hash);
-                  })
-                  .on('receipt', function(receipt){
-                      console.log('Receipt: ' + receipt);
-                  })
-                  .on('confirmation', function(confirmationNumber, receipt){
-                      console.log('Confirmation: ' + confirmationNumber);
-                      console.log('Receipt: ' + receipt);
-                  })
-                  .on('error', console.error);
-          }
-      );
+      
     }
   }
 
