@@ -1,0 +1,30 @@
+image: kokiweb/server-php-node
+
+variables:
+  # Configure mysql environment variables (https://hub.docker.com/r/_/mysql/)
+  MYSQL_DATABASE: krystev_sales_tracker
+  MYSQL_ROOT_PASSWORD: 123456
+
+before_script:
+    - ls
+    - pwd
+
+stages:
+  - test
+
+build_files:
+    stage: build
+    script:
+        - cd ./tools/lang
+        - npm install
+        - npm run start
+        - cd ../../
+        - cd ./tools/build
+        - npm install
+        - npm run build
+        - cd ../../
+
+php_tests:
+  stage: test
+  script:
+    - cd ./tools/testing && php ./phpunit-6.3.1.phar --bootstrap ./bootstrap.php ../../test && cd ../../

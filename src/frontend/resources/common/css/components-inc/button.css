@@ -1,0 +1,14 @@
+.Button {
+    min-width: 0 !important;
+    line-height: normal !important;
+    text-transform: none !important;
+    font-weight: 400 !important;
+    font-size: 16px !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+}
+
+.Button .SVG.ButtonSvg {
+    width: 16px; height: 16px;
+    margin-right: 8px;
+}

@@ -1,0 +1,16 @@
+.Scrollable {
+    display: flex;
+    flex: 1 1 auto;
+}
+
+.Scrollable .ScrollableWrapper {
+    flex: 1 1 auto;
+    position: relative;
+}
+
+.Scrollable .ScrollableWrapper .ScrollableContent {
+    width: 100%; height: 100%;
+    position: absolute;
+    left: 0; top: 0;
+    overflow: auto;
+}

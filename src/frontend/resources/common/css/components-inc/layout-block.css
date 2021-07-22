@@ -1,0 +1,33 @@
+.LayoutBlock {
+    width:100%;
+    display:flex;
+}
+
+.LayoutBlock.DirectionRow {
+    align-items:center;
+    flex-direction:row;
+}
+
+.LayoutBlock.DirectionColumn {
+    flex-direction:column;
+}
+
+.LayoutBlock > * {
+    flex:1 1 0px;
+}
+
+.LayoutBlock.DirectionColumn > * {
+    flex-basis:auto;
+}
+
+.LayoutBlock > *.WrapContent {
+    flex:0 1 auto;
+}
+
+.LayoutBlock.DirectionRow > *:not(:first-child) {
+    margin-left:16px;
+}
+
+.LayoutBlock.DirectionColumn > *:not(:first-child) {
+    margin-top:16px;
+}

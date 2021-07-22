@@ -1,0 +1,7 @@
+.Popover .MuiPopover-paper {
+    color: var(--color-popover-text);
+    border-radius: 4px;
+    border: 1px solid var(--color-popover-border);
+    padding: 16px;
+    background: var(--color-popover-background);
+}

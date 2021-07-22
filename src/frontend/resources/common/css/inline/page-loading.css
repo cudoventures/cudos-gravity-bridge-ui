@@ -1,0 +1,27 @@
+body {
+    /* background: #2d3235; */
+    background: #fff;
+}
+
+.PageLoading {
+    width:100%; height:100%;
+    display:flex; align-items:center; justify-content:center;
+    position:fixed;
+    left:0; top:0;
+}
+
+.PageLoading svg {
+    width:64px; height:64px;
+    animation:LOADING_ANIMATION 1s ease-in-out infinite;
+}
+
+@keyframes LOADING_ANIMATION {
+    0% {
+        transform:scale(0.5);
+        opacity:1
+    }
+    100% {
+        transform:scale(1);
+        opacity:0
+    }
+}

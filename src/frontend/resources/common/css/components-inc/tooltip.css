@@ -1,0 +1,17 @@
+.TooltipPopper {
+    z-index: 8040 !important;
+}
+
+.TooltipPopper .TooltipItself {
+    color: var(--color-tooltip-text);
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid var(--color-tooltip-border);
+    padding: 8px;
+    background: var(--color-tooltip-background);
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.09);
+}
+
+.TooltipPopper .TooltipArrow {
+    color: var(--color-tooltip-background);
+}

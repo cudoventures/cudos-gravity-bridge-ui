@@ -1,0 +1,78 @@
+.Select {
+    width: 100%;
+}
+
+.Select .MuiFormControl-root {
+    width: 100%;
+    margin: 0 !important;
+}
+
+.Select .MuiInputBase-root {
+    color: var(--color-input-text);
+}
+
+.Select .MuiInputBase-root.Mui-disabled {
+    color: var(--color-text);
+    opacity: 0.2;
+    pointer-events: none;
+}
+
+/* label color default */
+.Select .MuiFormLabel-root {
+    color: var(--color-input-label);
+}
+
+/* label color on focus */
+.Select .MuiFormLabel-root.Mui-focused {
+    color: var(--color-input-focused);
+}
+
+/* label color on error */
+.Select .MuiFormLabel-root.Mui-error:not(.Mui-focused) {
+    color: var(--color-red);
+}
+
+.Select .MuiOutlinedInput-root .MuiSelect-root:focus {
+    background: none;
+}
+
+/* border color */
+.Select .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+    border-color: var(--color-input-border);
+    transition-property: border-color, color;
+    transition-duration: 0.45s;
+}
+
+/* border color on hover */
+html:not(.Touchable) .Select .MuiOutlinedInput-root:not(.Mui-disabled):hover .MuiOutlinedInput-notchedOutline {
+    border-color: var(--color-input-border-hover);
+}
+
+/* border color on error */
+.Select .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: var(--color-input-focused) !important;
+}
+
+/* border color on error */
+.Select .MuiOutlinedInput-root.Mui-error:not(.Mui-focused) .MuiOutlinedInput-notchedOutline {
+    border-color: var(--color-red) !important;
+}
+/* icon color */
+.Select .MuiOutlinedInput-root .MuiSelect-icon {
+    color: var(--color-select-icon);
+}
+
+/* MuiSelect */
+body > *[id^=menu] {
+    z-index: 4096 !important;
+}
+
+body > *[id^=menu] .MuiPaper-root {
+    color: var(--color-input-text) !important;
+    border: 1px solid var(--color-popover-border);
+    background: var(--color-popover-background) !important;
+}
+
+body > *[id^=menu] .MuiPaper-root .MuiListItem-button.Mui-selected {
+    background: var(--color-select-highlight);
+}

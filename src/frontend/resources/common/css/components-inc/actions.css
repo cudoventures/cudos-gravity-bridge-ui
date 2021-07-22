@@ -1,0 +1,112 @@
+.Actions {
+    display:flex; align-items:center;
+    flex:0 0 auto;
+    /* padding: 10px; */
+}
+
+.Actions.Center {
+    justify-content:center;
+}
+
+.Actions.Right {
+    justify-content:flex-end;
+}
+
+.Actions.Row > *:not(:first-child) {
+	margin-left:12px;
+}
+
+.Actions.Row > .Button, .Actions.Row .InheritActions > .Button {
+    align-self:stretch;
+}
+
+.Actions.Row {
+    height:100%;
+}
+
+.Actions.Row.H32 {
+    height:32px;
+}
+
+.Actions.Row.H36 {
+    height:36px;
+}
+
+.Actions.Row.H42 {
+    height:42px;
+}
+
+.Actions.Row.H48 {
+    height:48px;
+}
+
+.Actions.Row.H52 {
+    height:52px;
+}
+
+/* .Actions.Row.Auto {
+    padding-top:7px;
+    padding-bottom:7px;
+} */
+
+.Actions.Column {
+    width:100%;
+    flex-direction:column;
+}
+
+.Actions.Column > *:not(:first-child) {
+	margin-top:21px;
+}
+
+.Actions.Column.Full > .Button, .Actions.Column.Full .InheritActions > .Button {
+    width:100%; /* it may work with align-self:stretch and without width:100% */
+}
+
+.Actions.Column.H32 > .Button, .Actions.Column.H32 .InheritActions > .Button {
+    height:32px;
+}
+
+.Actions.Column.H36 > .Button, .Actions.Column.H36 .InheritActions > .Button {
+    height:36px;
+}
+
+.Actions.Column.H42 > .Button, .Actions.Column.H42 .InheritActions > .Button {
+    height:42px;
+}
+
+.Actions.Column.H48 > .Button, .Actions.Column.H48 .InheritActions > .Button {
+    height:48px;
+}
+
+.Actions.Column.H52 > .Button, .Actions.Column.H52 .InheritActions > .Button {
+    height:52px;
+}
+
+/* .Actions.Column.Auto > .Button, .Actions.Column.Auto .InheritActions > .Button {
+    padding-top:7px;
+    padding-bottom:7px;
+} */
+
+.Actions.Column.Left {
+    align-items:flex-start;
+}
+
+.Actions.Column.Left > .Button, .Actions.Column.Left .InheritActions > .Button {
+    width:auto;
+}
+
+.Actions.Column.Center {
+    align-items:center;
+}
+
+.Actions.Column.Center > .Button, .Actions.Column.Center .InheritActions > .Button {
+    width:auto;
+}
+
+.Actions.Column.Right {
+    align-items:flex-end;
+}
+
+.Actions.Column.Right > .Button, .Actions.Column.Right .InheritActions > .Button {
+    width:auto;
+}

@@ -1,0 +1,90 @@
+/* .RangeDatepickerPopper {
+    z-index: 2080;
+} */
+
+/* .RangeDatepickerPopper .react-datepicker {
+    color: var(--color-datepicker-foreground);
+    background: var(--color-datepicker-background);
+} */
+
+.RangeDatepickerWrapper .DatePickerInput {
+    align-items: flex-end;
+    border: 1px solid var(--color-primary);
+    border-radius: 4px;
+    padding: 7px 7px 6px 7px;
+}
+
+.RangeDatepickerWrapper .DatePickerInput .DateClearButton {
+    align-self: flex-start;
+    width: 16px; height: 16px;
+    cursor: pointer;
+}
+
+.RangeDatepickerWrapper .DatePickerInput .DatePickerSmallLetters {
+    flex: 0 0 auto;
+    font-size: 10px;
+    margin-right: 4px;
+}
+
+.RangeDatepickerWrapper .DatePickerInput .DatePickerInputText {
+    width: 0;
+    flex: 1 1 auto;
+    align-self: stretch;
+    font-size: 14px;
+    margin: 0 9px 0 0;
+}
+
+/* .RangeDatepickerPopper .react-datepicker__day--selected, .RangeDatepickerPopper .react-datepicker__day--in-selecting-range, .RangeDatepickerPopper .react-datepicker__day--in-range, .RangeDatepickerPopper .react-datepicker__month-text--selected, .RangeDatepickerPopper .react-datepicker__month-text--in-selecting-range, .RangeDatepickerPopper .react-datepicker__month-text--in-range, .RangeDatepickerPopper .react-datepicker__quarter-text--selected, .RangeDatepickerPopper .react-datepicker__quarter-text--in-selecting-range, .RangeDatepickerPopper .react-datepicker__quarter-text--in-range {
+    background: var(--color-datepicker-selected);
+    color: white !important;
+}
+
+.RangeDatepickerPopper .react-datepicker__day--selected:hover, .RangeDatepickerPopper .react-datepicker__day--in-selecting-range:hover, .RangeDatepickerPopper .react-datepicker__day--in-range:hover, .RangeDatepickerPopper .react-datepicker__month-text--selected:hover, .RangeDatepickerPopper .react-datepicker__month-text--in-selecting-range:hover, .RangeDatepickerPopper .react-datepicker__month-text--in-range:hover, .RangeDatepickerPopper .react-datepicker__quarter-text--selected:hover, .RangeDatepickerPopper .react-datepicker__quarter-text--in-selecting-range:hover, .RangeDatepickerPopper .react-datepicker__quarter-text--in-range:hover {
+    background: var(--color-datepicker-selected);
+}
+
+.RangeDatepickerPopper .react-datepicker__year-dropdown, .RangeDatepickerPopper .react-datepicker__month-dropdown, .RangeDatepickerPopper .react-datepicker__month-year-dropdown {
+    background: var(--color-datepicker-background);
+}
+
+.RangeDatepickerPopper .react-datepicker__year-option:hover, .RangeDatepickerPopper .react-datepicker__month-option:hover, .RangeDatepickerPopper .react-datepicker__month-year-option:hover {
+    background: var(--color-datepicker-content-background);
+} */
+
+/* .RangeDatepickerPopper .react-datepicker__day:hover, .RangeDatepickerPopper .react-datepicker__month-text:hover, .RangeDatepickerPopper .react-datepicker__quarter-text:hover {
+    background: var(--color-datepicker-background);
+    color: var(--color-datepicker-selected) !important;
+} */
+
+/* .RangeDatepickerPopper .react-datepicker__day-name, .RangeDatepickerPopper .react-datepicker__day, .RangeDatepickerPopper .react-datepicker__time-name {
+    color: var(--color-datepicker-foreground);
+} */
+
+/* .RangeDatepickerPopper .react-datepicker__current-month, .RangeDatepickerPopper .react-datepicker-time__header, .RangeDatepickerPopper .react-datepicker-year-header {
+    color: var(--color-datepicker-foreground);
+} */
+
+/* .RangeDatepickerPopper .react-datepicker__month-container {
+    background: var(--color-datepicker-content-background);
+    border-radius: inherit;
+} */
+
+/* .RangeDatepickerPopper .react-datepicker__month-container .RangeDatepickerPopper .react-datepicker__header {
+    background: var(--color-datepicker-background);
+    border-top-left-radius: inherit;
+    border-top-right-radius: inherit;
+}
+
+.RangeDatepickerPopper .react-datepicker__header__dropdown {
+    margin: 6px 0;
+}
+
+.RangeDatepickerPopper .react-datepicker__month-read-view--down-arrow, .RangeDatepickerPopper .react-datepicker__year-read-view--down-arrow {
+    margin-top: -4px;
+    margin-left: 30px;
+}
+
+.RangeDatepickerPopper .react-datepicker__navigation--years-upcoming, .RangeDatepickerPopper .react-datepicker__navigation--years-previous {
+    width: 0; height: 0;
+} */
+

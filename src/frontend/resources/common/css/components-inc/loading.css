@@ -1,0 +1,24 @@
+.LoadingComponent {
+    overflow:hidden;
+}
+
+.LoadingComponent.Center {
+    width:100%;
+}
+
+.LoadingComponent.AbsoluteCenter {
+    width:100%; height:100%; display:flex;
+    position:absolute;
+    left:0; top:0;
+}
+
+.LoadingComponent .SVG.Size {
+    width:64px; height:64px;
+    color: var(--color-primary);
+}
+
+.LoadingComponent svg {
+    display:block;
+    margin:auto;
+    animation:LOADING_ANIMATION 1s linear infinite;
+}

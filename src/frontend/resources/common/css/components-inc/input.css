@@ -1,0 +1,73 @@
+.Input {
+    width: 100%;
+}
+
+.Input .MuiFormControl-root {
+    width: 100%;
+    margin: 0 !important;
+}
+
+.Input .MuiInputBase-root {
+    color: var(--color-input-text);
+}
+
+.Input .MuiInputBase-root.MuiInputBase-multiline {
+    padding: 0;
+}
+
+.Input .MuiInputBase-root.Mui-disabled {
+    color: var(--color-text);
+    opacity: 0.2;
+    pointer-events: none;
+}
+
+/* label color default */
+.Input .MuiFormLabel-root {
+    color: var(--color-input-label);
+}
+
+/* label color on focus */
+.Input .MuiFormLabel-root.Mui-focused {
+    color: var(--color-input-focused);
+}
+
+/* label color on error */
+.Input .MuiFormLabel-root.Mui-error:not(.Mui-focused) {
+    color: var(--color-red);
+}
+
+/* border color */
+.Input .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+    border-color:var(--color-input-border);
+    transition-property: border-color, color;
+    transition-duration: 0.45s;
+}
+
+/* border color on hover */
+html:not(.Touchable) .Input .MuiOutlinedInput-root:not(.Mui-disabled):hover .MuiOutlinedInput-notchedOutline {
+    border-color: var(--color-input-border-hover);
+}
+
+/* border color on focus */
+.Input .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: var(--color-input-focused) !important;
+}
+
+/* border color on error */
+.Input .MuiOutlinedInput-root.Mui-error:not(.Mui-focused) .MuiOutlinedInput-notchedOutline {
+    border-color: var(--color-red) !important;
+}
+
+@-webkit-keyframes autofill {
+    0%, 100% {
+        color: inherit;
+        background: transparent;
+    }
+}
+
+.InputComponent input:-webkit-autofill {
+    -webkit-animation-delay: 1s;
+    -webkit-animation-name: autofill;
+    -webkit-animation-fill-mode: both;
+    -webkit-text-fill-color: var(--color-text);
+}

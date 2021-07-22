@@ -1,0 +1,15 @@
+Create a dummy page for testing components. Clone PageNotFound or PageLogin
+Update favicon
+Update font(s)
+Update common/css/content.css for global theme settings (v-*/css/content.css for local)
+Update Select.jsx/.css
+Update SelectSearchable.jsx/.css
+Update Input.jsx/.css
+Update Checkbox.jsx/.css
+Update Table.jsx/.css
+Update Tooltip.jsx/.css
+Update AbsPopupComponent.jsx/.css
+
+Update PageNotFound Layout
+Create Header/Footer for each v-*
+Setup versions (v-user, v-platform, v-cpanel, c-cadmin)

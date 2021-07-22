@@ -1,0 +1,212 @@
+:root {
+    --color-primary: #FF314E;
+    --color-secondary: #262b31;
+    --color-red:#bb0000;
+    --color-green:#2AD791;
+    --color-dark-gray: #425062;
+
+    --color-body-background:#fff;
+
+    /* theme */
+    --color-input-text: #000;
+    --color-input-label: var(--color-dark-gray);
+    --color-input-focused: #262b31;
+    --color-input-border: var(--color-dark-gray);
+    --color-input-border-hover: #262b31;
+    --color-select-icon: var(--color-dark-gray);
+    --color-select-icon-focused: #262b31;
+    --color-select-highlight: rgba(0, 0, 0, 0.1);
+    --color-select-multi-item-color: #fff;
+    --color-select-multi-item-background: #9FB0C5;
+    --color-select-multi-delete-icon: #fff;
+
+    --color-popover-text: var(--color-dark-gray);
+    --color-popover-border: var(--color-dark-gray);
+    --color-popover-background: #fff;
+
+    --color-tooltip-text: var(--color-dark-gray);
+    --color-tooltip-border: var(--color-dark-gray);
+    --color-tooltip-background: #fff;
+
+    --color-checkbox-fill: #fff;
+    --color-checkbox-background: #262b31;
+    --color-checkbox-border: #262b31;
+    --color-checkbox-border-active: #262b31;
+
+    --color-datepicker-foreground: var(--color-dark-gray);
+    --color-datepicker-background: #fff;
+    --color-datepicker-content-background: #9FB0C5;
+    --color-datepicker-selected: var(--color-primary);
+
+    --color-popup-background: #fff;
+    /* theme */
+    
+    --mobile-spacing: 24px;
+    --desktop-spacing: 32px;
+}
+
+html {
+	color:#000;
+    font-family:BeseirCircle, sans-serif; font-weight:400; font-size:16px;
+    scroll-behavior: smooth;
+    background:var(--color-body-background);
+}
+
+body {
+    min-width:calc(1200px + 48px);
+}
+
+/* SVG */
+.SVG {
+    display:inline-flex;
+    align-items:center; justify-content:center;
+}
+
+.SVG.Size > svg {
+    width:100%; height:100%;
+}
+
+.ImgCoverNode {
+    background-position:center;
+    background-size:cover;
+    background-repeat:no-repeat;
+}
+
+.ImgContainNode {
+    background-position:center;
+    background-size:contain;
+    background-repeat:no-repeat;
+}
+
+img.CoverNode {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center;
+    border-radius: inherit;
+}
+
+/* Site */
+.SiteContent {
+    width:100%; min-width:calc(1200px + 2 * var(--desktop-spacing)); max-width:calc(1600px + 2 *  var(--desktop-spacing));
+    box-sizing:border-box;
+    padding-left:var(--desktop-spacing); padding-right:var(--desktop-spacing);
+    margin-left:auto; margin-right:auto;
+}
+
+.SiteContent.SmallContent {
+    width:370px; min-width:auto;
+}
+
+html.OverflowHidden {
+    overflow:hidden;
+}
+
+.Heading1 {
+    font-size: 54px; font-weight: 700;
+}
+
+.Heading2 {
+    font-size: 42px; font-weight: 700;
+}
+
+.Heading3 {
+    font-size: 32px;
+}
+
+.Heading4 {
+    text-transform: uppercase;
+    font-size: 24px; font-weight: 700;
+}
+
+.Heading5 {
+    font-size: 22px;
+}
+
+.Heading6 {
+    font-size: 14px;
+}
+
+@media (max-width: 749px) {
+
+    .Heading1 {
+        font-size: 30px;
+    }
+    
+    .Heading2 {
+        font-size: 24px;
+    }
+    
+    .Heading3 {
+        font-size: 18px;
+    }
+    
+    .Heading4 {
+        font-size: 14px;
+    }
+    
+    .Heading5 {
+        font-size: 12px;
+    }
+    
+    .Heading6 {
+        font-size: 5px;
+    }
+
+}
+
+.LabelInfo {
+    color: #fff;
+    text-transform: uppercase;
+    font-size: 12px; font-weight: 700;
+    opacity: 0.6;
+}
+
+.P {
+    /* font-family:'IBMPlexSans'; */
+}
+
+.PSmall {
+    font-family:'IBMPlexSans';
+    font-size: 14px;
+}
+
+/* PageContent */
+.PageMarginTop {
+    margin-top:98px;
+}
+
+.PageMarginBottom {
+    margin-top:112px;
+}
+
+/* .Page {
+    transition-property:filter;
+} */
+
+/* .Page.BlurPopup, .Page.BlurAlert {
+    filter:blur(8px);
+} */
+
+/* Scrolls */
+.Scrolls {
+    scrollbar-color:var(--color-primary) transparent;
+    scrollbar-width:thin;
+}
+
+.Scrolls::-webkit-scrollbar {
+    width:6px; height:6px;
+}
+
+.Scrolls::-webkit-scrollbar-track {
+    background:none;
+}
+ 
+.Scrolls::-webkit-scrollbar-thumb {
+    border-radius:3px;
+    background:var(--color-primary);
+}
+
+/* Mui font fix */
+*[class*="-root"], *[class^="Mui"] {
+    font-family: inherit !important;
+}

@@ -1,0 +1,31 @@
+.CheckboxComponent {
+    color: var(--color-input-label);
+    text-align: left;
+    font-size: 14px;
+}
+
+.CheckboxComponent .SVG.Checkbox {
+    width: 16px; height: 16px;
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    color: var(--color-checkbox-fill);
+    border: 1px solid var(--color-checkbox-border);
+    border-radius: 3px;
+    margin-right:8px;
+    transition-property: background-color, border-color;
+}
+
+.CheckboxComponent .SVG.Checkbox svg {
+    opacity: 0;
+    transition-duration:inherit;
+    transition-property: opacity;
+}
+
+.CheckboxComponent.Active .SVG.Checkbox {
+    background: var(--color-checkbox-background);
+    border-color: var(--color-checkbox-border-active);
+}
+
+.CheckboxComponent.Active .SVG.Checkbox svg {
+    opacity: 1;
+}

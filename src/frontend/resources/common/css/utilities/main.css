@@ -1,0 +1,230 @@
+/* version 1.3.2 */
+
+html {
+    height:100%;
+    overflow-y:auto;
+}
+
+/* mobile browser on popup visible */
+html[class*='OverflowHidden'] {
+    overscroll-behavior: none;
+    overflow: hidden;
+}
+
+/*
+In webview to prevent safari bounce 
+In this case scroll behaviour must be manage in some other container. This usually comes out of the box because of common PageView wrapper that is actually SPA main container
+This css snipper must be added in some content.css file in order to be applied only for specific v-* 
+html {
+    width: 100%;
+    position: fixed;
+    left: 0; top: 0;
+}
+*/
+
+body {
+    height:100%;
+    padding:0;
+    margin:0;
+    overflow: visible !important; /* this one prevents material UI from overwrite it */
+}
+
+.ReactEntryPoint, .ReactBody {
+    width:100%; height:100%;
+}
+
+.ReactBody > .Page {
+    width:100%; min-height:100%;
+    display:flex; flex-direction:column;
+}
+
+/* Internet Explorer only (excluding Edge) */
+/* @media all and (-ms-high-contrast:none) {
+    .ReactBody {
+        position:relative;
+    }
+} */
+
+input, textarea, select, button {
+    font:inherit;
+    border-radius:0px;
+    outline:none;
+    box-shadow:none;
+}
+
+input.Clean, textarea.Clean, select.Clean {
+    padding:0;
+    border:0;
+    margin:0;
+    background:none;
+}
+
+input::-ms-clear {
+    display:none;
+}
+
+div {
+    outline:none;
+}
+
+input[type="file"] {
+    display:none;
+}
+
+textarea {
+    resize:none;
+    overflow:auto;
+}
+
+img {
+    border:none;
+    outline:none;
+}
+
+a {
+    color:inherit;
+    text-decoration:none;
+    border:none;
+    outline:none;
+}
+
+article, footer, header, main, menu, menuitem, nav, section, div {
+    float:none; display:block;
+	padding:0px;
+	margin:0px;
+}
+
+label {
+    cursor:inherit;
+}
+
+.Clean:after {
+    content: "";
+    display:block;
+    clear:both;
+}
+
+.Clickable {
+    cursor:pointer;
+}
+
+.Mouse {
+    cursor:auto;
+}
+
+.Dots {
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    overflow:hidden;
+}
+
+/* Transitions */
+.Transition, .Transition:after, .Transition:before {
+    transition-duration:0.4s;
+}
+
+.VisibilityHidden {
+    visibility:hidden !important;
+    pointer-events:none !important;
+}
+
+.DisplayHidden {
+    display:none !important;
+}
+
+.ActiveDisplayHidden:not(.Active) {
+    width:0 !important; height:0 !important;
+    overflow:hidden !important;
+    padding:0 !important;
+    margin:0 !important;
+}
+
+.ActiveDisplayHidden.Transition:not(.Active) {
+    opacity:0;
+}
+
+.ActiveVisibilityHidden:not(.Active) {
+    opacity:0;
+    pointer-events:none;
+}
+
+/* .ActiveVisibilityHidden.Transition:not(.Active) {
+    transition-property:opacity;
+} */
+
+@media (hover: hover) {
+
+.HoverHidden {
+    pointer-events: none;
+    opacity: 0;
+}
+
+html:not(.Touchable) .HoverHiddenTrigger:hover .HoverHidden {
+    pointer-events: auto;
+    opacity: 1;
+}
+
+}
+
+.ActiveDisplayHidden.Transition, .ActiveVisibilityHidden.Transition, .HoverHidden {
+    transition-property:opacity;
+}
+
+/* Flex */
+.FlexSplit {
+	display:flex;
+}
+
+.FlexSplit > .StartRight {
+	margin-left:auto !important;
+}
+
+.FlexSplit > .StartRightBlock {
+    height:100%;
+    display:inherit; flex-direction:inherit;
+    align-items:inherit; justify-content:inherit;
+    margin-left:auto !important;
+}
+
+.FlexSingleCenter {
+    display:flex; align-items:center; justify-content:center;
+}
+
+.FlexRow {
+    display:flex; align-items:center;
+}
+
+.FlexColumn {
+    display:flex; flex-direction:column;
+}
+
+*, *:after, *:before {
+    transition-property:none;
+
+    -webkit-tap-highlight-color:transparent;
+    -webkit-overflow-scrolling:touch;
+
+    /* -ms-user-select:none;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    user-select:none; */
+}
+
+input, textarea, select {
+    /* -ms-user-select:text;
+    -webkit-user-select:text;
+    -moz-user-select:text;
+    user-select:text; */
+}
+
+.Selectable {
+    /* -ms-user-select:text;
+    -webkit-user-select:text;
+    -moz-user-select:text;
+    user-select:text; */
+}
+
+select::-ms-value {
+    color:inherit;
+    background: transparent;
+}

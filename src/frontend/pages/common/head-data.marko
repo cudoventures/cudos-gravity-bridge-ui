@@ -1,0 +1,99 @@
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+
+<title id="meta_title">${input.META.TITLE}</title>
+<meta id="meta_desc" name="description" content=`${input.META.DESC}` />
+<meta name="keywords" content=`${input.META.KEYWORDS}` />
+<meta name="robots" content=`${input.META.ROBOTS}` />
+
+<link rel="canonical" href=`${input.META.PAGE_URL}` />
+<meta property="og:title" content=`${input.META.TITLE}` />
+<meta property="og:type" content="website" />
+<meta property="og:url" content=`${input.META.PAGE_URL}` />
+<meta property="og:image" content=`${input.Config.URL.Resources.General.IMG}/landing/social.jpg` />
+<meta property="og:site_name" content=`${input.META.TITLE}` />
+<meta property="og:description" content=`${input.META.DESC}` />
+<meta property="og:image:secure_url" content=`${input.Config.URL.Resources.General.IMG}/landing/social.jpg` />
+
+<link rel="icon" type="image/png" href=`${input.Config.URL.RESOURCES}/common/img/favicon/favicon-16x16.png` sizes="16x16">
+<link rel="icon" type="image/png" href=`${input.Config.URL.RESOURCES}/common/img/favicon/favicon-32x32.png` sizes="32x32">
+<link rel="icon" type="image/png" href=`${input.Config.URL.RESOURCES}/common/img/favicon/favicon-96x96.png` sizes="96x96">
+<link rel="icon" type="image/png" href=`${input.Config.URL.RESOURCES}/common/img/favicon/favicon-192x192.png` sizes="192x192">
+
+<link rel="preload" href=`${input.Config.URL.RESOURCES}/common/fonts/BasierCircle-Regular.woff2` as="font"  type="font/woff2" crossorigin />
+<link rel="preload" href=`${input.Config.URL.RESOURCES}/common/fonts/BasierCircle-SemiBold.woff2` as="font"  type="font/woff2" crossorigin />
+<link rel="preload" href=`${input.Config.URL.RESOURCES}/common/fonts/BasierCircle-Bold.woff2` as="font"  type="font/woff2" crossorigin />
+
+<script>
+(function() {
+    var user_agent = navigator.userAgent;
+    if (user_agent.indexOf('MSIE') === -1  &&  user_agent.indexOf('rv:11') === -1)
+        return;
+    
+    var func, name;
+    if (window.attachEvent !== undefined) {
+        func = window.attachEvent;
+        name = 'onload';
+    } else {
+        func = window.addEventListener;
+        name = 'load';
+    }
+
+    func(name, function() {
+        var container = document.createElement("div");
+        container.style.position = "fixed";
+        container.style.top = container.style.left = "0";
+        container.style.width = container.style.height = "100%";
+        container.style.textAlign = "center";
+        container.style.fontFamily = "sans-serif";
+        container.style.color = "#bbb";
+        container.style.background = "#111";
+        container.style.overflow = 'auto';
+        container.style.zIndex = 100000000;
+        container.innerHTML = '<div style="max-width:768px; padding-top:80px; margin:auto;">\
+                                    <div style="font-size:28px; font-weight:bold;">Mogul does not support the browser you are currently using.</div>\
+                                    <div style="margin-top:32px; font-size:24px;">Please, use latest version of some of the following free browsers or some other Chromium/Firefox based browser you have like Opera/Vivaldi.</div>\
+                                    <table cellspacing="0" cellpadding="0" style="width:100%; margin:96px 0 64px 0;">\
+                                        <tr>\
+                                            <td width="20%">\
+                                                <a target="_blank" href="https://www.mozilla.org/en-US/firefox/new/">\
+                                                    <img src="$!{input.Config.URL.RESOURCES}/common/img/legacy/firefox.png" style="margin-bottom:8px" /><br />\
+                                                    Mozilla Firefox\
+                                                </a>\
+                                            </td>\
+                                            <td width="20%">\
+                                                <a target="_blank" href="https://www.google.com/chrome/browser/desktop/index.html">\
+                                                    <img src="$!{input.Config.URL.RESOURCES}/common/img/legacy/chrome.png" style="margin-bottom:8px" /><br />\
+                                                    Google Chrome\
+                                                </a>\
+                                            </td>\
+                                            <td width="20%">\
+                                                <a target="_blank" href="https://www.apple.com/safari/">\
+                                                    <img src="$!{input.Config.URL.RESOURCES}/common/img/legacy/safari.png" style="margin-bottom:8px" /><br />\
+                                                    Safari\
+                                                </a>\
+                                            </td>\
+                                            <td width="20%">\
+                                                <a target="_blank" href="https://brave.com/download/">\
+                                                    <img src="$!{input.Config.URL.RESOURCES}/common/img/legacy/brave.png" style="margin-bottom:8px" /><br />\
+                                                    Brave\
+                                                </a>\
+                                            </td>\
+                                            <td width="20%">\
+                                                <a target="_blank" href="http://www.microsoft.com/en-us/windows/microsoft-edge">\
+                                                    <img src="$!{input.Config.URL.RESOURCES}/common/img/legacy/edge.png" style="margin-bottom:8px" /><br />\
+                                                    Microsoft Edge<br />\
+                                                </a>\
+                                            </td>\
+                                        </tr>\
+                                    </table>\
+                                    <div style="font-size:18px;">Thank you for your understanding</div>\
+                                </div>';
+        document.body.appendChild(container);
+    });
+})();
+</script>
+<script>
+var TR = $!{input.TR_STRING};
+</script>

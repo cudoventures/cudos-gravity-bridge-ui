@@ -1,0 +1,63 @@
+.SelectSearchable {
+    width: 100%;
+}
+
+.SelectSearchable .MuiFormControl-root {
+    width: 100%;
+    margin: 0 !important;
+}
+
+/*Icons color*/
+.SelectSearchable .MuiIconButton-label {
+    color: var(--color-select-icon);
+}
+
+/*Icons color on focus*/
+.SelectSearchable .Mui-focused .MuiIconButton-label {
+    color: var(--color-select-icon-focused);
+}
+
+.SelectSearchable .MuiChip-root {
+    height: 22px !important;
+    color: var(--color-select-multi-item-color);
+    background: var(--color-select-multi-item-background);
+}
+
+.SelectSearchable .css-1okebmr-indicatorSeparator {
+    display: none;
+}
+
+.SelectSearchable .MuiInput-underline:after {
+    display: none;
+}
+
+.SelectSearchable .MuiInput-underline:before {
+    display: none !important;
+}
+
+.SelectSearchable .MuiChip-deleteIcon {
+    height: 16px !important; width: 16px !important;
+    color: var(--color-select-multi-delete-icon);
+}
+
+#searchable-select-popper {
+    z-index: 4096 !important;
+}
+
+#searchable-select-popper .MuiPaper-root.MuiAutocomplete-paper {
+    color: var(--color-input-text) !important;
+    border: 1px solid var(--color-popover-border);
+    background: var(--color-popover-background) !important;
+}
+
+#searchable-select-popper .MuiPaper-root.MuiAutocomplete-paper .MuiAutocomplete-noOptions {
+    color: var(--color-input-label);
+}
+
+#searchable-select-popper .MuiPaper-root.MuiAutocomplete-paper .MuiAutocomplete-option[data-focus="true"] {
+    background: var(--color-select-highlight);
+}
+
+#searchable-select-popper .MuiPaper-root.MuiAutocomplete-paper .MuiListItem-button.Mui-selected {
+    background: var(--color-select-highlight);
+}

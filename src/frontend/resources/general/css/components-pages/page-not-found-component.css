@@ -1,0 +1,14 @@
+.PageNotFound .Page {
+    position:relative;
+}
+
+.PageNotFound .PageContent {
+    align-items:center;
+    position:relative;
+    margin:64px 0;
+}
+
+.PageNotFound .PageContent .Heading2 {
+    text-align:center;
+    margin-bottom:48px;
+}

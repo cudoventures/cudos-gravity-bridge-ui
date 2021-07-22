@@ -1,0 +1,21 @@
+import headData from './../common/head-data.marko'
+import pageLoading from './../common/page-loading.marko'
+<!DOCTYPE html>
+
+<html>
+
+<head>
+	<${headData} ...input/>
+    <script async src=`${input.Config.URL.Resources.General.VIEW}/vendor.js`></script>
+    <link rel="stylesheet" href=`${input.Config.URL.Resources.General.VIEW}/vendor.css` />
+    <script async src=`${input.Config.URL.Resources.General.VIEW}/NotFoundPage/bundle.js`></script>
+    <link rel="stylesheet" href=`${input.Config.URL.Resources.General.VIEW}/NotFoundPage/bundle.css` />
+    <style>$!{input.CSS.PAGE_LOADING}</style>
+</head>
+
+<body>
+    <div class="ReactEntryPoint"></div>
+    <${pageLoading} ...input/>
+</body>
+
+</html>

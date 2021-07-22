@@ -1,0 +1,21 @@
+.Paging {
+    display: flex;
+    align-items: center; justify-content: center;
+    color: var(--color-secondary);
+    font-size: 14px;
+    padding: 32px;
+}
+
+.Paging .IconArrow {
+    width: 16px; height: 16px;
+}
+
+.Paging > div {
+    padding: 7px 12px;
+    margin: 0 4px;
+}
+
+.Paging > div.Active {
+    color: var(--color-primary);
+    font-weight:700;
+}

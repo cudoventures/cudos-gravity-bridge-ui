@@ -1,0 +1,95 @@
+{
+    "env": {
+        "browser": true,
+        "node": true,
+        "es6": true,
+        "jest": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended",
+        "airbnb-base",
+        "plugin:import/errors",
+        "plugin:import/warnings",
+        "plugin:import/typescript"
+    ],
+    "rules": {
+        "linebreak-style": "off",
+        "padded-blocks": "off",
+        "lines-between-class-members": "off",
+        "object-curly-newline": "off",
+        "arrow-body-style": "off",
+        "no-continue": "off",
+        "no-param-reassign": "off",
+        "no-useless-constructor": "off",
+        "class-methods-use-this": "off",
+        "no-multi-str": "off",
+        "vars-on-top": "off",
+        "no-await-in-loop": "off",
+        "radix": 0,
+        "no-plusplus": "off",
+        "no-bitwise": "off",
+        "no-undef": [ "error" ],
+        "prefer-destructuring": [ "error", { "array": false, "object": false }, { "enforceForRenamedProperties": false } ],
+        "max-len": [ "error", { "code": 1000 } ],
+        "indent": [ "error", 4, { "SwitchCase": 1 } ],
+        "semi": "off",
+        "no-unused-vars": "off",
+        "no-console": [ "warn", { "allow": [ "log", "warn", "error" ] } ],
+        "no-empty": [ "error", { "allowEmptyCatch": true } ],
+        "no-fallthrough": "warn",
+        "quotes": [ "warn", "single" ],
+        "one-var": "off",
+        "one-var-declaration-per-line": "off",
+        "nonblock-statement-body-position": "off",
+        "no-extend-native": "off",
+        "import/no-extraneous-dependencies": "off",
+        "import/no-useless-path-segments": "off",
+        "prefer-rest-params": "off",
+        "no-use-before-define": "off",
+        "quote-props": "off",
+        "import/order": "off",
+        "arrow-parens": [2, "always"],
+        "no-multi-assign": "off",
+        "dot-notation": "off",
+        "newline-per-chained-call": "off",
+        "import/extensions": [ "error", "ignorePackages", {
+            "js": "never",
+            "jsx": "never",
+            "ts": "never",
+            "tsx": "never"
+        } ],
+        "import/prefer-default-export": "off",
+        "max-classes-per-file": "off"
+    },
+    "globals": {
+        "PLATFORM": false
+    },
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": 2017,
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "jsx": true
+        },
+        "allowImportExportEverywhere": true
+    },
+    "plugins": [
+        "react"
+    ],
+    "settings": {
+        "import/resolver": {
+            "node": {
+                "extensions": [
+                    ".js",
+                    ".jsx",
+                    ".ts",
+                    ".tsx",
+                    ".css",
+                    ".json",
+                    ".svg"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,45 @@
+/* version 2.0 */
+.AlertWrapper {
+    width:100%; height:100%;
+    display:flex;
+    align-items:center; justify-content:center;
+    position:fixed;
+    left:0; top:0;
+    font-size:16px;
+    background:rgba(0, 0, 0, 0.5);
+    z-index:4098;
+}
+
+.AlertWrapper > .Alert {
+    width:280px; max-width:90%;
+    box-sizing:border-box;
+    font-weight:400;
+    padding:16px;
+    border-radius:4px;
+    opacity:0;
+    background:#fff;
+}
+
+.AlertWrapper.Active > .Alert {
+    opacity:1;
+}
+
+.Alert > .Msg {
+    max-height:384px;
+    text-align:left;
+    margin-bottom:16px;
+    overflow:auto;
+}
+
+.Alert .StartRight {
+    display:flex;
+}
+
+.Alert .TextButton {
+	color: var(--color-primary);
+    text-transform:uppercase;
+    font-weight:700; font-size: 12px;
+    border-radius:4px;
+    padding:4px 12px;
+    cursor:pointer;
+}
