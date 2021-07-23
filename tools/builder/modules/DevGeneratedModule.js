@@ -152,6 +152,9 @@ class DevGeneratedModule {
         const config = {
             'URL': Config.URL,
             'APIS': Config.APIS,
+            'CUDOS_NETWORK': Config.CUDOS_NETWORK,
+            'ORCHESTRATOR': Config.ORCHESTRATOR,
+            'ETHEREUM': Config.ETHEREUM,
         };
 
         fs.writeFileSync(path.join(Config.Path.Builds.DEV_GENERATED, 'Config.ts'), `const Config = ${JSON.stringify(config)}; export default Config;`);

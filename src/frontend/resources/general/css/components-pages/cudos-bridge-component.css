@@ -16,6 +16,7 @@
 .CudosBridge .SendForm {
     background-color: var(--color-primary);
     align-items: center;
+    padding: 50px;
 }
 
 .CudosBridge .SendForm .NetworkSelectMenu {

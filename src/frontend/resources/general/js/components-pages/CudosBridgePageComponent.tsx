@@ -29,22 +29,21 @@ interface Props extends ContextPageComponentProps {
 interface State {
     selectedFromNetwork: number,
     selectedToNetwork: number,
-    amount: number,
+    amount: string,
     maxAmount: number,
     amountError: number,
     destinationAddress: string,
     destiantionAddressError: number,
 }
 
-
 export default class CudosBridgeComponent extends ContextPageComponent < Props, State > {
+
+    inputTimeouts: any;
 
     static layout() {
         const MobXComponent = inject('appStore', 'networkStore')(observer(CudosBridgeComponent));
         PageComponent.layout(<MobXComponent />);
     }
-
-
 
     constructor(props: Props) {
         super(props);
@@ -57,6 +56,11 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
             destinationAddress: S.Strings.EMPTY,
             destiantionAddressError: S.INT_FALSE,
         }
+
+        this.inputTimeouts = {
+            'amount': null,
+            'destiantionAddress': null,
+        }
     }
 
     getPageLayoutComponentCssClassName() {
@@ -65,68 +69,70 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
 
     onSelectFromNetwork = (value) => {
         this.setState({
-            selectedFromNetwork: value
+            selectedFromNetwork: value,
         })
     }
 
     onSelectToNetwork = (value) => {
         this.setState({
-            selectedToNetwork: value
+            selectedToNetwork: value,
         })
     }
 
     onClickMaxAmount = () => {
-        //TODO: get max amount on account
+        // TODO: get max amount on account
         const maxAmount = 100;
         this.setState({
-            amount: maxAmount
+            amount: maxAmount,
         })
     }
 
-    onChangeAmount = (value) => {
-        let amount = parseInt(value);
-
-        if(!amount){
-            amount = 0;
-        }
-
-        if(amount > this.state.maxAmount){
-            this.setState({
-                amountError: S.INT_TRUE,
-            })
-        }
-
+    onChangeAmount = (amount) => {
         this.setState({
-            amount: amount
+            amount,
+            amountError: S.INT_FALSE,
         })
+
+        clearTimeout(this.inputTimeouts.amount);
+        this.inputTimeouts.destiantionAddress = setTimeout(() => {
+            if (!Number(amount) || amount > this.state.maxAmount) {
+                this.setState({
+                    amountError: S.INT_TRUE,
+                })
+            }
+        }, 1000);
     }
 
-    onChangeDestinationAddress = (value) => {
-
-        if(!this.isAddressValid(value)){
-            this.setState({
-                destiantionAddressError: S.INT_TRUE
-            })
-
-            return;
-        }
-
+    onChangeDestinationAddress = (address) => {
         this.setState({
-            destinationAddress: value
+            destinationAddress: address,
+            destiantionAddressError: S.INT_FALSE,
         })
+
+        clearTimeout(this.inputTimeouts.destiantionAddress);
+
+        this.inputTimeouts.destiantionAddress = setTimeout(() => {
+            if (!this.isAddressValid(this.state.destinationAddress)) {
+
+                this.setState({
+                    destiantionAddressError: S.INT_TRUE,
+                })
+            }
+
+        }, 1000);
     }
 
     onClickSend = async () => {
         const networkId = this.state.selectedFromNetwork;
         const ledger = this.props.networkStore.networkHolders[networkId].ledger;
 
-        if(!ledger.connected){
+        if (!ledger.connected) {
             await this.connectWallet(networkId);
         }
 
-        try{
+        try {
             ledger.send(this.state.amount, this.state.destinationAddress);
-        }catch(e){
+        } catch (e) {
             console.log(e);
         }
     }
@@ -135,7 +141,7 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
         const networkId = this.state.selectedFromNetwork;
 
         this.connectWallet(networkId);
-        
+
     }
 
     connectWallet = async (networkId: number) => {
@@ -143,66 +149,88 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
 
         const ledger = networkHolders[networkId].ledger;
 
-        if(ledger.connected){
+        if (ledger.connected) {
             return;
         }
 
-        try{
+        try {
             const newLedger = networkHolders[networkId].ledger;
 
-            newLedger.connect(window);
-            
-        }catch(e){
+            await newLedger.connect(window);
+
+        } catch (e) {
             console.log(e);
         }
+    }
+
+    isAddressValid = (address) => {
+        const ledger = this.props.networkStore.networkHolders[this.state.selectedToNetwork].ledger;
+
+        return ledger.isAddressValid(address);
     }
 
     renderContent() {
         return (
             <div style = { { 'width': '1000px', 'height': '500px', 'margin': 'auto' } } className = { 'FlexSingleCenter' } >
-                <LayoutBlock className = { "SendForm" } >
+                <LayoutBlock className = { 'SendForm' } >
                     <h2>Send CUDOS</h2>
-                    <LayoutBlock direction = { LayoutBlock.DIRECTION_ROW } className = { "NetworkSelectMenu" }>
-                        <LayoutBlock className = { "NetworkSelect" }>
+                    <LayoutBlock direction = { LayoutBlock.DIRECTION_ROW } className = { 'NetworkSelectMenu' }>
+                        <LayoutBlock className = { 'NetworkSelect' }>
                             <h3>From</h3>
                             <Select
-                                label = { 'From network' } 
+                                label = { 'From network' }
                                 onChange = { this.onSelectFromNetwork }
                                 value = { this.state.selectedFromNetwork }>
                                 {this.props.networkStore.networkHolders.map((network, i) => <MenuItem key = { i } value = { i } >{ network.name }</MenuItem>)}
                             </Select>
                         </LayoutBlock>
-                        <LayoutBlock className = { "NetworkSelect" }>
+                        <LayoutBlock className = { 'NetworkSelect' }>
                             <h3>To</h3>
                             <Select
-                                label = { 'To network' } 
+                                label = { 'To network' }
+                                disabled = {this.state.selectedFromNetwork === S.NOT_EXISTS}
                                 onChange = { this.onSelectToNetwork }
                                 value = { this.state.selectedToNetwork }>
-                                    {this.props.networkStore.networkHolders.map((network, i) => i != this.state.selectedFromNetwork ? <MenuItem key = { i } value = { i } >{ network.name }</MenuItem> : null)}
+                                {this.props.networkStore.networkHolders.map((network, i) => (i != this.state.selectedFromNetwork ? <MenuItem key = { i } value = { i } >{ network.name }</MenuItem> : null))}
                             </Select>
                         </LayoutBlock>
                     </LayoutBlock>
 
-                    <LayoutBlock className = { "Inputs" }>
-                        <div className = { "FlexRow" }>
-                            <Input label = { `Amount: ( max = ${this.state.maxAmount} )` } value = {this.state.amount} onChange = { this.onChangeAmount } InputProps = {{endAdornment: <div>CUDOS</div>}} error = { this.state.amountError === S.INT_TRUE}/>
+                    <LayoutBlock className = { 'Inputs' }>
+                        <div className = { 'FlexRow' }>
+                            <Input
+                                label = { `Amount: ( max = ${this.state.maxAmount} )` }
+                                value = {this.state.amount}
+                                disabled = {this.state.selectedToNetwork === S.NOT_EXISTS}
+                                onChange = { this.onChangeAmount }
+                                InputProps = {{ endAdornment: <div>CUDOS</div> }}
+                                error = { this.state.amountError === S.INT_TRUE}/>
                             <Button type = { Button.TYPE_ROUNDED } color = { Button.COLOR_SCHEME_1 } onClick = { this.onClickMaxAmount }>MAX</Button>
                         </div>
-                        <Input label = { 'Destination address' } value = {this.state.destinationAddress} onChange = { this.onChangeDestinationAddress }/>
+                        <Input
+                            label = { 'Destination address' }
+                            disabled = {this.state.selectedToNetwork === S.NOT_EXISTS}
+                            value = {this.state.destinationAddress}
+                            onChange = { this.onChangeDestinationAddress }
+                            error = { this.state.destiantionAddressError === S.INT_TRUE}/>
                     </LayoutBlock>
-                    { this.state.selectedFromNetwork !== S.NOT_EXISTS ? 
-                        this.props.networkStore.networkHolders[this.state.selectedFromNetwork].ledger.connected === S.INT_TRUE?
-                            <Button type = { Button.TYPE_ROUNDED } color = { Button.COLOR_SCHEME_1 } onClick = { this.onClickSend }>Send</Button>
-                            : <Button type = { Button.TYPE_ROUNDED } color = { Button.COLOR_SCHEME_1 } onClick = { this.onClickConnectWallet }>Connect Wallet</Button>
-                         : ''}
+                    { this.renderSendButton() }
                 </LayoutBlock>
             </div>
         )
     }
 
-    isAddressValid = (address) => {
-        //TODO: check address valid based on destiantion network
+    renderSendButton = () => {
+        if (this.state.selectedFromNetwork !== S.NOT_EXISTS) {
+            if (this.props.networkStore.networkHolders[this.state.selectedFromNetwork].ledger.connected === S.INT_TRUE) {
+                return <Button type = { Button.TYPE_ROUNDED } color = { Button.COLOR_SCHEME_1 } onClick = { this.onClickSend }>Send</Button>
+            }
 
-        return true;
+            return <Button type = { Button.TYPE_ROUNDED } color = { Button.COLOR_SCHEME_1 } onClick = { this.onClickConnectWallet }>Connect Wallet</Button>
+
+        }
+
+        return '';
     }
+
 }

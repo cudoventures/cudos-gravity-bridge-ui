@@ -185,6 +185,22 @@ const Config = {
         CADMIN: `${URL_ROOT}/cadmin`,
         API: `${URL_ROOT}/api`,
     },
+    CUDOS_NETWORK: {
+        CHAIN_ID: process.env.CHAIN_ID,
+        RPC: process.env.RPC,
+        API: process.env.API,
+        GAS_PRICE: process.env.GAS_PRICE,
+        FEE: process.env.FEE,
+    },
+    ORCHESTRATOR: {
+        ERC20_CONTRACT_ADDRESS: process.env.ERC20_CONTRACT_ADDRESS,
+        BRIDGE_CONTRACT_ADDRESS: process.env.BRIDGE_CONTRACT_ADDRESS,
+        BRIDGE_FEE: process.env.BRIDGE_FEE,
+    },
+    ETHEREUM: {
+        ETHEREUM_GAS_PRICE: process.env.ETHEREUM_GAS_PRICE,
+        ETHEREUM_GAS: process.env.ETHEREUM_GAS,
+    },
 };
 
 module.exports = Config;
