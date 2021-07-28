@@ -67,9 +67,13 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
         return 'CudosBridge';
     }
 
-    onSelectFromNetwork = (value) => {
+    onSelectFromNetwork = async (value) => {
+        const ledger = this.props.networkStore.networkHolders[value].ledger;
+        await ledger.connect();
+
         this.setState({
             selectedFromNetwork: value,
+            maxAmount: await ledger.getBalance(),
         })
     }
 
@@ -81,9 +85,8 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
 
     onClickMaxAmount = () => {
         // TODO: get max amount on account
-        const maxAmount = 100;
         this.setState({
-            amount: maxAmount,
+            amount: this.state.maxAmount,
         })
     }
 
@@ -141,7 +144,6 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
         const networkId = this.state.selectedFromNetwork;
 
         this.connectWallet(networkId);
-
     }
 
     connectWallet = async (networkId: number) => {

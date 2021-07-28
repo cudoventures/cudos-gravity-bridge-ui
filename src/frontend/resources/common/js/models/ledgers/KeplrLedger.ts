@@ -124,7 +124,11 @@ export default class KeplrLedger implements Ledger {
     }
 
     async send(amount: number, destiantionAddress: string): Promise<void> {
-        const proposalTypePath = '/cosmos.gravity.v1.MsgSendToEth'
+        const proposalTypePath = '/gravity.v1.MsgSendToEth'
+
+        const chainId = Config.CUDOS_NETWORK.CHAIN_ID;
+        await window.keplr.enable(chainId);
+        const offlineSigner = window.getOfflineSigner(chainId);
 
         const account = (await offlineSigner.getAccounts())[0];
 
@@ -137,20 +141,26 @@ export default class KeplrLedger implements Ledger {
                     amount: amount.toLocaleString('fullwide', { useGrouping: false }),
                     denom: CosmosNetworkH.CURRENCY_DENOM,
                 },
-                bridgeFee: Config.ORCHESTRATOR.BRIDGE_FEE,
+                bridgeFee: {
+                    amount: Config.ORCHESTRATOR.BRIDGE_FEE,
+                },
             },
+
         }];
+
+        const msgFee = {
+            amount: [{
+                denom: CosmosNetworkH.CURRENCY_DENOM,
+                amount: Config.CUDOS_NETWORK.FEE,
+            }],
+            gas: Config.CUDOS_NETWORK.GAS,
+        }
 
         try {
             const myRegistry = new Registry([
                 ...defaultRegistryTypes,
                 [proposalTypePath, MsgSendToEth],
             ])
-
-            const chainId = Config.CUDOS_NETWORK.CHAIN_ID;
-            await window.keplr.enable(chainId);
-
-            const offlineSigner = window.getOfflineSigner(chainId);
 
             const rpcEndpoint = Config.CUDOS_NETWORK.RPC;
             const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, offlineSigner, {
@@ -160,7 +170,7 @@ export default class KeplrLedger implements Ledger {
             const result = await client.signAndBroadcast(
                 account.address,
                 msgSend,
-                Config.CUDOS_NETWORK.FEE,
+                msgFee,
             );
 
             assertIsBroadcastTxSuccess(result);
@@ -171,8 +181,12 @@ export default class KeplrLedger implements Ledger {
 
     }
 
+    async getBalance(): Promise<number> {
+        // TODO: get balance function
+        return undefined;
+    }
+
     isAddressValid(address: string): boolean {
-        console.log(address.length)
         return address.startsWith(CosmosNetworkH.BECH32_PREFIX_ACC_ADDR) && address.length === CosmosNetworkH.BECH32_ACC_ADDR_LENGTH;
     }
 }

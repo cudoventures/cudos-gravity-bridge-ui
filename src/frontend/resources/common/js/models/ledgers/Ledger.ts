@@ -4,4 +4,5 @@ export default interface Ledger {
     disconnect: () => Promise<void>,
     send: (amount: number, destination: string) => Promise<void>,
     isAddressValid: (address: string) => boolean,
+    getBalance(): Promise<number>,
 }

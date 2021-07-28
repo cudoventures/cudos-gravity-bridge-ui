@@ -11,14 +11,25 @@ import { Bech32, toBase64, toHex } from '@cosmjs/encoding';
 
 export default class MetamaskLedger implements Ledger {
     @observable connected: number;
+    erc20Instance: any;
+    ERC20ContractAddress: string;
+    bridgeContractAddress: string;
+    gasPrice: string;
+    gas: string;
 
     constructor() {
         this.connected = S.INT_FALSE;
 
+        this.ERC20ContractAddress = Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS;
+        this.bridgeContractAddress = Config.ORCHESTRATOR.BRIDGE_CONTRACT_ADDRESS;
+
+        this.gasPrice = Config.ETHEREUM.ETHEREUM_GAS_PRICE;
+        this.gas = Config.ETHEREUM.ETHEREUM_GAS;
+
         makeObservable(this);
     }
 
-    connect(): boolean {
+    async connect(): Promise<void> {
         try {
             window.ethereum.send('eth_requestAccounts');
             window.web3 = new Web3(window.ethereum);
@@ -29,49 +40,54 @@ export default class MetamaskLedger implements Ledger {
         }
     }
 
-    disconnect(): void {
+    async disconnect(): Promise<void> {
 
     }
 
-    send(amount: number, destiantionAddress: string) {
-        const account = window.web3.eth.requestAccounts()[0];
-
-        const ERC20ContractAddress = Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS;
-        const bridgeContractAddress = Config.ORCHESTRATOR.BRIDGE_CONTRACT_ADDRESS;
-
-        const gasPrice = Config.ETHEREUM.ETHEREUM_GAS_PRICE;
-        const gas = Config.ETHEREUM.ETHEREUM_GAS;
+    async send(amount: number, destiantionAddress: string) {
+        const account = (await window.web3.eth.requestAccounts())[0];
 
         const addressByteArray = Bech32.decode(destiantionAddress).data;
-        const addressByteArrayString = addressByteArray.toString().split(',').join('');
+        const addressBytes32Array = new Uint8Array(32);
+        addressByteArray.forEach((byte, i) => { addressBytes32Array[32 - addressByteArray.length + i] = byte });
 
-        const decodedAddress = `0x${'0'.repeat(62 - addressByteArrayString.length)}${addressByteArrayString}`;
-        console.log(decodedAddress);
-
-        const myContract = new window.web3.eth.Contract(gravityContractAbi, bridgeContractAddress, {
+        const gravityContract = new window.web3.eth.Contract(gravityContractAbi, this.bridgeContractAddress, {
             from: account,
-            gasPrice,
+            gasPrice: this.gasPrice,
         });
+        const erc20Instance = new window.web3.eth.Contract(ERC20TokenAbi, this.ERC20ContractAddress);
 
-        const erc20Instance = new window.web3.eth.Contract(ERC20TokenAbi, ERC20ContractAddress);
-
-        // 0x00000000000035991543142242222130103601299692251231174525577191
-        erc20Instance.methods.approve(bridgeContractAddress, amount)
-            .send({ from: account, gas },
+        erc20Instance.methods.approve(this.bridgeContractAddress, amount)
+            .send({ from: account, gas: this.gas },
                 (err, transactionHash) => {
-                    myContract.methods.sendToCosmos(ERC20ContractAddress, decodedAddress, amount).send({ from: account, gas })
+                    gravityContract.methods.sendToCosmos(this.ERC20ContractAddress, `0x${toHex(addressBytes32Array)}`, amount).send({ from: account, gas: this.gas })
                         .on('transactionHash', (hash) => {
-                            console.log(`Hash: ${hash}`);
+                            // console.log(`Hash: ${hash}`);
                         })
                         .on('receipt', (receipt) => {
-                            console.log(`Receipt: ${receipt}`);
+                            // console.log(`Receipt: ${receipt}`);
                         })
                         .on('confirmation', (confirmationNumber, receipt) => {
-                            console.log(`Confirmation: ${confirmationNumber}`);
-                            console.log(`Receipt: ${receipt}`);
+                            // console.log(`Confirmation: ${confirmationNumber}`);
+                            // console.log(`Receipt: ${receipt}`);
                         })
                         .on('error', console.error);
                 });
+    }
+
+    async getBalance(): Promise<number> {
+        try {
+            const wallet = (await window.web3.eth.requestAccounts())[0];
+            const erc20Contract = new window.web3.eth.Contract(ERC20TokenAbi, this.ERC20ContractAddress);
+
+            const balance = await erc20Contract.methods.balanceOf(wallet).call();
+            const decimals = await erc20Contract.methods.decimals().call();
+
+            return balance / (10 ** decimals);
+        } catch (e) {
+            console.log(e);
+            return undefined;
+        }
     }
 
     isAddressValid(address): boolean {

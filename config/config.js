@@ -191,6 +191,7 @@ const Config = {
         API: process.env.API,
         GAS_PRICE: process.env.GAS_PRICE,
         FEE: process.env.FEE,
+        GAS: process.env.GAS,
     },
     ORCHESTRATOR: {
         ERC20_CONTRACT_ADDRESS: process.env.ERC20_CONTRACT_ADDRESS,

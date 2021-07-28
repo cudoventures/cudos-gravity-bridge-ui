@@ -19,6 +19,10 @@
     padding: 50px;
 }
 
+.CudosBridge .SendForm .Inputs .Button{
+    margin-left: 20px;
+}
+
 .CudosBridge .SendForm .NetworkSelectMenu {
     justify-content: space-around;
 }
