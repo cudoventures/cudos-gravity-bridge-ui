@@ -1,17 +1,17 @@
 :root {
-    --color-primary: #1B2031;
+    --color-primary: rgb(24, 24, 25);
     --color-secondary: #262b31;
     --color-red:#bb0000;
     --color-green:#2AD791;
     --color-dark-gray: #425062;
     --color-light-gray: #d3d0d0;
 
-    --color-body-background:rgb(199, 188, 188);
+    --color-body-background:#2e2e2e;
 
     /* theme */
     --color-input-text: #FFF;
     --color-input-label: var(--color-light-gray);
-    --color-input-focused: #262b31;
+    --color-input-focused: var(--color-light-gray);
     --color-input-border: var(--color-light-gray);
     --color-input-border-hover: #FFF;
     --color-select-icon: var(--color-light-gray);
@@ -54,7 +54,7 @@ html {
 }
 
 body {
-    min-width:calc(1200px + 48px);
+    background: transparent !important;
 }
 
 /* SVG */

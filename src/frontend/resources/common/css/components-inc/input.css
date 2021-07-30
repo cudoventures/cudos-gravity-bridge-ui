@@ -15,7 +15,7 @@
     padding: 0;
 }
 
-.Input .MuiInputBase-root.Mui-disabled {
+.Input .MuiInputBase-root .Mui-disabled {
     color: var(--color-text);
     opacity: 0.2;
     pointer-events: none;

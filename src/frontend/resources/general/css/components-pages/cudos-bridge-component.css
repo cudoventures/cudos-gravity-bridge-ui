@@ -3,9 +3,23 @@
 }
 
 .CudosBridge .PageContent {
-    align-items:center;
+    align-items:flex-start;
+    justify-content: flex-start;
     position:relative;
-    margin:64px 0;
+    width: 540px;
+    margin: auto;
+    margin-top: 50px;
+}
+
+.CudosBridge .Header {
+    font-size: 20px;
+    padding-left: 5px;
+    align-items: flex-start;
+    font-weight: 400;
+}
+
+.CudosBridge .Header .NetworkName{
+    font-weight: bold;
 }
 
 .CudosBridge .PageContent .Heading2 {
@@ -17,6 +31,11 @@
     background-color: var(--color-primary);
     align-items: center;
     padding: 50px;
+    border-radius: 20px;
+}
+
+.CudosBridge .SendForm .FormRow {
+    margin-top: 50px;
 }
 
 .CudosBridge .SendForm .Inputs .Button{
@@ -24,8 +43,13 @@
 }
 
 .CudosBridge .SendForm .NetworkSelectMenu {
-    justify-content: space-around;
+    justify-content: space-between;
 }
+
+.CudosBridge .SendForm .NetworkSelectMenu .SVG{
+    fill: #FFF;
+}
+
 
 .CudosBridge .SendForm .NetworkSelectMenu .NetworkSelect {
     align-items: center;

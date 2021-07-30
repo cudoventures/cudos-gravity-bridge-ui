@@ -3,12 +3,15 @@ import { makeObservable, observable } from 'mobx';
 import S from '../../utilities/Main';
 import Config from '../../../../../../../builds/dev-generated/Config';
 import CosmosNetworkH from './CosmosNetworkH';
-import { MsgSendToEth } from '../../cosmos/codec/gravity/gravity/v1/msgs';
+import { MsgSendToEth, MsgRequestBatch } from '../../cosmos/codec/gravity/gravity/v1/msgs';
 import { assertIsBroadcastTxSuccess, SigningStargateClient, defaultRegistryTypes } from '@cosmjs/stargate';
 import { Registry } from '@cosmjs/proto-signing';
+import BigNumber from 'bignumber.js';
 
 export default class KeplrLedger implements Ledger {
     @observable connected: number;
+
+    static NETWORK_NAME = 'CudosNetwork';
 
     constructor() {
         this.connected = S.INT_FALSE;
@@ -123,7 +126,9 @@ export default class KeplrLedger implements Ledger {
 
     }
 
-    async send(amount: number, destiantionAddress: string): Promise<void> {
+    async send(amount: BigNumber, destiantionAddress: string): Promise<void> {
+        const stringifiedAmount = amount.multipliedBy(10 ** CosmosNetworkH.CURRENCY_DECIMALS).toString();
+
         const proposalTypePath = '/gravity.v1.MsgSendToEth'
 
         const chainId = Config.CUDOS_NETWORK.CHAIN_ID;
@@ -136,13 +141,14 @@ export default class KeplrLedger implements Ledger {
             typeUrl: proposalTypePath,
             value: {
                 sender: account.address,
-                ethDestination: destiantionAddress,
+                ethDest: destiantionAddress,
                 amount: {
-                    amount: amount.toLocaleString('fullwide', { useGrouping: false }),
+                    amount: stringifiedAmount,
                     denom: CosmosNetworkH.CURRENCY_DENOM,
                 },
                 bridgeFee: {
                     amount: Config.ORCHESTRATOR.BRIDGE_FEE,
+                    denom: CosmosNetworkH.CURRENCY_DENOM,
                 },
             },
 
@@ -178,11 +184,71 @@ export default class KeplrLedger implements Ledger {
         } catch (e) {
             console.log(e);
         }
-
     }
 
-    async getBalance(): Promise<number> {
-        // TODO: get balance function
+    async requestBatch() {
+        const proposalTypePath = '/gravity.v1.MsgRequestBatch'
+
+        const chainId = Config.CUDOS_NETWORK.CHAIN_ID;
+        await window.keplr.enable(chainId);
+        const offlineSigner = window.getOfflineSigner(chainId);
+
+        const account = (await offlineSigner.getAccounts())[0];
+
+        const msgSend = [{
+            typeUrl: proposalTypePath,
+            value: {
+                sender: account.address,
+                denom: CosmosNetworkH.CURRENCY_DENOM,
+            },
+
+        }];
+
+        const msgFee = {
+            amount: [{
+                denom: CosmosNetworkH.CURRENCY_DENOM,
+                amount: Config.CUDOS_NETWORK.FEE,
+            }],
+            gas: Config.CUDOS_NETWORK.GAS,
+        }
+
+        try {
+            const myRegistry = new Registry([
+                ...defaultRegistryTypes,
+                [proposalTypePath, MsgRequestBatch],
+            ])
+
+            const rpcEndpoint = Config.CUDOS_NETWORK.RPC;
+            const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, offlineSigner, {
+                registry: myRegistry,
+            });
+
+            const result = await client.signAndBroadcast(
+                account.address,
+                msgSend,
+                msgFee,
+            );
+
+            assertIsBroadcastTxSuccess(result);
+
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getBalance(): Promise<BigNumber> {
+        try {
+            const offlineSigner = window.getOfflineSigner(Config.CUDOS_NETWORK.CHAIN_ID);
+            const account = (await offlineSigner.getAccounts())[0];
+
+            const url = `${Config.CUDOS_NETWORK.API}/cosmos/bank/v1beta1/balances/${account.address}/${CosmosNetworkH.CURRENCY_DENOM}`;
+            const amount = (await (await fetch(url)).json()).balance.amount;
+
+            return new BigNumber(amount).div(10 ** CosmosNetworkH.CURRENCY_DECIMALS);
+        } catch (e) {
+            console.log(e);
+        }
+
         return undefined;
     }
 

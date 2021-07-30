@@ -8,7 +8,7 @@ class NetworkHandler {
     name: string;
     ledger: Ledger;
 
-    constructor(name: string, ledger: Ledger){
+    constructor(name: string, ledger: Ledger) {
         this.name = name;
         this.ledger = ledger;
     }
@@ -18,8 +18,8 @@ class NetworkHandler {
 export default class NetworkStore {
 
     @observable networkHolders = [
-        new NetworkHandler("Ethereum", new MetamaskLedger()),
-        new NetworkHandler("CudosNetwork", new KeplrLedger()),
+        new NetworkHandler(MetamaskLedger.NETWORK_NAME, new MetamaskLedger()),
+        new NetworkHandler(KeplrLedger.NETWORK_NAME, new KeplrLedger()),
     ];
 
     constructor() {

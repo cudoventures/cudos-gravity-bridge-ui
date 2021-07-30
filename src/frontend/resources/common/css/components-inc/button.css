@@ -2,10 +2,16 @@
     min-width: 0 !important;
     line-height: normal !important;
     text-transform: none !important;
-    font-weight: 400 !important;
+    font-weight: bold !important;
     font-size: 16px !important;
     position: relative !important;
     box-sizing: border-box !important;
+}
+
+.Button.InInput {
+    padding: 5px 10px 3px 10px !important;
+    font-size: 14px !important;
+    margin-left: 30px;
 }
 
 .Button .SVG.ButtonSvg {

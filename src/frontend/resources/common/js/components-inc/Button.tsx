@@ -11,7 +11,7 @@ import S from '../utilities/Main';
 const theme01 = createMuiTheme({
     palette: {
         primary: {
-            main: '#FF314E',
+            main: '#6DD9FA',
         },
         secondary: {
             main: '#262b31',

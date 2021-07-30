@@ -6,10 +6,14 @@ import Web3Utils from 'web3-utils';
 import ERC20TokenAbi from '../../solidity/contract_interfaces/ERC20_token.json';
 import gravityContractAbi from '../../solidity/contract_interfaces/gravity.json';
 import Config from '../../../../../../../builds/dev-generated/Config';
+import BigNumber from 'bignumber.js';
 
 import { Bech32, toBase64, toHex } from '@cosmjs/encoding';
+import CosmosNetworkH from './CosmosNetworkH';
 
 export default class MetamaskLedger implements Ledger {
+    static NETWORK_NAME = 'Ethereum';
+
     @observable connected: number;
     erc20Instance: any;
     ERC20ContractAddress: string;
@@ -34,9 +38,8 @@ export default class MetamaskLedger implements Ledger {
             window.ethereum.send('eth_requestAccounts');
             window.web3 = new Web3(window.ethereum);
             this.connected = S.INT_TRUE;
-            return true;
         } catch (e) {
-            return false;
+            console.log(e);
         }
     }
 
@@ -44,7 +47,7 @@ export default class MetamaskLedger implements Ledger {
 
     }
 
-    async send(amount: number, destiantionAddress: string) {
+    async send(amount: BigNumber, destiantionAddress: string) {
         const account = (await window.web3.eth.requestAccounts())[0];
 
         const addressByteArray = Bech32.decode(destiantionAddress).data;
@@ -57,10 +60,11 @@ export default class MetamaskLedger implements Ledger {
         });
         const erc20Instance = new window.web3.eth.Contract(ERC20TokenAbi, this.ERC20ContractAddress);
 
-        erc20Instance.methods.approve(this.bridgeContractAddress, amount)
+        const stringAmount = amount.multipliedBy(10 ** CosmosNetworkH.CURRENCY_DECIMALS).toString();
+        erc20Instance.methods.approve(this.bridgeContractAddress, stringAmount)
             .send({ from: account, gas: this.gas },
                 (err, transactionHash) => {
-                    gravityContract.methods.sendToCosmos(this.ERC20ContractAddress, `0x${toHex(addressBytes32Array)}`, amount).send({ from: account, gas: this.gas })
+                    gravityContract.methods.sendToCosmos(this.ERC20ContractAddress, `0x${toHex(addressBytes32Array)}`, stringAmount).send({ from: account, gas: this.gas })
                         .on('transactionHash', (hash) => {
                             // console.log(`Hash: ${hash}`);
                         })
@@ -75,15 +79,14 @@ export default class MetamaskLedger implements Ledger {
                 });
     }
 
-    async getBalance(): Promise<number> {
+    async getBalance(): Promise<BigNumber> {
         try {
             const wallet = (await window.web3.eth.requestAccounts())[0];
             const erc20Contract = new window.web3.eth.Contract(ERC20TokenAbi, this.ERC20ContractAddress);
 
             const balance = await erc20Contract.methods.balanceOf(wallet).call();
-            const decimals = await erc20Contract.methods.decimals().call();
 
-            return balance / (10 ** decimals);
+            return (new BigNumber(balance)).div(10 ** CosmosNetworkH.CURRENCY_DECIMALS);
         } catch (e) {
             console.log(e);
             return undefined;
