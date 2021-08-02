@@ -1,10 +1,10 @@
 :root {
     --color-primary: rgb(24, 24, 25);
-    --color-secondary: #262b31;
+    --color-secondary: rgb(85, 146, 247);
     --color-red:#bb0000;
     --color-green:#2AD791;
-    --color-dark-gray: #425062;
-    --color-light-gray: #d3d0d0;
+    --color-dark-gray: #2e2e2e;
+    --color-light-gray: rgb(114, 126, 139);
 
     --color-body-background:#2e2e2e;
 
@@ -14,16 +14,21 @@
     --color-input-focused: var(--color-light-gray);
     --color-input-border: var(--color-light-gray);
     --color-input-border-hover: #FFF;
-    --color-select-icon: var(--color-light-gray);
-    --color-select-icon-focused: #262b31;
-    --color-select-highlight: rgba(0, 0, 0, 0.1);
+
+    --color-select-font: #FFF;
+    --color-select-border: var(--color-light-gray);
+    --color-select-border-focused: var(--color-secondary);
+    --color-select-icon: #FFF;
+    --color-select-icon-focused: #FFF;
+    --color-select-highlight: rgb(255, 255, 255, 0.1);
+    --color-select-background: var(--color-dark-gray);
     --color-select-multi-item-color: #fff;
     --color-select-multi-item-background: #9FB0C5;
     --color-select-multi-delete-icon: #fff;
 
-    --color-popover-text: var(--color-dark-gray);
+    --color-popover-text: #FFF;
     --color-popover-border: var(--color-dark-gray);
-    --color-popover-background: #fff;
+    --color-popover-background: var(--color-dark-gray);
 
     --color-tooltip-text: var(--color-dark-gray);
     --color-tooltip-border: var(--color-dark-gray);

@@ -11,10 +11,12 @@ import S from '../utilities/Main';
 const theme01 = createMuiTheme({
     palette: {
         primary: {
-            main: '#6DD9FA',
+            main: 'rgb(85, 146, 247)',
+            contrastText: '#fff',
         },
         secondary: {
-            main: '#262b31',
+            main: 'rgb(46, 46, 46)',
+            contrastText: '#fff',
         },
     },
 });

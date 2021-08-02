@@ -126,7 +126,7 @@ export default class Input extends React.Component < Props, State > {
                         { ...props }
                         onChange = { this.props.onChange !== null && this.props.readOnly !== true ? this.onChange : undefined }
                         margin = { margin }
-                        variant = 'outlined' />
+                        variant = 'standard' />
 
                 </FormControl>
             </div>

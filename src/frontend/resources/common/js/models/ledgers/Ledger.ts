@@ -2,9 +2,9 @@ import BigNumber from 'bignumber.js';
 
 export default interface Ledger {
     connected: number,
-    connect: () => Promise<void>,
+    connect: (onSuccess: Function, onError: Function) => Promise<void>,
     disconnect: () => Promise<void>,
-    send: (amount: BigNumber, destination: string) => Promise<void>,
+    send: (amount: BigNumber, destination: string, onSuccess: Function, onError: Function) => Promise<void>,
     isAddressValid: (address: string) => boolean,
-    getBalance(): Promise<BigNumber>,
+    getBalance(onError: Function): Promise<BigNumber>,
 }

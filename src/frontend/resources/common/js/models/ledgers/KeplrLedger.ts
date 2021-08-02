@@ -11,16 +11,16 @@ import BigNumber from 'bignumber.js';
 export default class KeplrLedger implements Ledger {
     @observable connected: number;
 
-    static NETWORK_NAME = 'CudosNetwork';
+    static NETWORK_NAME = 'Cudos';
 
     constructor() {
         this.connected = S.INT_FALSE;
         makeObservable(this);
     }
 
-    async connect(): Promise<void> {
+    async connect(onSuccess: Function, onError: Function): Promise<void> {
         if (!window.getOfflineSigner || !window.keplr) {
-            alert('Please install keplr extension');
+            onError('Error: Please install keplr extension');
             return;
         }
 
@@ -105,10 +105,11 @@ export default class KeplrLedger implements Ledger {
                     },
                 });
             } catch (ex) {
-                alert('Failed to suggest the chain');
+                onError('Error: Failed to suggest the chain');
+                console.log(ex);
             }
         } else {
-            alert('Please use the recent version of keplr extension');
+            onError('Error: Please use the recent version of keplr extension');
         }
         // You should request Keplr to enable the wallet.
         // This method will ask the user whether or not to allow access if they haven't visited this website.
@@ -126,7 +127,7 @@ export default class KeplrLedger implements Ledger {
 
     }
 
-    async send(amount: BigNumber, destiantionAddress: string): Promise<void> {
+    async send(amount: BigNumber, destiantionAddress: string, onSuccess: Function, onError: Function): Promise<void> {
         const stringifiedAmount = amount.multipliedBy(10 ** CosmosNetworkH.CURRENCY_DECIMALS).toString();
 
         const proposalTypePath = '/gravity.v1.MsgSendToEth'
@@ -180,13 +181,14 @@ export default class KeplrLedger implements Ledger {
             );
 
             assertIsBroadcastTxSuccess(result);
-
+            onSuccess('Transaction sent successfully!');
         } catch (e) {
+            onError('Error: Failed to send transaction!');
             console.log(e);
         }
     }
 
-    async requestBatch() {
+    async requestBatch(onSuccess: Function, onError: Function) {
         const proposalTypePath = '/gravity.v1.MsgRequestBatch'
 
         const chainId = Config.CUDOS_NETWORK.CHAIN_ID;
@@ -230,13 +232,14 @@ export default class KeplrLedger implements Ledger {
             );
 
             assertIsBroadcastTxSuccess(result);
-
+            onSuccess('Transaction sent successfully!');
         } catch (e) {
+            onError('Error: Failed to send transaction!');
             console.log(e);
         }
     }
 
-    async getBalance(): Promise<BigNumber> {
+    async getBalance(onError: Function): Promise<BigNumber> {
         try {
             const offlineSigner = window.getOfflineSigner(Config.CUDOS_NETWORK.CHAIN_ID);
             const account = (await offlineSigner.getAccounts())[0];
@@ -246,6 +249,7 @@ export default class KeplrLedger implements Ledger {
 
             return new BigNumber(amount).div(10 ** CosmosNetworkH.CURRENCY_DECIMALS);
         } catch (e) {
+            onError('Error: Failed get balance!');
             console.log(e);
         }
 

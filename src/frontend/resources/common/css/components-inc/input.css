@@ -36,6 +36,16 @@
     color: var(--color-red);
 }
 
+/* border color for standard*/
+.MuiInput-underline:not(.Mui-disabled):before {
+    border-color: var(--color-select-border) !important;
+}
+
+/* border color for standard*/
+.MuiInput-underline:after {
+    border-color: var(--color-select-border-focused) !important;
+}
+
 /* border color */
 .Input .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
     border-color:var(--color-input-border);
@@ -54,7 +64,7 @@ html:not(.Touchable) .Input .MuiOutlinedInput-root:not(.Mui-disabled):hover .Mui
 }
 
 /* border color on error */
-.Input .MuiOutlinedInput-root.Mui-error:not(.Mui-focused) .MuiOutlinedInput-notchedOutline {
+.Input .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline {
     border-color: var(--color-red) !important;
 }
 
