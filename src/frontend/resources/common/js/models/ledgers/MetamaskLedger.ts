@@ -15,16 +15,12 @@ export default class MetamaskLedger implements Ledger {
     static NETWORK_NAME = 'Ethereum';
     @observable connected: number;
     erc20Instance: any;
-    ERC20ContractAddress: string;
-    bridgeContractAddress: string;
     gasPrice: string;
     gas: string;
 
     constructor() {
         this.connected = S.INT_FALSE;
 
-        this.ERC20ContractAddress = Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS;
-        this.bridgeContractAddress = Config.ORCHESTRATOR.BRIDGE_CONTRACT_ADDRESS;
 
         this.gasPrice = Config.ETHEREUM.ETHEREUM_GAS_PRICE;
         this.gas = Config.ETHEREUM.ETHEREUM_GAS;
@@ -54,15 +50,15 @@ export default class MetamaskLedger implements Ledger {
         const addressBytes32Array = new Uint8Array(32);
         addressByteArray.forEach((byte, i) => { addressBytes32Array[32 - addressByteArray.length + i] = byte });
 
-        const gravityContract = new window.web3.eth.Contract(gravityContractAbi, this.bridgeContractAddress, {
+        const gravityContract = new window.web3.eth.Contract(gravityContractAbi, Config.ORCHESTRATOR.BRIDGE_CONTRACT_ADDRESS, {
             from: account,
             gasPrice: this.gasPrice,
         });
-        const erc20Instance = new window.web3.eth.Contract(ERC20TokenAbi, this.ERC20ContractAddress);
+        const erc20Instance = new window.web3.eth.Contract(ERC20TokenAbi, Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS);
 
         const stringAmount = amount.multipliedBy(10 ** CosmosNetworkH.CURRENCY_DECIMALS).toString();
 
-        erc20Instance.methods.approve(this.bridgeContractAddress, stringAmount)
+        erc20Instance.methods.approve(Config.ORCHESTRATOR.BRIDGE_CONTRACT_ADDRESS, stringAmount)
             .send({ from: account, gas: this.gas },
                 (err, transactionHash) => {
                     if (err) {
@@ -70,7 +66,7 @@ export default class MetamaskLedger implements Ledger {
                         throw new Error('Failed to send transaction!');
                     }
 
-                    gravityContract.methods.sendToCosmos(this.ERC20ContractAddress, `0x${toHex(addressBytes32Array)}`, stringAmount).send({ from: account, gas: this.gas })
+                    gravityContract.methods.sendToCosmos(Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS, `0x${toHex(addressBytes32Array)}`, stringAmount).send({ from: account, gas: this.gas })
                         .on('receipt', (confirmationNumber, receipt) => {
                             onSuccess('Transaction sent successfully!');
                         })
@@ -84,7 +80,7 @@ export default class MetamaskLedger implements Ledger {
     async getBalance(onError: Function): Promise<BigNumber> {
         try {
             const wallet = (await window.web3.eth.requestAccounts())[0];
-            const erc20Contract = new window.web3.eth.Contract(ERC20TokenAbi, this.ERC20ContractAddress);
+            const erc20Contract = new window.web3.eth.Contract(ERC20TokenAbi, Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS);
 
             const balance = await erc20Contract.methods.balanceOf(wallet).call();
 

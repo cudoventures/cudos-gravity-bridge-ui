@@ -23,23 +23,27 @@ import ProjectUtils from '../../../common/js/ProjectUtils';
 import { MenuItem } from '@material-ui/core';
 import Ledger from '../../../common/js/models/ledgers/Ledger';
 import CosmosNetworkH from '../../../common/js/models/ledgers/CosmosNetworkH';
+import MetamaskLedger from '../../../common/js/models/ledgers/MetamaskLedger';
+import Web3 from 'web3';
+import ERC20TokenAbi from '../../../common/js/solidity/contract_interfaces/ERC20_token.json';
 
 interface Props extends ContextPageComponentProps {
     networkStore: NetworkStore;
 }
 
 interface State {
-    selectedFromNetwork: string,
-    selectedToNetwork: string,
-    amount: BigNumber,
-    displayAmount: string
-    maxAmount: BigNumber,
-    amountError: number,
-    destinationAddress: string,
-    destiantionAddressError: number,
-    showPopup: boolean,
-    popupType: string,
-    transactionPopupText: string,
+    selectedFromNetwork: string;
+    selectedToNetwork: string;
+    amount: BigNumber;
+    displayAmount: string;
+    walletBalance: BigNumber;
+    amountError: number;
+    destinationAddress: string;
+    destiantionAddressError: number;
+    showPopup: boolean;
+    popupType: string;
+    transactionPopupText: string;
+    contractBalance: BigNumber;
 }
 const POPUP_TYPE_ERROR = 'Error';
 const POPUP_TYPE_SUCCESS = 'Success';
@@ -61,13 +65,14 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
             selectedToNetwork: S.Strings.EMPTY,
             amount: new BigNumber(0),
             displayAmount: S.Strings.EMPTY,
-            maxAmount: new BigNumber(0),
+            walletBalance: new BigNumber(0),
             amountError: S.INT_FALSE,
             destinationAddress: S.Strings.EMPTY,
             destiantionAddressError: S.INT_FALSE,
             showPopup: false,
             popupType: S.Strings.EMPTY,
             transactionPopupText: S.Strings.EMPTY,
+            contractBalance: new BigNumber(0),
         }
 
         this.root = React.createRef();
@@ -78,6 +83,22 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
         }
     }
 
+    async getContractBalance(): Promise<BigNumber> {
+        try {
+
+            const contractWallet = Config.ORCHESTRATOR.BRIDGE_CONTRACT_ADDRESS;
+            const web3 = new Web3(Config.ETHEREUM.ETHEREUM_RPC);
+            const erc20Contract = new web3.eth.Contract(ERC20TokenAbi, Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS);
+
+            const balance = await erc20Contract.methods.balanceOf(contractWallet).call();
+
+            return (new BigNumber(balance)).div(10 ** CosmosNetworkH.CURRENCY_DECIMALS);
+        } catch (e) {
+            console.log(e);
+            throw new Error('Failed to fetch balance!');
+        }
+    }
+    
     getPageLayoutComponentCssClassName() {
         return 'CudosBridge';
     }
@@ -87,18 +108,22 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
         let ledger = null;
         let toNetwork = null;
         let fromNetwork = null;
+        let contractBalance = new BigNumber(0);
 
         try {
             fromNetwork = value;
             ledger = await this.connectWallet(value);
             toNetwork = this.props.networkStore.networkHolders.findIndex((v, i) => i !== value);
             balance = await ledger.getBalance(this.showErrorPopup);
+            contractBalance = await this.getContractBalance();
         } catch (e) {
             this.showErrorPopup(e);
             fromNetwork = S.Strings.EMPTY;
             ledger = null;
             balance = new BigNumber(0);
             toNetwork = null;
+            contractBalance = new BigNumber(0);
+
         }
 
         this.setState({
@@ -109,7 +134,8 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
             amountError: S.INT_FALSE,
             destinationAddress: S.Strings.EMPTY,
             destiantionAddressError: S.INT_FALSE,
-            maxAmount: balance,
+            walletBalance: balance,
+            contractBalance,
         })
     }
 
@@ -118,11 +144,13 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
         let ledger = null;
         let toNetwork = null;
         let fromNetwork = null;
+        let contractBalance = new BigNumber(0);
 
         try {
             fromNetwork = `${this.props.networkStore.networkHolders.findIndex((v, i) => i !== value)}`;
             ledger = await this.connectWallet(fromNetwork);
             balance = await ledger.getBalance(this.showErrorPopup);
+            contractBalance = await this.getContractBalance();
             toNetwork = value;
         } catch (e) {
             this.showErrorPopup(e);
@@ -130,6 +158,7 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
             ledger = null;
             balance = new BigNumber(0);
             toNetwork = null;
+            contractBalance = new BigNumber(0);
         }
 
         this.setState({
@@ -140,14 +169,16 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
             amountError: S.INT_FALSE,
             destinationAddress: S.Strings.EMPTY,
             destiantionAddressError: S.INT_FALSE,
-            maxAmount: balance,
+            walletBalance: balance,
+            contractBalance,
         })
     }
 
     onClickMaxAmount = () => {
+        const maximumAmount = BigNumber.minimum(this.state.walletBalance, this.state.contractBalance);
         this.setState({
-            amount: this.state.maxAmount,
-            displayAmount: this.state.maxAmount.toString(),
+            amount: maximumAmount,
+            displayAmount: maximumAmount.toFixed(),
         })
     }
 
@@ -166,7 +197,7 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
                 return;
             }
 
-            if (bigAmount.isNaN() || bigAmount.isLessThan(new BigNumber(1).dividedBy(10 ** CosmosNetworkH.CURRENCY_DECIMALS)) || bigAmount.isGreaterThan(this.state.maxAmount)) {
+            if (bigAmount.isNaN() || bigAmount.isLessThan(new BigNumber(1).dividedBy(10 ** CosmosNetworkH.CURRENCY_DECIMALS)) || bigAmount.isGreaterThan(BigNumber.minimum(this.state.walletBalance, this.state.contractBalance))) {
                 this.setState({
                     amountError: S.INT_TRUE,
                 })
@@ -197,7 +228,7 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
     }
 
     onClickSend = async () => {
-        if (this.state.amount.isGreaterThan(this.state.maxAmount)) {
+        if (this.state.amount.isGreaterThan(this.state.walletBalance)) {
             this.showErrorPopup('Error: The amount you entered is more than what you have in your walled.');
             return;
         }
@@ -351,7 +382,7 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
                             </Select>
                         </div>
                     </div>
-                    <LayoutBlock className = { 'FlexRow FormRow' }>
+                    <LayoutBlock className = { 'FlexColumn FormRow' }>
                         <Input
                             label = { 'Amount' }
                             value = {this.state.displayAmount}
@@ -366,6 +397,7 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
                                         onClick = { this.onClickMaxAmount }>Max</Button>
                                 </div> }}
                             error = { this.state.amountError === S.INT_TRUE}/>
+                        <div className = { 'ContractBalance' }>{`Bridge contract balance is: ${this.state.contractBalance.toFixed()} CUDOS`}</div>
                     </LayoutBlock>
                     <LayoutBlock className = { 'FormRow' }>
                         <Input

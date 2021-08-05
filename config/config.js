@@ -201,6 +201,7 @@ const Config = {
     ETHEREUM: {
         ETHEREUM_GAS_PRICE: process.env.ETHEREUM_GAS_PRICE,
         ETHEREUM_GAS: process.env.ETHEREUM_GAS,
+        ETHEREUM_RPC: process.env.ETHEREUM_RPC,
     },
 };
 
