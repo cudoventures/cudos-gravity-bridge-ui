@@ -12,11 +12,11 @@ import RedisSessionStore from './backend/utilities/session-store/KoaSessionRedis
 const Config = require('../config/config');
 
 let sessionStore;
-if (Config.Build.DEV === true) {
+// if (Config.Build.DEV === true) {
     sessionStore = new FileSessionStore();
-} else {
-    sessionStore = new RedisSessionStore({ 'host': Config.Server.SESSION_STORE_ADDR, 'port': Config.Server.SESSION_STORE_PORT });
-}
+// } else {
+//     sessionStore = new RedisSessionStore({ 'host': Config.Server.SESSION_STORE_ADDR, 'port': Config.Server.SESSION_STORE_PORT });
+// }
 
 // if (Config.Build.DEV === true) {
 //     const FileSessionStore = require(Config.Path.Backend.UTILITIES + '/session-store/koa-session-file');

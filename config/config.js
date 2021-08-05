@@ -18,15 +18,27 @@ if (result.error) {
 const envVariables = [
     'NODE_ENV',
     'BACKEND_PORT',
+    'FRONTEND_PORT',
     'URL',
     'SESSION_UNIQUE_KEY',
+    'CHAIN_ID',
+    'RPC',
+    'API',
+    'GAS_PRICE',
+    'GAS',
+    'FEE',
+    'ERC20_CONTRACT_ADDRESS',
+    'BRIDGE_CONTRACT_ADDRESS',
+    'BRIDGE_FEE',
+    'ETHEREUM_GAS_PRICE',
+    'ETHEREUM_GAS'
 ];
 
 if (process.env.NODE_ENV === 'production') {
-    envVariables.concat([
-        'SESSION_STORE_TCP_ADDR',
-        'SESSION_STORE_PORT',
-    ])
+    // envVariables.concat([
+    //     'SESSION_STORE_TCP_ADDR',
+    //     'SESSION_STORE_PORT',
+    // ])
 }
 
 envVariables.forEach((envVariable) => {

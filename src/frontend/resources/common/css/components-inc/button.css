@@ -11,9 +11,9 @@
 }
 
 .Button.InInput {
-    padding: 5px 10px 5px 10px !important;
-    font-size: 13px !important;
-    margin-left: 30px;
+    padding: 4px 10px !important;
+    font-size: 12px !important;
+    margin-left: 12px;
 }
 
 .Button .SVG.ButtonSvg {

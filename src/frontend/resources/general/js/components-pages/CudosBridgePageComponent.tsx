@@ -41,6 +41,7 @@ interface State {
     popupType: string,
     transactionPopupText: string,
 }
+
 const POPUP_TYPE_ERROR = 'Error';
 const POPUP_TYPE_SUCCESS = 'Success';
 
@@ -56,6 +57,7 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
 
     constructor(props: Props) {
         super(props);
+        
         this.state = {
             selectedFromNetwork: S.Strings.EMPTY,
             selectedToNetwork: S.Strings.EMPTY,
