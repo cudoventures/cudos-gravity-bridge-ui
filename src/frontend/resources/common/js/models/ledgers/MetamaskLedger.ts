@@ -21,7 +21,6 @@ export default class MetamaskLedger implements Ledger {
     constructor() {
         this.connected = S.INT_FALSE;
 
-
         this.gasPrice = Config.ETHEREUM.ETHEREUM_GAS_PRICE;
         this.gas = Config.ETHEREUM.ETHEREUM_GAS;
 
@@ -40,44 +39,58 @@ export default class MetamaskLedger implements Ledger {
     }
 
     async disconnect(): Promise<void> {
-
-    }
-
-    async send(amount: BigNumber, destiantionAddress: string, onSuccess: Function, onError: Function) {
-        const account = (await window.web3.eth.requestAccounts())[0];
-
-        const addressByteArray = Bech32.decode(destiantionAddress).data;
-        const addressBytes32Array = new Uint8Array(32);
-        addressByteArray.forEach((byte, i) => { addressBytes32Array[32 - addressByteArray.length + i] = byte });
-
-        const gravityContract = new window.web3.eth.Contract(gravityContractAbi, Config.ORCHESTRATOR.BRIDGE_CONTRACT_ADDRESS, {
-            from: account,
-            gasPrice: this.gasPrice,
+        return new Promise < void >((resolve, reject) => {
+            resolve();
         });
-        const erc20Instance = new window.web3.eth.Contract(ERC20TokenAbi, Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS);
-
-        const stringAmount = amount.multipliedBy(10 ** CosmosNetworkH.CURRENCY_DECIMALS).toString();
-
-        erc20Instance.methods.approve(Config.ORCHESTRATOR.BRIDGE_CONTRACT_ADDRESS, stringAmount)
-            .send({ from: account, gas: this.gas },
-                (err, transactionHash) => {
-                    if (err) {
-                        console.log(err);
-                        throw new Error('Failed to send transaction!');
-                    }
-
-                    gravityContract.methods.sendToCosmos(Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS, `0x${toHex(addressBytes32Array)}`, stringAmount).send({ from: account, gas: this.gas })
-                        .on('receipt', (confirmationNumber, receipt) => {
-                            onSuccess('Transaction sent successfully!');
-                        })
-                        .on('error', (e) => {
-                            console.log(e);
-                            throw new Error('Failed to send transaction!');
-                        });
-                });
     }
 
-    async getBalance(onError: Function): Promise<BigNumber> {
+    async send(amount: BigNumber, destiantionAddress: string) {
+        return new Promise < void >((resolve, reject) => {
+            const run = async () => {
+                const account = (await window.web3.eth.requestAccounts())[0];
+
+                const addressByteArray = Bech32.decode(destiantionAddress).data;
+                const addressBytes32Array = new Uint8Array(32);
+                addressByteArray.forEach((byte, i) => { addressBytes32Array[32 - addressByteArray.length + i] = byte });
+
+                const gravityContract = new window.web3.eth.Contract(gravityContractAbi, Config.ORCHESTRATOR.BRIDGE_CONTRACT_ADDRESS, {
+                    from: account,
+                    gasPrice: this.gasPrice,
+                });
+                const erc20Instance = new window.web3.eth.Contract(ERC20TokenAbi, Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS);
+
+                const stringAmount = amount.multipliedBy(10 ** CosmosNetworkH.CURRENCY_DECIMALS).toString();
+
+                erc20Instance.methods.approve(Config.ORCHESTRATOR.BRIDGE_CONTRACT_ADDRESS, stringAmount)
+                    .send({ from: account, gas: this.gas },
+                        (err, transactionHash) => {
+                            if (err) {
+                                reject(err);
+                                throw new Error('Failed to send transaction!');
+                            }
+
+                            gravityContract.methods.sendToCosmos(Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS, `0x${toHex(addressBytes32Array)}`, stringAmount).send({ from: account, gas: this.gas })
+                                .on('receipt', (confirmationNumber, receipt) => {
+                                    resolve();
+                                })
+                                .on('error', (e) => {
+                                    reject();
+                                    throw new Error('Failed to send transaction!');
+                                });
+                        });
+            }
+            run();
+        });
+
+    }
+
+    async requestBatch(): Promise<void> {
+        return new Promise < void >((resolve, reject) => {
+            resolve();
+        });
+    }
+
+    async getBalance(): Promise<BigNumber> {
         try {
             const wallet = (await window.web3.eth.requestAccounts())[0];
             const erc20Contract = new window.web3.eth.Contract(ERC20TokenAbi, Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS);

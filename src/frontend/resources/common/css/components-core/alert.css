@@ -11,13 +11,13 @@
 }
 
 .AlertWrapper > .Alert {
-    width:280px; max-width:90%;
+    width:320px; max-width:90%;
     box-sizing:border-box;
     font-weight:400;
     padding:16px;
     border-radius:4px;
     opacity:0;
-    background:#fff;
+    background:#444;
 }
 
 .AlertWrapper.Active > .Alert {
@@ -31,12 +31,20 @@
     overflow:auto;
 }
 
+.Alert .Error {
+    color: var(--color-red);
+}
+
+.Alert .Success {
+    color: var(--color-green);
+}
+
 .Alert .StartRight {
     display:flex;
 }
 
 .Alert .TextButton {
-	color: var(--color-primary);
+	color: var(--color-secondary);
     text-transform:uppercase;
     font-weight:700; font-size: 12px;
     border-radius:4px;

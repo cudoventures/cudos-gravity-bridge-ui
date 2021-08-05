@@ -32,22 +32,22 @@ interface Props extends ContextPageComponentProps {
 }
 
 interface State {
-    selectedFromNetwork: string;
-    selectedToNetwork: string;
+    selectedFromNetwork: number;
+    selectedToNetwork: number;
     amount: BigNumber;
     displayAmount: string;
     walletBalance: BigNumber;
     amountError: number;
     destinationAddress: string;
     destiantionAddressError: number;
-    showPopup: boolean;
-    popupType: string;
-    transactionPopupText: string;
+    // showPopup: boolean;
+    // popupType: string;
+    // transactionPopupText: string;
     contractBalance: BigNumber;
 }
 
-const POPUP_TYPE_ERROR = 'Error';
-const POPUP_TYPE_SUCCESS = 'Success';
+// const POPUP_TYPE_ERROR = 'Error';
+// const POPUP_TYPE_SUCCESS = 'Success';
 
 export default class CudosBridgeComponent extends ContextPageComponent < Props, State > {
 
@@ -55,25 +55,25 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
     root: RefObject<HTMLDivElement>;
 
     static layout() {
-        const MobXComponent = inject('appStore', 'networkStore')(observer(CudosBridgeComponent));
+        const MobXComponent = inject('appStore', 'alertStore', 'networkStore')(observer(CudosBridgeComponent));
         PageComponent.layout(<MobXComponent />);
     }
 
     constructor(props: Props) {
         super(props);
-        
+
         this.state = {
-            selectedFromNetwork: S.Strings.EMPTY,
-            selectedToNetwork: S.Strings.EMPTY,
+            selectedFromNetwork: S.NOT_EXISTS,
+            selectedToNetwork: S.NOT_EXISTS,
             amount: new BigNumber(0),
             displayAmount: S.Strings.EMPTY,
             walletBalance: new BigNumber(0),
             amountError: S.INT_FALSE,
             destinationAddress: S.Strings.EMPTY,
             destiantionAddressError: S.INT_FALSE,
-            showPopup: false,
-            popupType: S.Strings.EMPTY,
-            transactionPopupText: S.Strings.EMPTY,
+            // showPopup: false,
+            // popupType: S.Strings.EMPTY,
+            // transactionPopupText: S.Strings.EMPTY,
             contractBalance: new BigNumber(0),
         }
 
@@ -100,12 +100,38 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
             throw new Error('Failed to fetch balance!');
         }
     }
-    
+
     getPageLayoutComponentCssClassName() {
         return 'CudosBridge';
     }
 
-    onSelectFromNetwork = async (value) => {
+    isFromCosmos(networkId: number = null) {
+        if (networkId === null) {
+            networkId = this.state.selectedFromNetwork;
+        }
+
+        if (networkId === S.NOT_EXISTS) {
+            return false;
+        }
+
+        const ledger = this.props.networkStore.networkHolders[networkId].ledger;
+        return ledger instanceof KeplrLedger;
+    }
+
+    isFromEth(networkId: number = null) {
+        if (networkId === null) {
+            networkId = this.state.selectedFromNetwork;
+        }
+
+        if (networkId === S.NOT_EXISTS) {
+            return false;
+        }
+
+        const ledger = this.props.networkStore.networkHolders[networkId].ledger;
+        return ledger instanceof MetamaskLedger;
+    }
+
+    onSelectFromNetwork = async (value: number) => {
         let balance = new BigNumber(0);
         let ledger = null;
         let toNetwork = null;
@@ -116,46 +142,14 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
             fromNetwork = value;
             ledger = await this.connectWallet(value);
             toNetwork = this.props.networkStore.networkHolders.findIndex((v, i) => i !== value);
-            balance = await ledger.getBalance(this.showErrorPopup);
-            contractBalance = await this.getContractBalance();
+            balance = await ledger.getBalance();
+            if (this.isFromCosmos(fromNetwork) === true) {
+                contractBalance = await this.getContractBalance();
+            } else {
+                contractBalance = new BigNumber(Number.MAX_SAFE_INTEGER);
+            }
         } catch (e) {
-            this.showErrorPopup(e);
-            fromNetwork = S.Strings.EMPTY;
-            ledger = null;
-            balance = new BigNumber(0);
-            toNetwork = null;
-            contractBalance = new BigNumber(0);
-
-        }
-
-        this.setState({
-            selectedFromNetwork: `${fromNetwork}`,
-            selectedToNetwork: `${toNetwork}`,
-            amount: new BigNumber(0),
-            displayAmount: S.Strings.EMPTY,
-            amountError: S.INT_FALSE,
-            destinationAddress: S.Strings.EMPTY,
-            destiantionAddressError: S.INT_FALSE,
-            walletBalance: balance,
-            contractBalance,
-        })
-    }
-
-    onSelectToNetwork = async (value) => {
-        let balance = new BigNumber(0);
-        let ledger = null;
-        let toNetwork = null;
-        let fromNetwork = null;
-        let contractBalance = new BigNumber(0);
-
-        try {
-            fromNetwork = `${this.props.networkStore.networkHolders.findIndex((v, i) => i !== value)}`;
-            ledger = await this.connectWallet(fromNetwork);
-            balance = await ledger.getBalance(this.showErrorPopup);
-            contractBalance = await this.getContractBalance();
-            toNetwork = value;
-        } catch (e) {
-            this.showErrorPopup(e);
+            this.showAlertError(e.toString());
             fromNetwork = S.Strings.EMPTY;
             ledger = null;
             balance = new BigNumber(0);
@@ -176,11 +170,54 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
         })
     }
 
-    onClickMaxAmount = () => {
-        const maximumAmount = BigNumber.minimum(this.state.walletBalance, this.state.contractBalance);
+    onSelectToNetwork = async (value) => {
+        let balance = new BigNumber(0);
+        let ledger = null;
+        let toNetwork = null;
+        let fromNetwork = null;
+        let contractBalance = new BigNumber(0);
+
+        try {
+            fromNetwork = `${this.props.networkStore.networkHolders.findIndex((v, i) => i !== value)}`;
+            ledger = await this.connectWallet(fromNetwork);
+            balance = await ledger.getBalance();
+            if (this.isFromCosmos(fromNetwork) === true) {
+                contractBalance = await this.getContractBalance();
+            } else {
+                contractBalance = new BigNumber(Number.MAX_SAFE_INTEGER);
+            }
+            toNetwork = value;
+        } catch (e) {
+            this.showAlertError(e.toString());
+            fromNetwork = S.Strings.EMPTY;
+            ledger = null;
+            balance = new BigNumber(0);
+            toNetwork = null;
+            contractBalance = new BigNumber(0);
+        }
+
+        this.setState({
+            selectedFromNetwork: fromNetwork,
+            selectedToNetwork: toNetwork,
+            amount: new BigNumber(0),
+            displayAmount: S.Strings.EMPTY,
+            amountError: S.INT_FALSE,
+            destinationAddress: S.Strings.EMPTY,
+            destiantionAddressError: S.INT_FALSE,
+            walletBalance: balance,
+            contractBalance,
+        })
+    }
+
+    onClickMaxAmount = async () => {
+        const ledger = await this.checkWalletConnected();
+        const balance = await ledger.getBalance();
+
+        const maximumAmount = BigNumber.minimum(balance, this.state.contractBalance);
         this.setState({
             amount: maximumAmount,
             displayAmount: maximumAmount.toFixed(),
+            walletBalance: balance,
         })
     }
 
@@ -231,34 +268,39 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
 
     onClickSend = async () => {
         if (this.state.amount.isGreaterThan(this.state.walletBalance)) {
-            this.showErrorPopup('Error: The amount you entered is more than what you have in your walled.');
+            this.showAlertError('Error: The amount you entered is more than what you have in your walled.');
             return;
         }
 
         if (this.state.amountError === S.INT_TRUE) {
-            this.showErrorPopup('Error: Please enter valid amount of tokens.');
+            this.showAlertError('Error: Please enter valid amount of tokens.');
             return;
         }
 
         if (this.state.destiantionAddressError === S.INT_TRUE) {
-            this.showErrorPopup('Error: Please enter a valid destiantion address.');
+            this.showAlertError('Error: Please enter a valid destiantion address.');
             return;
         }
 
         try {
-            const ledger = await this.checkWalletConnected();
-            await ledger.send(this.state.amount, this.state.destinationAddress, this.showSuccessPopup, this.showErrorPopup);
-        } catch (e) {
-            this.showErrorPopup(e);
-        }
-    }
+            this.props.appStore.disableActions();
 
-    onClickRequestBatch = async () => {
-        try {
             const ledger = await this.checkWalletConnected();
-            await ledger.requestBatch(this.showSuccessPopup, this.showErrorPopup);
+            await ledger.send(this.state.amount, this.state.destinationAddress);
+            await ledger.requestBatch();
+            this.showAlertSuccess('Your transaction was sent successfully');
         } catch (e) {
-            this.showErrorPopup(e);
+            this.showAlertError(e.toString());
+        } finally {
+            this.setState({
+                amount: new BigNumber(0),
+                displayAmount: S.Strings.EMPTY,
+                amountError: S.INT_FALSE,
+                destinationAddress: S.Strings.EMPTY,
+                destiantionAddressError: S.INT_FALSE,
+            });
+
+            this.props.appStore.enableActions();
         }
     }
 
@@ -273,43 +315,36 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
         return ledger;
     }
 
-    onClickConnectWallet = async () => {
-        const networkId = this.state.selectedFromNetwork;
+    // onClickConnectWallet = async () => {
+    //     const networkId = this.state.selectedFromNetwork;
 
-        this.connectWallet(networkId);
-    }
+    //     this.connectWallet(networkId);
+    // }
 
-    connectWallet = async (networkId: string): Promise<Ledger> => {
+    connectWallet = async (networkId: number): Promise<Ledger> => {
         const networkHolders = this.props.networkStore.networkHolders;
 
         const ledger = networkHolders[networkId].ledger;
 
-        if (ledger.connected) {
-            return ledger;
+        if (!ledger.connected) {
+            await ledger.connect();
         }
 
-        const newLedger = networkHolders[networkId].ledger;
-
-        await newLedger.connect(window, this.showSuccessPopup, this.showErrorPopup);
-
-        return newLedger;
+        return ledger;
     }
 
-    showErrorPopup = (error) => {
-        this.setState({
-            showPopup: true,
-            transactionPopupText: error.toString(),
-            popupType: POPUP_TYPE_ERROR,
-        })
+    showAlertError(msg) {
+        this.props.alertStore.show((
+            <div className = { 'Error' }>{msg}</div>
+        ));
     }
 
-    showSuccessPopup = (message) => {
-        this.setState({
-            showPopup: true,
-            transactionPopupText: message,
-            popupType: POPUP_TYPE_SUCCESS,
-        })
+    showAlertSuccess(msg) {
+        this.props.alertStore.show((
+            <div className = { 'Success' }>{msg}</div>
+        ));
     }
+
     isAddressValid = (address) => {
         const ledger = this.props.networkStore.networkHolders[this.state.selectedToNetwork].ledger;
 
@@ -324,23 +359,23 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
         return '';
     }
 
-    toggleOpenState = () => {
-        this.setState({
-            showPopup: !this.state.showPopup,
-        })
-    }
+    // toggleOpenState = () => {
+    //     this.setState({
+    //         showPopup: !this.state.showPopup,
+    //     })
+    // }
 
-    onClickClosePopup = () => {
-        this.setState({
-            showPopup: false,
-            transactionPopupText: S.Strings.EMPTY,
-        })
-    }
+    // onClickClosePopup = () => {
+    //     this.setState({
+    //         showPopup: false,
+    //         transactionPopupText: S.Strings.EMPTY,
+    //     })
+    // }
 
     renderContent() {
         return (
             <div className = { 'PageContent' }>
-                <Popover
+                {/* <Popover
                     anchorOrigin={{ vertical: 'center', horizontal: 'center' }}
                     transformOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                     onClose={this.toggleOpenState}
@@ -355,15 +390,12 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
                             color = { Button.COLOR_SCHEME_1 }
                             onClick = { this.onClickClosePopup }>Okay</Button>
                     </div>
-                </Popover>
-                <div className = { 'FormRow Header' } >
-                    <div><span className = { 'NetworkName' }>Cudos</span> Bridge</div>
-                </div>
+                </Popover> */}
                 <div className = { 'SendForm' } >
-                    <h3>Send CUDOS</h3>
+                    <div className = { 'Header' } >Cudos Cosmos ‹-› Ethereum Bridge</div>
                     <div ref={this.root} className = { 'FlexRow FormRow NetworkSelectMenu' }>
                         <div className = { 'NetworkSelectContainer FlexColumn' }>
-                            <div className={ 'NetworkLogo' } style={ProjectUtils.makeBgImgStyle(this.state.selectedFromNetwork !== S.Strings.EMPTY ? `${Config.URL.Resources.Common.IMG}/${this.getLogoName(this.props.networkStore.networkHolders[this.state.selectedFromNetwork])}` : '')}></div>
+                            <div className={ 'NetworkLogo' } style={ProjectUtils.makeBgImgStyle(this.state.selectedFromNetwork !== S.NOT_EXISTS ? `${Config.URL.Resources.Common.IMG}/${this.getLogoName(this.props.networkStore.networkHolders[this.state.selectedFromNetwork])}` : '')}></div>
                             <div className = { 'DirectionText' }>FROM</div>
                             <Select
                                 className = { 'NetworkSelect' }
@@ -374,7 +406,7 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
                         </div>
                         <div className={'SVG Icon'} dangerouslySetInnerHTML={{ __html: SvgArrowRight }}></div>
                         <div className = { 'NetworkSelectContainer FlexColumn' }>
-                            <div className={ 'NetworkLogo' } style={ProjectUtils.makeBgImgStyle(this.state.selectedToNetwork !== S.Strings.EMPTY ? `${Config.URL.Resources.Common.IMG}/${this.getLogoName(this.props.networkStore.networkHolders[this.state.selectedToNetwork])}` : '')}></div>
+                            <div className={ 'NetworkLogo' } style={ProjectUtils.makeBgImgStyle(this.state.selectedToNetwork !== S.NOT_EXISTS ? `${Config.URL.Resources.Common.IMG}/${this.getLogoName(this.props.networkStore.networkHolders[this.state.selectedToNetwork])}` : '')}></div>
                             <div className = { 'DirectionText' }>TO</div>
                             <Select
                                 className = { 'NetworkSelect' }
@@ -391,15 +423,17 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
                             onChange = { this.onChangeAmount }
                             InputProps = {{
                                 endAdornment: <div className = {' FlexRow Adornment'}>
-                                    <div className={this.state.selectedToNetwork === S.Strings.EMPTY ? 'Mui-disabled' : ''}>CUDOS</div>
-                                    <Button disabled = {this.state.selectedToNetwork === S.Strings.EMPTY}
+                                    <div className={this.state.selectedToNetwork === S.NOT_EXISTS ? 'Mui-disabled' : ''}>CUDOS</div>
+                                    <Button disabled = {this.state.selectedToNetwork === S.NOT_EXISTS}
                                         className = {' InInput '}
                                         type = { Button.TYPE_ROUNDED }
                                         color = { Button.COLOR_SCHEME_1 }
                                         onClick = { this.onClickMaxAmount }>Max</Button>
                                 </div> }}
                             error = { this.state.amountError === S.INT_TRUE}/>
-                        <div className = { 'ContractBalance' }>{`Bridge contract balance is: ${this.state.contractBalance.toFixed()} CUDOS`}</div>
+                        { this.isFromCosmos() && (
+                            <div className = { 'ContractBalance' }>{`Bridge contract balance is: ${this.state.contractBalance.toFixed()} CUDOS`}</div>
+                        ) }
                     </LayoutBlock>
                     <LayoutBlock className = { 'FormRow' }>
                         <Input
@@ -409,16 +443,16 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
                             error = { this.state.destiantionAddressError === S.INT_TRUE}/>
                     </LayoutBlock>
                     <LayoutBlock className = { 'FormRow' } >
-                        {this.state.selectedToNetwork !== S.Strings.EMPTY
+                        {this.state.selectedToNetwork !== S.NOT_EXISTS
                         && <Button
                             type = { Button.TYPE_ROUNDED }
                             color = { Button.COLOR_SCHEME_1 }
                             onClick = { this.onClickSend }>Send</Button>}
-                        {this.state.selectedFromNetwork !== S.Strings.EMPTY && this.props.networkStore.networkHolders[this.state.selectedFromNetwork].name === KeplrLedger.NETWORK_NAME
+                        {/* {this.state.selectedFromNetwork !== S.NOT_EXISTS && this.props.networkStore.networkHolders[this.state.selectedFromNetwork].name === KeplrLedger.NETWORK_NAME
                         && <Button
                             type = { Button.TYPE_ROUNDED }
                             color = { Button.COLOR_SCHEME_1 }
-                            onClick = { this.onClickRequestBatch }>Request Batch</Button>}
+                            onClick = { this.onClickRequestBatch }>Request Batch</Button>} */}
                     </LayoutBlock>
                 </div>
             </div>

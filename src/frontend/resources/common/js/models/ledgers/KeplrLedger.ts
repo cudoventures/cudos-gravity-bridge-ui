@@ -18,7 +18,7 @@ export default class KeplrLedger implements Ledger {
         makeObservable(this);
     }
 
-    async connect(onSuccess: Function, onError: Function): Promise<void> {
+    async connect(): Promise<void> {
         if (!window.getOfflineSigner || !window.keplr) {
             throw new Error('Please install keplr extension');
         }
@@ -123,10 +123,12 @@ export default class KeplrLedger implements Ledger {
     }
 
     async disconnect(): Promise<void> {
-
+        return new Promise < void >((resolve, reject) => {
+            resolve();
+        });
     }
 
-    async send(amount: BigNumber, destiantionAddress: string, onSuccess: Function, onError: Function): Promise<void> {
+    async send(amount: BigNumber, destiantionAddress: string): Promise<void> {
         const stringifiedAmount = amount.multipliedBy(10 ** CosmosNetworkH.CURRENCY_DECIMALS).toString();
 
         const proposalTypePath = '/gravity.v1.MsgSendToEth'
@@ -180,14 +182,13 @@ export default class KeplrLedger implements Ledger {
             );
 
             assertIsBroadcastTxSuccess(result);
-            onSuccess('Transaction sent successfully!');
         } catch (e) {
             console.log(e);
             throw new Error('Failed to send transaction!');
         }
     }
 
-    async requestBatch(onSuccess: Function, onError: Function) {
+    async requestBatch() {
         const proposalTypePath = '/gravity.v1.MsgRequestBatch'
 
         const chainId = Config.CUDOS_NETWORK.CHAIN_ID;
@@ -231,14 +232,13 @@ export default class KeplrLedger implements Ledger {
             );
 
             assertIsBroadcastTxSuccess(result);
-            onSuccess('Transaction sent successfully!');
         } catch (e) {
             console.log(e);
             throw new Error('Failed to send transaction!');
         }
     }
 
-    async getBalance(onError: Function): Promise<BigNumber> {
+    async getBalance(): Promise<BigNumber> {
         try {
             const offlineSigner = window.getOfflineSigner(Config.CUDOS_NETWORK.CHAIN_ID);
             const account = (await offlineSigner.getAccounts())[0];

@@ -1,7 +1,3 @@
-.CudosBridge .Page {
-    position:relative;
-}
-
 .CudosBridge .PageContent {
     align-items:flex-start;
     justify-content: flex-start;
@@ -15,20 +11,9 @@
     font-size: 20px;
     padding-left: 5px;
     align-items: flex-start;
+    text-align: center;
     font-weight: 400;
     margin-bottom: 20px;
-}
-
-.CudosBridge .Header .NetworkName{
-    font-weight: bold;
-}
-
-.CudosBridge .PageContent .Heading2 {
-    text-align:center;
-    margin-bottom:48px;
-}
-
-.TransactionPopover {
 }
 
 .TransactionPopover .PopupText{

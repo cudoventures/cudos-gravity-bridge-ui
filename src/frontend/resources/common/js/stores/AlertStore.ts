@@ -4,7 +4,7 @@ import S from '../utilities/Main';
 export default class AlertStore {
 
     visible: boolean = false;
-    msg: string | null = null;
+    msg: any | null = null;
     positiveLabel: string | null = null;
     positiveListener: null | (() => boolean | void) = null;
     negativeLabel: string | null = null;
@@ -20,7 +20,7 @@ export default class AlertStore {
         return this.visible;
     }
 
-    show = (msg: string, positiveListener : null | (() => boolean | void) = null, negativeListener: null | (() => boolean | void) = null) => {
+    show = (msg: any, positiveListener : null | (() => boolean | void) = null, negativeListener: null | (() => boolean | void) = null) => {
         this.msg = msg;
         this.positiveLabel = 'Ok';
         if (positiveListener !== null) {
