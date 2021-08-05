@@ -15,16 +15,12 @@ export default class MetamaskLedger implements Ledger {
     static NETWORK_NAME = 'Ethereum';
     @observable connected: number;
     erc20Instance: any;
-    ERC20ContractAddress: string;
-    bridgeContractAddress: string;
     gasPrice: string;
     gas: string;
 
     constructor() {
         this.connected = S.INT_FALSE;
 
-        this.ERC20ContractAddress = Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS;
-        this.bridgeContractAddress = Config.ORCHESTRATOR.BRIDGE_CONTRACT_ADDRESS;
 
         this.gasPrice = Config.ETHEREUM.ETHEREUM_GAS_PRICE;
         this.gas = Config.ETHEREUM.ETHEREUM_GAS;
@@ -32,14 +28,14 @@ export default class MetamaskLedger implements Ledger {
         makeObservable(this);
     }
 
-    async connect(onSuccess: Function, onError: Function): Promise<void> {
+    async connect(): Promise<void> {
         try {
-            window.ethereum.send('eth_requestAccounts');
+            await window.ethereum.send('eth_requestAccounts');
             window.web3 = new Web3(window.ethereum);
             this.connected = S.INT_TRUE;
         } catch (e) {
-            onError('Error: Failed to connect Metamask!');
             console.log(e);
+            throw new Error('Failed to connect Metamask!');
         }
     }
 
@@ -54,30 +50,29 @@ export default class MetamaskLedger implements Ledger {
         const addressBytes32Array = new Uint8Array(32);
         addressByteArray.forEach((byte, i) => { addressBytes32Array[32 - addressByteArray.length + i] = byte });
 
-        const gravityContract = new window.web3.eth.Contract(gravityContractAbi, this.bridgeContractAddress, {
+        const gravityContract = new window.web3.eth.Contract(gravityContractAbi, Config.ORCHESTRATOR.BRIDGE_CONTRACT_ADDRESS, {
             from: account,
             gasPrice: this.gasPrice,
         });
-        const erc20Instance = new window.web3.eth.Contract(ERC20TokenAbi, this.ERC20ContractAddress);
+        const erc20Instance = new window.web3.eth.Contract(ERC20TokenAbi, Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS);
 
         const stringAmount = amount.multipliedBy(10 ** CosmosNetworkH.CURRENCY_DECIMALS).toString();
 
-        erc20Instance.methods.approve(this.bridgeContractAddress, stringAmount)
+        erc20Instance.methods.approve(Config.ORCHESTRATOR.BRIDGE_CONTRACT_ADDRESS, stringAmount)
             .send({ from: account, gas: this.gas },
                 (err, transactionHash) => {
                     if (err) {
-                        onError('Error: Failed to send transaction!');
                         console.log(err);
-                        return;
+                        throw new Error('Failed to send transaction!');
                     }
 
-                    gravityContract.methods.sendToCosmos(this.ERC20ContractAddress, `0x${toHex(addressBytes32Array)}`, stringAmount).send({ from: account, gas: this.gas })
-                        .on('confirmation', (confirmationNumber, receipt) => {
+                    gravityContract.methods.sendToCosmos(Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS, `0x${toHex(addressBytes32Array)}`, stringAmount).send({ from: account, gas: this.gas })
+                        .on('receipt', (confirmationNumber, receipt) => {
                             onSuccess('Transaction sent successfully!');
                         })
                         .on('error', (e) => {
-                            onError('Error: Failed to send transaction!');
                             console.log(e);
+                            throw new Error('Failed to send transaction!');
                         });
                 });
     }
@@ -85,15 +80,14 @@ export default class MetamaskLedger implements Ledger {
     async getBalance(onError: Function): Promise<BigNumber> {
         try {
             const wallet = (await window.web3.eth.requestAccounts())[0];
-            const erc20Contract = new window.web3.eth.Contract(ERC20TokenAbi, this.ERC20ContractAddress);
+            const erc20Contract = new window.web3.eth.Contract(ERC20TokenAbi, Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS);
 
             const balance = await erc20Contract.methods.balanceOf(wallet).call();
 
             return (new BigNumber(balance)).div(10 ** CosmosNetworkH.CURRENCY_DECIMALS);
         } catch (e) {
-            onError('Error: Failed to fetch balance!');
             console.log(e);
-            return undefined;
+            throw new Error('Failed to fetch balance!');
         }
     }
 

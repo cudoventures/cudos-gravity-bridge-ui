@@ -20,8 +20,7 @@ export default class KeplrLedger implements Ledger {
 
     async connect(onSuccess: Function, onError: Function): Promise<void> {
         if (!window.getOfflineSigner || !window.keplr) {
-            onError('Error: Please install keplr extension');
-            return;
+            throw new Error('Please install keplr extension');
         }
 
         if (window.keplr.experimentalSuggestChain) {
@@ -105,11 +104,11 @@ export default class KeplrLedger implements Ledger {
                     },
                 });
             } catch (ex) {
-                onError('Error: Failed to suggest the chain');
                 console.log(ex);
+                throw new Error('Failed to suggest the chain');
             }
         } else {
-            onError('Error: Please use the recent version of keplr extension');
+            throw new Error('Please use the recent version of keplr extension');
         }
         // You should request Keplr to enable the wallet.
         // This method will ask the user whether or not to allow access if they haven't visited this website.
@@ -183,8 +182,8 @@ export default class KeplrLedger implements Ledger {
             assertIsBroadcastTxSuccess(result);
             onSuccess('Transaction sent successfully!');
         } catch (e) {
-            onError('Error: Failed to send transaction!');
             console.log(e);
+            throw new Error('Failed to send transaction!');
         }
     }
 
@@ -234,8 +233,8 @@ export default class KeplrLedger implements Ledger {
             assertIsBroadcastTxSuccess(result);
             onSuccess('Transaction sent successfully!');
         } catch (e) {
-            onError('Error: Failed to send transaction!');
             console.log(e);
+            throw new Error('Failed to send transaction!');
         }
     }
 
@@ -249,11 +248,9 @@ export default class KeplrLedger implements Ledger {
 
             return new BigNumber(amount).div(10 ** CosmosNetworkH.CURRENCY_DECIMALS);
         } catch (e) {
-            onError('Error: Failed get balance!');
             console.log(e);
+            throw new Error('Failed get balance!');
         }
-
-        return undefined;
     }
 
     isAddressValid(address: string): boolean {
