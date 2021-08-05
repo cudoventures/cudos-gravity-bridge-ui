@@ -83,34 +83,64 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
     }
 
     onSelectFromNetwork = async (value) => {
-        const ledger = await this.connectWallet(value);
+        let balance = new BigNumber(0);
+        let ledger = null;
+        let toNetwork = null;
+        let fromNetwork = null;
 
-        const toNetwork = this.props.networkStore.networkHolders.findIndex((v, i) => i !== value);
+        try {
+            fromNetwork = value;
+            ledger = await this.connectWallet(value);
+            toNetwork = this.props.networkStore.networkHolders.findIndex((v, i) => i !== value);
+            balance = await ledger.getBalance(this.showErrorPopup);
+        } catch (e) {
+            this.showErrorPopup(e);
+            fromNetwork = S.Strings.EMPTY;
+            ledger = null;
+            balance = new BigNumber(0);
+            toNetwork = null;
+        }
 
         this.setState({
-            selectedFromNetwork: value,
+            selectedFromNetwork: `${fromNetwork}`,
             selectedToNetwork: `${toNetwork}`,
             amount: new BigNumber(0),
+            displayAmount: S.Strings.EMPTY,
             amountError: S.INT_FALSE,
             destinationAddress: S.Strings.EMPTY,
             destiantionAddressError: S.INT_FALSE,
-            maxAmount: await ledger.getBalance(this.showErrorPopup),
+            maxAmount: balance,
         })
     }
 
     onSelectToNetwork = async (value) => {
-        const fromNetwork = `${this.props.networkStore.networkHolders.findIndex((v, i) => i !== value)}`;
+        let balance = new BigNumber(0);
+        let ledger = null;
+        let toNetwork = null;
+        let fromNetwork = null;
 
-        const ledger = await this.connectWallet(fromNetwork);
+        try {
+            fromNetwork = `${this.props.networkStore.networkHolders.findIndex((v, i) => i !== value)}`;
+            ledger = await this.connectWallet(fromNetwork);
+            balance = await ledger.getBalance(this.showErrorPopup);
+            toNetwork = value;
+        } catch (e) {
+            this.showErrorPopup(e);
+            fromNetwork = S.Strings.EMPTY;
+            ledger = null;
+            balance = new BigNumber(0);
+            toNetwork = null;
+        }
 
         this.setState({
             selectedFromNetwork: fromNetwork,
-            selectedToNetwork: value,
+            selectedToNetwork: toNetwork,
             amount: new BigNumber(0),
+            displayAmount: S.Strings.EMPTY,
             amountError: S.INT_FALSE,
             destinationAddress: S.Strings.EMPTY,
             destiantionAddressError: S.INT_FALSE,
-            maxAmount: await ledger.getBalance(this.showErrorPopup),
+            maxAmount: balance,
         })
     }
 
@@ -168,27 +198,35 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
 
     onClickSend = async () => {
         if (this.state.amount.isGreaterThan(this.state.maxAmount)) {
-            this.showErrorPopup('The amount you entered is more than what you have in your walled.');
+            this.showErrorPopup('Error: The amount you entered is more than what you have in your walled.');
             return;
         }
 
         if (this.state.amountError === S.INT_TRUE) {
-            this.showErrorPopup('Please enter valid amount of tokens.');
+            this.showErrorPopup('Error: Please enter valid amount of tokens.');
             return;
         }
 
         if (this.state.destiantionAddressError === S.INT_TRUE) {
-            this.showErrorPopup('Please enter a valid destiantion address.');
+            this.showErrorPopup('Error: Please enter a valid destiantion address.');
             return;
         }
 
-        const ledger = await this.checkWalletConnected();
-        await ledger.send(this.state.amount, this.state.destinationAddress, this.showSuccessPopup, this.showErrorPopup);
+        try {
+            const ledger = await this.checkWalletConnected();
+            await ledger.send(this.state.amount, this.state.destinationAddress, this.showSuccessPopup, this.showErrorPopup);
+        } catch (e) {
+            this.showErrorPopup(e);
+        }
     }
 
     onClickRequestBatch = async () => {
-        const ledger = await this.checkWalletConnected();
-        await ledger.requestBatch(this.showSuccessPopup, this.showErrorPopup);
+        try {
+            const ledger = await this.checkWalletConnected();
+            await ledger.requestBatch(this.showSuccessPopup, this.showErrorPopup);
+        } catch (e) {
+            this.showErrorPopup(e);
+        }
     }
 
     checkWalletConnected = async () => {
@@ -283,7 +321,7 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
                             type = { Button.TYPE_ROUNDED }
                             color = { Button.COLOR_SCHEME_1 }
                             onClick = { this.onClickClosePopup }>Okay</Button>
-                    </div>CUDOS
+                    </div>
                 </Popover>
                 <div className = { 'FormRow Header' } >
                     <div><span className = { 'NetworkName' }>Cudos</span> Bridge</div>

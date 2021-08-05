@@ -32,14 +32,14 @@ export default class MetamaskLedger implements Ledger {
         makeObservable(this);
     }
 
-    async connect(onSuccess: Function, onError: Function): Promise<void> {
+    async connect(): Promise<void> {
         try {
-            window.ethereum.send('eth_requestAccounts');
+            await window.ethereum.send('eth_requestAccounts');
             window.web3 = new Web3(window.ethereum);
             this.connected = S.INT_TRUE;
         } catch (e) {
-            onError('Error: Failed to connect Metamask!');
             console.log(e);
+            throw new Error('Failed to connect Metamask!');
         }
     }
 
@@ -66,18 +66,17 @@ export default class MetamaskLedger implements Ledger {
             .send({ from: account, gas: this.gas },
                 (err, transactionHash) => {
                     if (err) {
-                        onError('Error: Failed to send transaction!');
                         console.log(err);
-                        return;
+                        throw new Error('Failed to send transaction!');
                     }
 
                     gravityContract.methods.sendToCosmos(this.ERC20ContractAddress, `0x${toHex(addressBytes32Array)}`, stringAmount).send({ from: account, gas: this.gas })
-                        .on('confirmation', (confirmationNumber, receipt) => {
+                        .on('receipt', (confirmationNumber, receipt) => {
                             onSuccess('Transaction sent successfully!');
                         })
                         .on('error', (e) => {
-                            onError('Error: Failed to send transaction!');
                             console.log(e);
+                            throw new Error('Failed to send transaction!');
                         });
                 });
     }
@@ -91,9 +90,8 @@ export default class MetamaskLedger implements Ledger {
 
             return (new BigNumber(balance)).div(10 ** CosmosNetworkH.CURRENCY_DECIMALS);
         } catch (e) {
-            onError('Error: Failed to fetch balance!');
             console.log(e);
-            return undefined;
+            throw new Error('Failed to fetch balance!');
         }
     }
 
