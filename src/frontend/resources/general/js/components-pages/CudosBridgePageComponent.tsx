@@ -138,6 +138,7 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
         let fromNetwork = null;
         let contractBalance = new BigNumber(0);
 
+        console.log(value);
         try {
             fromNetwork = value;
             ledger = await this.connectWallet(value);
@@ -150,10 +151,10 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
             }
         } catch (e) {
             this.showAlertError(e.toString());
-            fromNetwork = S.Strings.EMPTY;
+            fromNetwork = S.NOT_EXISTS;
             ledger = null;
             balance = new BigNumber(0);
-            toNetwork = null;
+            toNetwork = S.NOT_EXISTS;
             contractBalance = new BigNumber(0);
         }
 
@@ -189,10 +190,10 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
             toNetwork = value;
         } catch (e) {
             this.showAlertError(e.toString());
-            fromNetwork = S.Strings.EMPTY;
+            fromNetwork = S.NOT_EXISTS;
             ledger = null;
             balance = new BigNumber(0);
-            toNetwork = null;
+            toNetwork = S.NOT_EXISTS;
             contractBalance = new BigNumber(0);
         }
 

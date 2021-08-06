@@ -5,6 +5,7 @@
     margin: auto;
     margin-top: 50px;
     width: 640px;
+    max-width: 90%;
 }
 
 .CudosBridge .Header {
@@ -16,7 +17,7 @@
     margin-bottom: 20px;
 }
 
-.TransactionPopover .PopupText{
+/* .TransactionPopover .PopupText {
     margin-bottom: 20px;
 }
 
@@ -30,7 +31,7 @@
 
 .TransactionPopover .Success {
     color: var(--color-green);
-}
+} */
 
 .CudosBridge .PageContent .SendForm {
     background-color: var(--color-primary);
@@ -81,6 +82,18 @@
     position: absolute;
     bottom: -20px;
     width: 100%;
+}
+
+@media (max-width: 500px) {
+
+    .CudosBridge .PageContent .SendForm .NetworkSelectMenu {
+        flex-direction: column;
+    }
+
+    .CudosBridge .PageContent .SendForm .NetworkSelectMenu .SVG {
+        margin: 48px 0 32px 0;
+        transform: rotate(90deg);
+    }
 }
 
 .CudosBridge .PageContent .SendForm .ContractBalance {

@@ -20,7 +20,7 @@ export default class KeplrLedger implements Ledger {
 
     async connect(): Promise<void> {
         if (!window.getOfflineSigner || !window.keplr) {
-            throw new Error('Please install keplr extension');
+            throw new Error('Failed to connect to Keplr!');
         }
 
         if (window.keplr.experimentalSuggestChain) {
