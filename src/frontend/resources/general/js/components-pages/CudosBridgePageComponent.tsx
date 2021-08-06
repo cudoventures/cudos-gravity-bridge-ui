@@ -138,7 +138,6 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
         let fromNetwork = null;
         let contractBalance = new BigNumber(0);
 
-        console.log(value);
         try {
             fromNetwork = value;
             ledger = await this.connectWallet(value);
