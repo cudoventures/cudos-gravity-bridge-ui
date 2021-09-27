@@ -21,6 +21,7 @@ const envVariables = [
     'FRONTEND_PORT',
     'URL',
     'SESSION_UNIQUE_KEY',
+    'CHAIN_NAME',
     'CHAIN_ID',
     'RPC',
     'API',
@@ -198,6 +199,7 @@ const Config = {
         API: `${URL_ROOT}/api`,
     },
     CUDOS_NETWORK: {
+        CHAIN_NAME: process.env.CHAIN_NAME,
         CHAIN_ID: process.env.CHAIN_ID,
         RPC: process.env.RPC,
         API: process.env.API,

@@ -1,6 +1,4 @@
 export default class CosmosNetworkH {
-    static CHAIN_NAME = 'CudosNetwork';
-
     static CURRENCY_DISPLAY_NAME = 'CUDOS';
     static CURRENCY_DENOM = 'acudos';
     static CURRENCY_DECIMALS = 18;

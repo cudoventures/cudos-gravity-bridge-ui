@@ -29,7 +29,7 @@ export default class KeplrLedger implements Ledger {
                     // Chain-id of the Cosmos SDK chain.
                     chainId: Config.CUDOS_NETWORK.CHAIN_ID,
                     // The name of the chain to be displayed to the user.
-                    chainName: CosmosNetworkH.CHAIN_NAME,
+                    chainName: Config.CUDOS_NETWORK.CHAIN_NAME,
                     // RPC endpoint of the chain.
                     rpc: Config.CUDOS_NETWORK.RPC,
                     // REST endpoint of the chain.
