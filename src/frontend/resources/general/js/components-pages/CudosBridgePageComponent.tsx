@@ -268,7 +268,7 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
 
     onClickSend = async () => {
         if (this.state.amount.isGreaterThan(this.state.walletBalance)) {
-            this.showAlertError('Error: The amount you entered is more than what you have in your walled.');
+            this.showAlertError('Error: The amount you entered is more than what you have in your wallet.');
             return;
         }
 
