@@ -287,8 +287,8 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
 
             const ledger = await this.checkWalletConnected();
             await ledger.send(this.state.amount, this.state.destinationAddress);
-            // await ledger.requestBatch();
-            this.showAlertSuccess('Your transaction was sent successfully and will be executed in next 60 blocks');
+            await ledger.requestBatch();
+            this.showAlertSuccess('Your transaction was sent successfully.');
         } catch (e) {
             this.showAlertError(e.toString());
         } finally {
