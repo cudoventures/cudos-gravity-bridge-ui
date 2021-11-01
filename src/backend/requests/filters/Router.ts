@@ -6,7 +6,6 @@ import util from 'util';
 
 import Payload from '../../utilities/network/Payload';
 import GeneralFilter from './GeneralFilter';
-import CAdminFilter from './CAdminFilter';
 import ApiFilter from './ApiFilter';
 import Session from '../../utilities/Session';
 import Logger from '../../utilities/Logger';
@@ -32,7 +31,6 @@ export default class Router {
         Router.dbPool = dbPool;
         ApiFilter.init();
         GeneralFilter.init();
-        CAdminFilter.init();
     }
 
     static async onRequest(ctx) {
@@ -58,9 +56,6 @@ export default class Router {
                 return;
             }
 
-            if (await CAdminFilter.onRequest(context) === true) {
-                return;
-            }
             if (await GeneralFilter.onRequest(context) === true) {
                 return;
             }
