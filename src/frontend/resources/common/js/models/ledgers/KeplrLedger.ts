@@ -129,7 +129,7 @@ export default class KeplrLedger implements Ledger {
     }
 
     async send(amount: BigNumber, destiantionAddress: string): Promise<void> {
-        const stringifiedAmount = amount.multipliedBy(10 ** CosmosNetworkH.CURRENCY_DECIMALS).toString();
+        const stringifiedAmount = amount.multipliedBy(CosmosNetworkH.CURRENCY_1_CUDO).toString(10);
 
         const proposalTypePath = '/gravity.v1.MsgSendToEth'
 
@@ -246,7 +246,7 @@ export default class KeplrLedger implements Ledger {
             const url = `${Config.CUDOS_NETWORK.API}/cosmos/bank/v1beta1/balances/${account.address}/${CosmosNetworkH.CURRENCY_DENOM}`;
             const amount = (await (await fetch(url)).json()).balance.amount;
 
-            return new BigNumber(amount).div(10 ** CosmosNetworkH.CURRENCY_DECIMALS);
+            return new BigNumber(amount).div(CosmosNetworkH.CURRENCY_1_CUDO);
         } catch (e) {
             console.log(e);
             throw new Error('Failed get balance!');

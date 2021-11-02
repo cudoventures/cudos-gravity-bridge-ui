@@ -59,7 +59,7 @@ export default class MetamaskLedger implements Ledger {
                 });
                 const erc20Instance = new window.web3.eth.Contract(ERC20TokenAbi, Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS);
 
-                const stringAmount = amount.multipliedBy(10 ** CosmosNetworkH.CURRENCY_DECIMALS).toString();
+                const stringAmount = amount.multipliedBy(CosmosNetworkH.CURRENCY_1_CUDO).toString(10);
 
                 erc20Instance.methods.approve(Config.ORCHESTRATOR.BRIDGE_CONTRACT_ADDRESS, stringAmount)
                     .send({ from: account, gas: this.gas },
@@ -97,7 +97,7 @@ export default class MetamaskLedger implements Ledger {
 
             const balance = await erc20Contract.methods.balanceOf(wallet).call();
 
-            return (new BigNumber(balance)).div(10 ** CosmosNetworkH.CURRENCY_DECIMALS);
+            return (new BigNumber(balance)).div(CosmosNetworkH.CURRENCY_1_CUDO);
         } catch (e) {
             console.log(e);
             throw new Error('Failed to fetch balance!');

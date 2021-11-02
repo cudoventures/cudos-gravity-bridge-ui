@@ -94,7 +94,7 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
 
             const balance = await erc20Contract.methods.balanceOf(contractWallet).call();
 
-            return (new BigNumber(balance)).div(10 ** CosmosNetworkH.CURRENCY_DECIMALS);
+            return (new BigNumber(balance)).div(CosmosNetworkH.CURRENCY_1_CUDO);
         } catch (e) {
             console.log(e);
             throw new Error('Failed to fetch balance!');
@@ -236,7 +236,7 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
                 return;
             }
 
-            if (bigAmount.isNaN() || bigAmount.isLessThan(new BigNumber(1).dividedBy(10 ** CosmosNetworkH.CURRENCY_DECIMALS)) || bigAmount.isGreaterThan(BigNumber.minimum(this.state.walletBalance, this.state.contractBalance))) {
+            if (bigAmount.isNaN() || bigAmount.isLessThan(new BigNumber(1).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO)) || bigAmount.isGreaterThan(BigNumber.minimum(this.state.walletBalance, this.state.contractBalance))) {
                 this.setState({
                     amountError: S.INT_TRUE,
                 })
