@@ -10,12 +10,20 @@ import S from '../utilities/Main';
 
 const theme01 = createMuiTheme({
     palette: {
+        action: {
+            disabledBackground: 'rgba(54, 62, 89, 1)',
+            disabled: '#fff'
+        },
         primary: {
             main: 'rgb(85, 146, 247)',
             contrastText: '#fff',
         },
         secondary: {
-            main: 'rgb(46, 46, 46)',
+            main: 'rgb(27, 32, 49)',
+            contrastText: '#fff',
+        },
+        info: {
+            main: 'rgb(27, 32, 49)',
             contrastText: '#fff',
         },
     },
@@ -33,7 +41,7 @@ const theme02 = createMuiTheme({
 interface Props {
     className?: string;
     type?: Button.TYPE_ROUNDED | Button.TYPE_TEXT_INLINE;
-    color?: Button.COLOR_SCHEME_1 | Button.COLOR_SCHEME_2;
+    color?: Button.COLOR_SCHEME_1 | Button.COLOR_SCHEME_2 | Button.COLOR_SCHEME_4;
     href?: string,
     onClick?: () => void;
     disabled?: boolean;
@@ -48,6 +56,7 @@ export default class Button extends React.Component < Props > {
     static COLOR_SCHEME_1: number = 1;
     static COLOR_SCHEME_2: number = 2;
     static COLOR_SCHEME_3: number = 3;
+    static COLOR_SCHEME_4: number = 4;
 
     cssMuiClassColor() {
         switch (this.props.color) {
@@ -57,6 +66,8 @@ export default class Button extends React.Component < Props > {
                 return 'primary';
             case Button.COLOR_SCHEME_2:
                 return 'secondary';
+            case Button.COLOR_SCHEME_4:
+                return 'info'
         }
     }
 
@@ -74,6 +85,7 @@ export default class Button extends React.Component < Props > {
         switch (this.props.color) {
             case Button.COLOR_SCHEME_1:
             case Button.COLOR_SCHEME_2:
+            case Button.COLOR_SCHEME_4:
                 return theme01;
             default:
                 return theme02;

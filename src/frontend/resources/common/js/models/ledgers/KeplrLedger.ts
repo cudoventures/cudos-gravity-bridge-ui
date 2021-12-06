@@ -10,11 +10,13 @@ import BigNumber from 'bignumber.js';
 
 export default class KeplrLedger implements Ledger {
     @observable connected: number;
+    @observable account: string;
 
     static NETWORK_NAME = 'Cudos';
 
     constructor() {
         this.connected = S.INT_FALSE;
+        this.account = null;
         makeObservable(this);
     }
 
@@ -117,8 +119,9 @@ export default class KeplrLedger implements Ledger {
         await window.keplr.enable(Config.CUDOS_NETWORK.CHAIN_ID);
 
         const offlineSigner = window.getOfflineSigner(Config.CUDOS_NETWORK.CHAIN_ID);
-        const account = (await offlineSigner.getAccounts())[0];
-
+        this.account = (await offlineSigner.getAccounts())[0].address;
+        console.log('account', this.account);
+        
         this.connected = S.INT_TRUE;
     }
 

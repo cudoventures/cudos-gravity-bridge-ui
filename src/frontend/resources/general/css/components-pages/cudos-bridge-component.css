@@ -1,20 +1,148 @@
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@700&display=swap');
+
 .CudosBridge .PageContent {
+    background-color: #1B2031;
     align-items:flex-start;
     justify-content: flex-start;
     position:relative;
     margin: auto;
     margin-top: 50px;
-    width: 640px;
+    width: 473px;
     max-width: 90%;
+    height: 150vh;
+}
+
+.CudosBridge .PageContent .CreateAccount {
+    color: var(--color-gray);
+    border: 1px solid rgba(99, 109, 143, 0.2);
+    border-radius: 10px;
+    box-sizing: border-box;
+    padding: 80px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+    margin-top: 20px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 14px;
+}
+
+.CudosBridge .Wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.CudosBridge .Wrapper .TransferInfoBox {
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 105px;
+    height: 33px;
+    border-radius: 5px;
+    background-color: var(--color-secondary);
+    text-align: center;
+    font-size: 12px;
+}
+
+.CudosBridge .Wrapper .TransferLogoAlt {
+    height: 15px;
+    width: 15px;
+}
+
+.CudosBridge .Wrapper .TransferWrapper {
+    display: flex;
+    align-self: center;
+    margin-left: 10px;
+    margin-right: 10px;
+    height: 15px;
+    width: 15px;
+}
+
+.CudosBridge .CudosMainLogo {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 10px;
+}
+
+.CudosBridge .Wrapper .CudosFont {
+    width: 100px;
+    height: 20px;
+    margin-bottom: 10px;
 }
 
 .CudosBridge .Header {
-    font-size: 20px;
+    font-size: 30px;
+    font-family: Poppins, sans-serif;
+    line-height: 45px;
     padding-left: 5px;
     align-items: flex-start;
     text-align: center;
-    font-weight: 400;
-    margin-bottom: 20px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.CudosBridge .Subheader {
+    text-align: center;
+    color: var(--color-gray);
+    margin-bottom: 25px;
+    margin-top: 25px;
+}
+
+.CudosBridge .Address {
+  position: relative;  
+  background: rgb(45, 53, 78);
+  color:rgb(255, 255, 255);
+  border-radius: 5px;
+  border-width: 1px;
+  max-width: 393px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+}
+
+.CudosBridge .Title {
+    margin-bottom: 5px;
+    font-size: 14px;
+    font-weight: 400;   
+}
+
+.CudosBridge .Address .CudosLogo {
+    width: 22px;
+    height: 22px;
+    margin-left: 15px;
+    margin-right: 10px;
+}
+
+.CudosBridge .Address .EthLogo {
+    width: 16px;
+    height: 27px;
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.CudosBridge .ConnectBtn {
+    position: absolute !important;
+    font-size: 12px !important;
+    right: 8px;
+    width: 77px;
+    height: 33px;
+}
+
+.CudosBridge .DisconnectBtn {
+    position: absolute !important;
+    font-size: 12px !important;
+    right: 8px;
+    width: 100px;
+    height: 33px;
+}
+
+.CudosBridge .Wrapper .TransferLogo {
+    margin-top: 10px;
+    margin-bottom: -10px;
+    width: 55px;
+    height: 54px;
 }
 
 /* .TransactionPopover .PopupText {
@@ -34,14 +162,22 @@
 } */
 
 .CudosBridge .PageContent .SendForm {
-    background-color: var(--color-primary);
+    background-color: var(--color-dark-blue);
     align-items: center;
     padding: 50px;
     border-radius: 20px;
+    height: 280px;
 }
 
 .CudosBridge .PageContent .SendForm .FormRow {
-    margin-top: 50px;
+    margin-top: 30px;
+}
+
+.CudosBridge .PageContent .SendForm .TransferBtn {
+    width: 257px;
+    height: 52px;
+    display: flex;
+    justify-content: center;
 }
 
 .CudosBridge .PageContent .SendForm .NetworkSelectMenu {
