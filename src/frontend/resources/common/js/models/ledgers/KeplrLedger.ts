@@ -25,6 +25,11 @@ export default class KeplrLedger implements Ledger {
             throw new Error('Failed to connect to Keplr!');
         }
 
+        window.addEventListener("keplr_keystorechange", () => {
+            console.log('reconnect...');
+            this.connect();
+        })
+
         if (window.keplr.experimentalSuggestChain) {
             try {
                 await window.keplr.experimentalSuggestChain({

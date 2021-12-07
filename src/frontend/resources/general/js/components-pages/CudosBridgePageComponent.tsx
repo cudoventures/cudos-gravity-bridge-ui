@@ -3,24 +3,19 @@
 import React, { RefObject } from 'react';
 
 import ContextPageComponent, { ContextPageComponentProps } from './common/ContextPageComponent';
+import TransferForm from './TransferForm';
+import SummaryForm from './SummaryForm';
 
 import Config from '../../../../../../builds/dev-generated/Config';
 import './../../css/components-pages/cudos-bridge-component.css';
-import LayoutBlock from '../../../common/js/components-inc/LayoutBlock';
-import Button from '../../../common/js/components-inc/Button';
-import Input from '../../../common/js/components-inc/Input';
-import Select from '../../../common/js/components-inc/Select';
-import Popover from '../../../common/js/components-inc/Popover';
 import PageComponent from '../../../common/js/components-pages/PageComponent';
 import { inject, observer } from 'mobx-react';
 import BigNumber from 'bignumber.js';
-import SvgArrowRight from '../../../common/svg/arrow-right.svg';
 
 import S from '../../../common/js/utilities/Main';
 import NetworkStore from '../../../common/js/stores/NetworkStore';
 import KeplrLedger from '../../../common/js/models/ledgers/KeplrLedger';
 import ProjectUtils from '../../../common/js/ProjectUtils';
-import { MenuItem } from '@material-ui/core';
 import Ledger from '../../../common/js/models/ledgers/Ledger';
 import CosmosNetworkH from '../../../common/js/models/ledgers/CosmosNetworkH';
 import MetamaskLedger from '../../../common/js/models/ledgers/MetamaskLedger';
@@ -46,12 +41,10 @@ interface State {
     // popupType: string;
     // transactionPopupText: string;
     contractBalance: BigNumber;
+    summary: boolean;
 }
 
-const cudosLogo = '../../../../resources/common/img/favicon/cudos-22x22.svg'
 const cudosMainLogo = '../../../../resources/common/img/favicon/cudos-40x40.svg'
-const ethLogo = '../../../../resources/common/img/favicon/eth-16x25.png'
-const transferLogo = '../../../../resources/common/img/favicon/transfer-logo.svg'
 const cudosFont = '../../../../resources/common/img/favicon/cudos-font.svg'
 const transferLogoAlt = '../../../../resources/common/img/favicon/transfer-logo-alt.svg'
 // const POPUP_TYPE_ERROR = 'Error';
@@ -85,6 +78,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             // popupType: S.Strings.EMPTY,
             // transactionPopupText: S.Strings.EMPTY,
             contractBalance: new BigNumber(0),
+            summary: false,
         }
 
         this.root = React.createRef();
@@ -125,8 +119,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         }
 
         const ledger = this.props.networkStore.networkHolders[networkId].ledger;
-        console.log('isCosmos', ledger);
-        
+
         return ledger instanceof KeplrLedger;
     }
 
@@ -146,12 +139,12 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
     onDisconnectFromNetwork = async () => {
         if (this.state.isFromConnected) {
             this.setState({
-                isFromConnected: false
+                isFromConnected: false,
             })
         }
     }
 
-    onDisconnectToNetwork = async (networkId: number = null) => {
+    onDisconnectToNetwork = async () => {
         if (this.state.isToConnected) {
             this.setState({
                 isToConnected: false,
@@ -162,13 +155,14 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
     onSelectFromNetwork = async (value: number) => {
         let balance = new BigNumber(0);
         let ledger = null;
-        let toNetwork = null;
+        const toNetwork = null;
         let fromNetwork = null;
         let contractBalance = new BigNumber(0);
+        let connectionError = false;
 
         try {
-            fromNetwork = value;
-            ledger = await this.connectWallet(value);
+            fromNetwork = this.state.selectedFromNetwork;
+            ledger = await this.connectWallet(fromNetwork);
             // toNetwork = this.props.networkStore.networkHolders.findIndex((v, i) => i !== value);
             balance = await ledger.getBalance();
             if (this.isFromCosmos(fromNetwork) === true) {
@@ -178,36 +172,35 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             }
         } catch (e) {
             this.showAlertError(e.toString());
-            fromNetwork = S.NOT_EXISTS;
-            ledger = null;
+            connectionError = true
             balance = new BigNumber(0);
-            // toNetwork = S.NOT_EXISTS;
             contractBalance = new BigNumber(0);
         }
-
-        this.setState({
-            selectedFromNetwork: fromNetwork,
-            isFromConnected: true,
-            // selectedToNetwork: toNetwork,
-            amount: new BigNumber(0),
-            displayAmount: S.Strings.EMPTY,
-            amountError: S.INT_FALSE,
-            destinationAddress: S.Strings.EMPTY,
-            destiantionAddressError: S.INT_FALSE,
-            walletBalance: balance,
-            contractBalance,
-        })
+        if (!connectionError) {
+            this.setState({
+                selectedFromNetwork: fromNetwork,
+                isFromConnected: true,
+                amount: new BigNumber(0),
+                displayAmount: S.Strings.EMPTY,
+                amountError: S.INT_FALSE,
+                destinationAddress: S.Strings.EMPTY,
+                destiantionAddressError: S.INT_FALSE,
+                walletBalance: balance,
+                contractBalance,
+            })
+        }
     }
 
-    onSelectToNetwork = async (value) => {
+    onSelectToNetwork = async (value: number) => {
         let balance = new BigNumber(0);
         let ledger = null;
         let toNetwork = null;
-        let fromNetwork = null;
+        const fromNetwork = null;
         let contractBalance = new BigNumber(0);
+        let connectionError = false;
 
         try {
-            toNetwork = value;
+            toNetwork = this.state.selectedToNetwork;
             // fromNetwork = `${this.props.networkStore.networkHolders.findIndex((v, i) => i !== value)}`;
             ledger = await this.connectWallet(toNetwork);
             balance = await ledger.getBalance();
@@ -218,25 +211,23 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             }
         } catch (e) {
             this.showAlertError(e.toString());
-            // fromNetwork = S.NOT_EXISTS;
-            ledger = null;
+            connectionError = true;
             balance = new BigNumber(0);
-            toNetwork = S.NOT_EXISTS;
             contractBalance = new BigNumber(0);
         }
-
-        this.setState({
-            // selectedFromNetwork: fromNetwork,
-            selectedToNetwork: toNetwork,
-            isToConnected: true,
-            amount: new BigNumber(0),
-            displayAmount: S.Strings.EMPTY,
-            amountError: S.INT_FALSE,
-            destinationAddress: S.Strings.EMPTY,
-            destiantionAddressError: S.INT_FALSE,
-            walletBalance: balance,
-            contractBalance,
-        })
+        if (!connectionError) {
+            this.setState({
+                selectedToNetwork: toNetwork,
+                isToConnected: true,
+                amount: new BigNumber(0),
+                displayAmount: S.Strings.EMPTY,
+                amountError: S.INT_FALSE,
+                destinationAddress: S.Strings.EMPTY,
+                destiantionAddressError: S.INT_FALSE,
+                walletBalance: balance,
+                contractBalance,
+            })
+        }
     }
 
     onClickMaxAmount = async () => {
@@ -337,9 +328,14 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
     onChnageTransactionDirection = async () => {
         const toNetwork = this.state.selectedToNetwork;
         const fromNetwork = this.state.selectedFromNetwork;
+        const toConnected = this.state.isToConnected;
+        const fromConnected = this.state.isFromConnected;
+
         this.setState({
             selectedFromNetwork: toNetwork,
-            selectedToNetwork: fromNetwork
+            selectedToNetwork: fromNetwork,
+            isToConnected: fromConnected,
+            isFromConnected: toConnected,
         })
     }
 
@@ -362,27 +358,17 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         console.log('meta', metamaskLedger);
         if (!keplrLedger && !metamaskLedger) {
             return false;
-        } else {
-            return true;
         }
+        return true;
+
     }
-
-    // onClickConnectWallet = async () => {
-    //     const networkId = this.state.selectedFromNetwork;
-
-    //     this.connectWallet(networkId);
-    // }
 
     connectWallet = async (networkId: number): Promise<Ledger> => {
         const networkHolders = this.props.networkStore.networkHolders;
 
         const ledger = networkHolders[networkId].ledger;
         console.log('ledger', ledger);
-
-
-        if (!ledger.connected) {
-            await ledger.connect();
-        }
+        await ledger.connect();
 
         return ledger;
     }
@@ -414,162 +400,86 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
     }
 
     getAddress = (networkId: number) => {
-        const ledger = this.props.networkStore.networkHolders[networkId].ledger
-        return this.formatText(ledger.account);
+        try {
+            const ledger = this.props.networkStore.networkHolders[networkId].ledger
+            return this.formatText(ledger.account);
+        } catch (e) {
+            this.showAlertError(e.toString());
+        }
+
     }
 
-    formatText (text: string): string {
+    formatText(text: string): string {
         if ((text === null || text.length < 10)) {
-          return text
-        } else {
-          const len = text.length
-            return text.slice(0, 19) + '...' + text.slice(len - 4, len)
+            return text
         }
-      }
+        const len = text.length
+        return `${text.slice(0, 18)}...${text.slice(len - 4, len)}`
 
-    // toggleOpenState = () => {
-    //     this.setState({
-    //         showPopup: !this.state.showPopup,
-    //     })
-    // }
+    }
 
-    // onClickClosePopup = () => {
-    //     this.setState({
-    //         showPopup: false,
-    //         transactionPopupText: S.Strings.EMPTY,
-    //     })
-    // }
+    goToTransactionSummary = () => {
+        this.setState({
+            summary: true,
+        })
+    }
 
     renderContent() {
         return (
-            <div className={'PageContent'}>
-                {/* <Popover
-                    anchorOrigin={{ vertical: 'center', horizontal: 'center' }}
-                    transformOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-                    onClose={this.toggleOpenState}
-                    open={this.state.showPopup}
-                    anchorEl={this.root.current}>
-                    <div className = { 'FlexColumn TransactionPopover' }>
-                        <div className = { `PopupText ${this.state.popupType}` }>
-                            {this.state.transactionPopupText}
-                        </div>
-                        <Button
-                            type = { Button.TYPE_ROUNDED }
-                            color = { Button.COLOR_SCHEME_1 }
-                            onClick = { this.onClickClosePopup }>Okay</Button>
-                    </div>
-                </Popover> */}
-                <div className={'Wrapper'}>
-                    <div className={'CudosMainLogo'} style={ProjectUtils.makeBgImgStyle(cudosMainLogo)}></div>
-                </div>
-                <div className={'Wrapper'}>
-                    <div className={'CudosFont'} style={ProjectUtils.makeBgImgStyle(cudosFont)}></div>
-                </div>
-                <div className={'Header'} >Gravity Bridge</div>
-                <div className={'Wrapper'}>
-                    <span className={'TransferInfoBox'}>{this.state.selectedFromNetwork ? 'CUDOS' : 'Ethereum'}</span>
-                    <div className={'TransferWrapper'}>
-                        <span className={'TransferLogoAlt'} style={ProjectUtils.makeBgImgStyle(transferLogoAlt)}></span>
-                    </div>
-                    <span className={'TransferInfoBox'}>{this.state.selectedToNetwork ? 'CUDOS' : 'Ethereum'}</span>
-                </div>
-                <div className={'Subheader'}>
-                    <div>Transfer tokens between Ethereum and CUDOS. Connect a CUDOS and Ethereum account to get started</div>
-                </div>
-                <div className={'SendForm'} >
-                    <div className={'Title'}>Transfer from</div>
-                    <div className={'Address'}>
-                        <div className={this.state.selectedFromNetwork ? 'CudosLogo' : 'EthLogo'} style={this.state.selectedFromNetwork ? ProjectUtils.makeBgImgStyle(cudosLogo) : ProjectUtils.makeBgImgStyle(ethLogo)} />
-                        {this.state.isFromConnected ? this.getAddress(this.state.selectedFromNetwork) : this.state.selectedFromNetwork ? 'CUDOS' : 'Ethereum'}
-                        <Button
-                            className={this.state.isFromConnected ? 'DisconnectBtn' : 'ConnectBtn'}
-                            onClick={() => this.state.isFromConnected ? this.onDisconnectFromNetwork() : this.onSelectFromNetwork(this.state.selectedFromNetwork)}
-                            // value = { this.state.selectedFromNetwork }
-                            type={Button.TYPE_ROUNDED}
-                            color={this.state.isFromConnected ? Button.COLOR_SCHEME_2 : Button.COLOR_SCHEME_1}>{this.state.isFromConnected ? 'Disconnect' : 'Connect'}</Button>
+            <div>
+                <div className={'HeaderSection'}>
+                    <div className={'Wrapper'}>
+                        <div className={'CudosMainLogo'} style={ProjectUtils.makeBgImgStyle(cudosMainLogo)}></div>
                     </div>
                     <div className={'Wrapper'}>
-                        <div className={'TransferLogo'} style={ProjectUtils.makeBgImgStyle(transferLogo)} onClick={() => this.onChnageTransactionDirection()}></div>
+                        <div className={'CudosFont'} style={ProjectUtils.makeBgImgStyle(cudosFont)}></div>
                     </div>
-                    <div className={'Title'}>Transfer to</div>
-                    <div className={'Address'}>
-                    <div className={this.state.selectedToNetwork ? 'CudosLogo' : 'EthLogo'} style={this.state.selectedToNetwork ? ProjectUtils.makeBgImgStyle(cudosLogo) : ProjectUtils.makeBgImgStyle(ethLogo)} />
-                        {this.state.isToConnected ? this.getAddress(this.state.selectedToNetwork) : this.state.selectedToNetwork ? 'CUDOS' : 'Ethereum'}
-                        <Button
-                            className={this.state.isToConnected ? 'DisconnectBtn' : 'ConnectBtn'}
-                            onClick={() => this.state.isToConnected ? this.onDisconnectToNetwork() : this.onSelectToNetwork(this.state.selectedToNetwork)}
-                            value={this.state.selectedToNetwork}
-                            type={Button.TYPE_ROUNDED}
-                            color={this.state.isToConnected ? Button.COLOR_SCHEME_2 : Button.COLOR_SCHEME_1}>{this.state.isToConnected ? 'Disconnect' : 'Connect'}</Button>
-                    </div>
-                    <div className={'FormRow Wrapper'} >
-                        <Button
-                            disabled={(!this.state.isFromConnected || !this.state.isToConnected)}
-                            className={'TransferBtn'}
-                            type={Button.TYPE_ROUNDED}
-                            color={Button.COLOR_SCHEME_1}
-                            onClick={this.onClickSend}>Begin new transfer
-                        </Button>
-                    </div>
-                    {/* <div ref={this.root} className = { 'FlexRow FormRow NetworkSelectMenu' }>
-                        <div className = { 'NetworkSelectContainer FlexColumn' }>
-                            <div className={ 'NetworkLogo' } style={ProjectUtils.makeBgImgStyle(this.state.selectedFromNetwork !== S.NOT_EXISTS ? `${Config.URL.Resources.Common.IMG}/${this.getLogoName(this.props.networkStore.networkHolders[this.state.selectedFromNetwork])}` : '')}></div>
-                            <div className = { 'DirectionText' }>FROM</div>
-                            <Select
-                                className = { 'NetworkSelect' }
-                                onChange = { this.onSelectFromNetwork }
-                                value = { this.state.selectedFromNetwork }>
-                                {this.props.networkStore.networkHolders.map((network, i) => <MenuItem key = { i } value = { i } >{ network.name }</MenuItem>)}
-                            </Select>
+                    <div className={'Header'} >Gravity Bridge</div>
+                    <div className={'Wrapper'}>
+                        <span className={'TransferInfoBox'}>{this.state.selectedFromNetwork ? 'CUDOS' : 'Ethereum'}</span>
+                        <div className={'TransferWrapper'}>
+                            <span className={'TransferLogoAlt'} style={ProjectUtils.makeBgImgStyle(transferLogoAlt)}></span>
                         </div>
-                        <div className={'SVG Icon'} dangerouslySetInnerHTML={{ __html: SvgArrowRight }}></div>
-                        <div className = { 'NetworkSelectContainer FlexColumn' }>
-                            <div className={ 'NetworkLogo' } style={ProjectUtils.makeBgImgStyle(this.state.selectedToNetwork !== S.NOT_EXISTS ? `${Config.URL.Resources.Common.IMG}/${this.getLogoName(this.props.networkStore.networkHolders[this.state.selectedToNetwork])}` : '')}></div>
-                            <div className = { 'DirectionText' }>TO</div>
-                            <Select
-                                className = { 'NetworkSelect' }
-                                onChange = { this.onSelectToNetwork }
-                                value = { this.state.selectedToNetwork }>
-                                {this.props.networkStore.networkHolders.map((network, i) => <MenuItem key = { i } value = { i } >{ network.name }</MenuItem>)}
-                            </Select>
-                        </div>
+                        <span className={'TransferInfoBox'}>{this.state.selectedToNetwork ? 'CUDOS' : 'Ethereum'}</span>
                     </div>
-                    <LayoutBlock className = { 'FlexColumn FormRow' }>
-                        <Input
-                            label = { 'Amount' }
-                            value = {this.state.displayAmount}
-                            onChange = { this.onChangeAmount }
-                            InputProps = {{
-                                endAdornment: <div className = {' FlexRow Adornment'}>
-                                    <div className={this.state.selectedToNetwork === S.NOT_EXISTS ? 'Mui-disabled' : ''}>CUDOS</div>
-                                    <Button disabled = {this.state.selectedToNetwork === S.NOT_EXISTS}
-                                        className = {' InInput '}
-                                        type = { Button.TYPE_ROUNDED }
-                                        color = { Button.COLOR_SCHEME_1 }
-                                        onClick = { this.onClickMaxAmount }>Max</Button>
-                                </div> }}
-                            error = { this.state.amountError === S.INT_TRUE}/>
-                        { this.isFromCosmos() && (
-                            <div className = { 'ContractBalance' }>{`Bridge contract balance is: ${this.state.contractBalance.toFixed()} CUDOS`}</div>
-                        ) }
-                    </LayoutBlock>
-                    <LayoutBlock className = { 'FormRow' }>
-                        <Input
-                            label = { 'Destination address' }
-                            value = {this.state.destinationAddress}
-                            onChange = { this.onChangeDestinationAddress }
-                            error = { this.state.destiantionAddressError === S.INT_TRUE}/>
-                    </LayoutBlock>
-                    <LayoutBlock className = { 'FormRow' } >
-                        {this.state.selectedToNetwork !== S.NOT_EXISTS
-                        && <Button
-                            type = { Button.TYPE_ROUNDED }
-                            color = { Button.COLOR_SCHEME_1 }
-                            onClick = { this.onClickSend }>Send</Button>}
-                    </LayoutBlock> */}
+                    <div className={'Subheader'}>
+                        <div>Transfer tokens between Ethereum and CUDOS. Connect a CUDOS and Ethereum account to get started</div>
+                    </div>
                 </div>
-                <div className={'CreateAccount'}>
-                    <span>Need a CUDOS account? Create one <a target='_blank' style={{ color: 'rgba(78, 148, 238, 1)' }} href='https://www.google.bg/'>here</a></span>
+                <div className={!this.state.summary ? 'PageContent' : 'SummaryContent'}>
+                    {!this.state.summary
+                        ? <TransferForm
+                            selectedFromNetwork={this.state.selectedFromNetwork}
+                            selectedToNetwork={this.state.selectedToNetwork}
+                            isFromConnected = {this.state.isFromConnected}
+                            isToConnected={this.state.isToConnected}
+                            onDisconnectFromNetwork={this.onDisconnectFromNetwork}
+                            onDisconnectToNetwork={this.onDisconnectToNetwork}
+                            onSelectFromNetwork={this.onSelectFromNetwork}
+                            onSelectToNetwork={this.onSelectToNetwork}
+                            onChnageTransactionDirection={this.onChnageTransactionDirection}
+                            getAddress={this.getAddress}
+                            goToTransactionSummary={this.goToTransactionSummary}
+                        />
+                        : <SummaryForm
+                            selectedFromNetwork={this.state.selectedFromNetwork}
+                            selectedToNetwork={this.state.selectedToNetwork}
+                            isFromConnected = {this.state.isFromConnected}
+                            isToConnected={this.state.isToConnected}
+                            onDisconnectFromNetwork={this.onDisconnectFromNetwork}
+                            onDisconnectToNetwork={this.onDisconnectToNetwork}
+                            onSelectFromNetwork={this.onSelectFromNetwork}
+                            onSelectToNetwork={this.onSelectToNetwork}
+                            onChnageTransactionDirection={this.onChnageTransactionDirection}
+                            getAddress={this.getAddress}
+                        />
+                    }
+                    {this.state.summary
+                        ? null
+                        : <div className={'CreateAccount'}>
+                            <span>Need a CUDOS account? Create one <a target='_blank' style={{ color: 'rgba(78, 148, 238, 1)' }} href='https://www.google.bg/'>here</a></span>
+                        </div>
+                    }
                 </div>
             </div>
         )

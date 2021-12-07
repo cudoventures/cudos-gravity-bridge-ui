@@ -30,7 +30,14 @@ export default class MetamaskLedger implements Ledger {
 
     async connect(): Promise<void> {
         try {
-            await window.ethereum.send('eth_requestAccounts');
+            await window.ethereum.request({
+                method: 'wallet_requestPermissions',
+                params: [
+                  {
+                    eth_accounts: {}
+                  }
+                ]
+              });
             window.web3 = new Web3(window.ethereum);
             this.account = window.ethereum.selectedAddress;
             this.connected = S.INT_TRUE;
