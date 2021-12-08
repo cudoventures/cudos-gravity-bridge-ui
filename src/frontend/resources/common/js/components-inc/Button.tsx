@@ -12,7 +12,7 @@ const theme01 = createMuiTheme({
     palette: {
         action: {
             disabledBackground: 'rgba(54, 62, 89, 1)',
-            disabled: '#fff'
+            disabled: '#fff',
         },
         primary: {
             main: 'rgb(85, 146, 247)',
@@ -22,18 +22,18 @@ const theme01 = createMuiTheme({
             main: 'rgb(27, 32, 49)',
             contrastText: '#fff',
         },
-        info: {
-            main: 'rgb(27, 32, 49)',
-            contrastText: '#fff',
-        },
     },
 });
 
-// this is not used
 const theme02 = createMuiTheme({
     palette: {
+        action: {
+            disabledBackground: 'rgba(99, 109, 143, 0.3)',
+            disabled: '#636D8F',
+        },
         primary: {
-            main: '#808080',
+            main: 'rgba(78, 148, 238, 0.2)',
+            contrastText: '#4E94EE',
         },
     },
 });
@@ -67,7 +67,7 @@ export default class Button extends React.Component < Props > {
             case Button.COLOR_SCHEME_2:
                 return 'secondary';
             case Button.COLOR_SCHEME_4:
-                return 'info'
+                return 'primary'
         }
     }
 
@@ -85,8 +85,9 @@ export default class Button extends React.Component < Props > {
         switch (this.props.color) {
             case Button.COLOR_SCHEME_1:
             case Button.COLOR_SCHEME_2:
-            case Button.COLOR_SCHEME_4:
                 return theme01;
+            case Button.COLOR_SCHEME_4:
+                return theme02;
             default:
                 return theme02;
         }
@@ -96,7 +97,7 @@ export default class Button extends React.Component < Props > {
         const className = `Button Transition ${this.props.className}`;
 
         return (
-            <ThemeProvider theme = { theme01 } >
+            <ThemeProvider theme = { theme01 && theme02 } >
                 <ThemeProvider theme = { this.muiTheme() } >
                     <MuiButton
                         disabled = { this.props.disabled }

@@ -350,19 +350,6 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         return ledger;
     }
 
-    checkBothWalletsConnected = async () => {
-        const keplrLedger = this.props.networkStore.networkHolders[1].ledger;
-        console.log('keplr', keplrLedger);
-
-        const metamaskLedger = this.props.networkStore.networkHolders[0].ledger;
-        console.log('meta', metamaskLedger);
-        if (!keplrLedger && !metamaskLedger) {
-            return false;
-        }
-        return true;
-
-    }
-
     connectWallet = async (networkId: number): Promise<Ledger> => {
         const networkHolders = this.props.networkStore.networkHolders;
 

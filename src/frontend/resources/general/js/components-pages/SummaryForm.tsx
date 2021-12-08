@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
 import ProjectUtils from '../../../common/js/ProjectUtils';
+import Button from '../../../common/js/components-inc/Button';
 
 const SummaryForm = ({
     selectedFromNetwork,
@@ -17,69 +18,116 @@ const SummaryForm = ({
 
     const transferLogo = '../../../../resources/common/img/favicon/transfer-logo.svg';
     const cudosLogo = '../../../../resources/common/img/favicon/cudos-22x22.svg'
+    const cudosLogoSmall = '../../../../resources/common/img/favicon/cudos-18x18.svg'
     const ethLogo = '../../../../resources/common/img/favicon/eth-16x25.svg'
 
     return (
         <div className={'SummaryForm'}>
             <div className={'Row'}>
                 <div className={'Column'}>
-                    <div>
-                        <span>From</span>
-                        <span>To</span>
-                    </div>
                     <div className={'Wrapper'}>
-                        <div className={'SummaryAddress'}>
-                            <span className={selectedFromNetwork ? 'CudosLogo' : 'EthLogo'} style={selectedFromNetwork ? ProjectUtils.makeBgImgStyle(cudosLogo) : ProjectUtils.makeBgImgStyle(ethLogo)}>0xabe2...cbac</span>
+                        <div className={'Flex'}>
+                            <div className={'SpacingBottom'}>From</div>
+                            <div className={'SummaryAddress'}>
+                                <div className={selectedFromNetwork ? 'CudosLogo' : 'EthLogo'} style={selectedFromNetwork ? ProjectUtils.makeBgImgStyle(cudosLogo) : ProjectUtils.makeBgImgStyle(ethLogo)}></div>
+                                <div>0xabe2...cbac</div>
+                            </div>
                         </div>
-                        <span className={'TransferLogo RotateLogo'} style={ProjectUtils.makeBgImgStyle(transferLogo)}></span>
-                        <span className={'SummaryAddress'}>0xabe2...cbac</span>
+                        <div className={'TransferLogoWrapper'}>
+                            <div className={'TransferLogo RotateLogo'} style={ProjectUtils.makeBgImgStyle(transferLogo)}></div>
+                        </div>
+                        <div className={'Flex'}>
+                            <div className={'SpacingBottom'}>To</div>
+                            <div className={'SummaryAddress'}>
+                                <div className={selectedToNetwork ? 'CudosLogo' : 'EthLogo'} style={selectedToNetwork ? ProjectUtils.makeBgImgStyle(cudosLogo) : ProjectUtils.makeBgImgStyle(ethLogo)}></div>
+                                <div >0xabe2...cbac</div>
+                            </div>
+                        </div>
                     </div>
                     <div>
-                        <div>Destination address</div>
+                        <div className={'Spacing'}>Destination address</div>
                     </div>
-                    <div className={'Wrapper'}>
-                        <span className={'SummaryAddress'}>0xabe2649c0a52168b185ef42b9f61abfc87f2cbac</span>
-                    </div>
-                    <div>
-                        <div>Asset</div>
-                    </div>
-                    <div className={'Wrapper'}>
-                        <span className={'SummaryAddress'}>CUDOS</span>
+                    <div className={'Wrapper Flex'}>
+                        <span className={'SummaryAddress CenterContent'}>0xabe2649c0a52168b185ef42b9f61abfc87f2cbac</span>
                     </div>
                     <div>
-                        <div>Amount</div>
+                        <div className={'Spacing'}>Asset</div>
                     </div>
-                    <div className={'Wrapper'}>
-                        <span className={'SummaryAddress'}>0.123459</span>
+                    <div className={'Flex'}>
+                        <div className={'Wrapper'}>
+                            <div className={'SummaryAddress'}>
+                                <div className={'CudosLogoSmall'} style={ProjectUtils.makeBgImgStyle(cudosLogoSmall)}></div>
+                                <div className={'Cudos'}>
+                            CUDOS
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div className={'Spacing'}>
+                            Amount
+                        </div>
+                    </div>
+                    <div className={'Flex'}>
+                        <div className={'SummaryAddress'}>
+                            <div className={'Amount'}>
+                            0.123459
+                                <Button
+                                    color={Button.COLOR_SCHEME_4}
+                                    className={'MaxBtn'}>
+                                    MAX
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                    <div className={'Row Spacing'}>
+                        <span className={'FlexStart GrayText'}>Contract Balance:</span>
+                        <span className={'FlexEnd'}>5.1234547639 CUDOS</span>
+                    </div>
+                    <div className={'Row Spacing'}>
+                        <span className={'FlexStart GrayText'}>Wallet Balance:</span>
+                        <span className={'FlexEnd'}>0.123459 CUDOS</span>
                     </div>
                 </div>
                 <div className={'Column PaddingRightColumn'}>
-                    <div>Transaction Summary</div>
                     <div>
-                        <span>From</span>
-                        <span>To</span>
+                        <div className={'SummaryTitle'}>Transaction Summary</div>
+                        <div className={'Row Spacing'}>
+                            <span className={'FlexStart'}>From</span>
+                            <span className={'FlexStart'}>To</span>
+                        </div>
+                        <div className={'Row Spacing'}>
+                            <span className={'FlexStart'}>
+                                <div className={selectedFromNetwork ? 'CudosLogo NoMarginLeft' : 'EthLogo NoMarginLeft'} style={selectedFromNetwork ? ProjectUtils.makeBgImgStyle(cudosLogo) : ProjectUtils.makeBgImgStyle(ethLogo)}></div>
+                                <div className={'AlignCenter'}>CUDOS</div>
+                            </span>
+                            <span className={'FlexStart'}>
+                                <div className={selectedToNetwork ? 'CudosLogo NoMarginLeft' : 'EthLogo NoMarginLeft'} style={selectedToNetwork ? ProjectUtils.makeBgImgStyle(cudosLogo) : ProjectUtils.makeBgImgStyle(ethLogo)}></div>
+                                <div className={'AlignCenter'}>Ethereum</div>
+                            </span>
+                        </div>
+                        <div className={'Row Spacing'}>
+                            <span className={'FlexStart GrayText'}>0xabe23434...cbac</span>
+                            <span className={'FlexStart GrayText'}>0xabe23434...cbac</span>
+                        </div>
                     </div>
-                    <div>
-                        <span>CUDOS</span>
-                        <span>Ethereum</span>
-                    </div>
-                    <div>
+                    <div className={'Spacing'}>
                         <span>Destination Address</span>
                     </div>
                     <div>
-                        <span>0xabe2649c0a52168b185ef42b9f61abfc87f2cbac</span>
+                        <span className={'GrayText'}>0xabe2649c0a52168b185ef42b9f61abfc87f2cbac</span>
                     </div>
-                    <div>
-                        <span>Amount</span>
-                        <span>Asset</span>
+                    <div className={'Row Spacing'}>
+                        <span className={'FlexStart'}>Amount</span>
+                        <span className={'FlexStart'}>Asset</span>
                     </div>
-                    <div>
-                        <span>0.123459</span>
-                        <span>CUDOS</span>
+                    <div className={'Row Spacing'}>
+                        <span className={'FlexStart GrayText'}>0.123459</span>
+                        <span className={'FlexStart GrayText'}>CUDOS</span>
                     </div>
-                    <div>
-                        <span>Estimated Gas Fee</span>
-                        <span>0.00012 CUDOS</span>
+                    <div className={'Row Spacing'}>
+                        <span className={'FlexStart'}>Estimated Gas Fee</span>
+                        <span className={'FlexStart'}>0.00012 CUDOS</span>
                     </div>
                 </div>
             </div>

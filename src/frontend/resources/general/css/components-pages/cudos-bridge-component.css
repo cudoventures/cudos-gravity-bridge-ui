@@ -17,9 +17,11 @@
     position:relative;
     margin: auto;
     margin-top: 50px;
-    width: 70vw;
-    max-width: 90%;
+    /* width: 70vw;
+    max-width: 90%; */
     height: 150vh;
+    max-width: 55vw;
+    min-width: 850px;
 }
 
 .CudosBridge .PageContent .CreateAccount {
@@ -40,6 +42,42 @@
 .CudosBridge .Wrapper {
     display: flex;
     justify-content: center;
+}
+
+.CudosBridge .CenterContent {
+    align-items: center;
+    justify-content: center;
+}
+
+.CudosBridge .Flex {
+    flex: 1;
+}
+
+.CudosBridge .FlexLeft {
+    display: flex;
+    justify-content: center;
+    flex: 50%;
+}
+
+.CudosBridge .FlexStart {
+    display: flex;
+    justify-content: flex-start;
+    flex: 50%;
+}
+
+.CudosBridge .FlexEnd {
+    display: flex;
+    justify-content: flex-end;
+    flex: 50%;
+}
+
+.CudosBridge .AlignCenter {
+    display: flex;
+    align-items: center;
+}
+
+.CudosBridge .NoMarginLeft {
+    margin-left: 0px !important;
 }
 
 .CudosBridge .Wrapper .TransferInfoBox {
@@ -118,24 +156,49 @@
     font-weight: 400;   
 }
 
-.CudosBridge .Address .CudosLogo {
+.CudosBridge .CudosLogo {
     width: 22px;
     height: 22px;
     margin-left: 15px;
     margin-right: 10px;
 }
 
-.CudosBridge .Address .EthLogo {
+.CudosBridge .CudosLogoSmall {
+    width: 18px;
+    height: 18px;
+    margin-left: 15px;
+    margin-right: 10px;
+}
+
+.CudosBridge .EthLogo {
     width: 16px;
     height: 27px;
     margin-left: 15px;
     margin-right: 15px;
 }
 
+.CudosBridge .Amount {
+    margin-left: 15px;
+    margin-top: 3px;
+}
+
+.CudosBridge .Cudos {
+    margin-top: 3px;
+}
+
 .CudosBridge .ConnectBtn {
     position: absolute !important;
     font-size: 12px !important;
     right: 8px;
+    width: 77px;
+    height: 33px;
+}
+
+.CudosBridge .MaxBtn {
+    position: absolute !important;
+    font-size: 12px !important;
+    right: 8px;
+    bottom: 9px;
     width: 77px;
     height: 33px;
 }
@@ -155,8 +218,14 @@
     height: 54px;
 }
 
+.CudosBridge .TransferLogoWrapper {
+    display: flex;
+    align-items: center;
+}
+
 .CudosBridge .RotateLogo {
     margin-top: 0px;
+    margin-bottom: -20px;
     transform: rotate(90deg)
 }
 
@@ -186,10 +255,34 @@
 
 .CudosBridge .SummaryContent .SummaryForm {
     background-color: var(--color-dark-blue);
+    font-size: 14px;
+    font-weight: 500;
     align-items: center;
     padding: 35px;
     border-radius: 20px;
-    height: 280px;
+    height: 380px;
+}
+
+.CudosBridge .SummaryContent .SummaryForm .SummaryTitle {
+    font-family: Poppins, sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 30px;
+    text-align: center;
+}
+
+.CudosBridge .SummaryContent .SummaryForm .GrayText {
+    color: var(--color-gray);
+    font-weight: 400;
+}
+
+.CudosBridge .SummaryForm .Spacing {
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.CudosBridge .SummaryForm .SpacingBottom {
+    margin-bottom: 5px;
 }
 
 .CudosBridge .SummaryContent .SummaryForm .Row {
@@ -206,12 +299,14 @@
     padding-left: 35px;
 }
 
-.CudosBridge .SummaryContent .SummaryForm .Row .SummaryAddress { 
+.CudosBridge .SummaryContent .SummaryForm .Row .SummaryAddress {
+    position: relative; 
     background: rgb(45, 53, 78);
     color:rgb(255, 255, 255);
     border-radius: 5px;
     border-width: 1px;
     max-width: 393px;
+    min-width: 150px;
     height: 52px;
     display: flex;
     flex: 1;
