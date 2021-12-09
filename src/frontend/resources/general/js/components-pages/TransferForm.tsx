@@ -29,7 +29,7 @@ const TransferForm = ({
             <div className={'Title'}>Transfer from</div>
             <div className={'Address'}>
                 <div className={selectedFromNetwork ? 'CudosLogo' : 'EthLogo'} style={selectedFromNetwork ? ProjectUtils.makeBgImgStyle(cudosLogo) : ProjectUtils.makeBgImgStyle(ethLogo)} />
-                {isFromConnected ? getAddress(selectedFromNetwork) : fromNetwork}
+                {isFromConnected ? getAddress(selectedFromNetwork, 18) : fromNetwork}
                 <Button
                     className={isFromConnected ? 'DisconnectBtn' : 'ConnectBtn'}
                     onClick={() => (isFromConnected ? onDisconnectFromNetwork() : onSelectFromNetwork(selectedFromNetwork))}
@@ -43,7 +43,7 @@ const TransferForm = ({
             <div className={'Title'}>Transfer to</div>
             <div className={'Address'}>
                 <div className={selectedToNetwork ? 'CudosLogo' : 'EthLogo'} style={selectedToNetwork ? ProjectUtils.makeBgImgStyle(cudosLogo) : ProjectUtils.makeBgImgStyle(ethLogo)} />
-                {isToConnected ? (getAddress(selectedToNetwork)) : ToNetwork}
+                {isToConnected ? (getAddress(selectedToNetwork, 18)) : ToNetwork}
                 <Button
                     className={isToConnected ? 'DisconnectBtn' : 'ConnectBtn'}
                     onClick={() => (isToConnected ? onDisconnectToNetwork() : onSelectToNetwork(selectedToNetwork))}

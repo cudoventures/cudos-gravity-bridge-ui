@@ -163,7 +163,6 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         try {
             fromNetwork = this.state.selectedFromNetwork;
             ledger = await this.connectWallet(fromNetwork);
-            // toNetwork = this.props.networkStore.networkHolders.findIndex((v, i) => i !== value);
             balance = await ledger.getBalance();
             if (this.isFromCosmos(fromNetwork) === true) {
                 contractBalance = await this.getContractBalance();
@@ -201,7 +200,6 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
 
         try {
             toNetwork = this.state.selectedToNetwork;
-            // fromNetwork = `${this.props.networkStore.networkHolders.findIndex((v, i) => i !== value)}`;
             ledger = await this.connectWallet(toNetwork);
             balance = await ledger.getBalance();
             if (this.isFromCosmos(toNetwork) === true) {
@@ -224,8 +222,8 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                 amountError: S.INT_FALSE,
                 destinationAddress: S.Strings.EMPTY,
                 destiantionAddressError: S.INT_FALSE,
-                walletBalance: balance,
-                contractBalance,
+                // walletBalance: balance,
+                // contractBalance,
             })
         }
     }
@@ -330,13 +328,42 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         const fromNetwork = this.state.selectedFromNetwork;
         const toConnected = this.state.isToConnected;
         const fromConnected = this.state.isFromConnected;
+        let balance = new BigNumber(0);
+        let contractBalance = new BigNumber(0);
+        let ledger = null;
+        let connectionError = false;
 
-        this.setState({
-            selectedFromNetwork: toNetwork,
-            selectedToNetwork: fromNetwork,
-            isToConnected: fromConnected,
-            isFromConnected: toConnected,
-        })
+        try {
+            const networkId = toNetwork;
+            ledger = this.props.networkStore.networkHolders[networkId].ledger;
+
+            if (toConnected || fromConnected) {
+                balance = await ledger.getBalance();
+            }
+            if (this.isFromCosmos(toNetwork) === true) {
+                contractBalance = await this.getContractBalance();
+            } else {
+                contractBalance = new BigNumber(Number.MAX_SAFE_INTEGER);
+            }
+        } catch (e) {
+            this.showAlertError(e.toString());
+            connectionError = true;
+            balance = new BigNumber(0);
+            contractBalance = new BigNumber(0);
+        }
+
+        if (!connectionError) {
+            this.setState({
+                displayAmount: S.Strings.EMPTY,
+                selectedFromNetwork: toNetwork,
+                selectedToNetwork: fromNetwork,
+                isToConnected: fromConnected,
+                isFromConnected: toConnected,
+                walletBalance: balance,
+                contractBalance,
+            })
+        }
+
     }
 
     checkWalletConnected = async () => {
@@ -354,7 +381,6 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         const networkHolders = this.props.networkStore.networkHolders;
 
         const ledger = networkHolders[networkId].ledger;
-        console.log('ledger', ledger);
         await ledger.connect();
 
         return ledger;
@@ -386,23 +412,25 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         return '';
     }
 
-    getAddress = (networkId: number) => {
+    getAddress = (networkId: number, sliceIndex: number) => {
         try {
             const ledger = this.props.networkStore.networkHolders[networkId].ledger
-            return this.formatText(ledger.account);
+            if (sliceIndex === 0) {
+                return ledger.account;
+            }
+            return this.formatText(ledger.account, sliceIndex);
         } catch (e) {
             this.showAlertError(e.toString());
         }
 
     }
 
-    formatText(text: string): string {
+    formatText(text: string, sliceIndex: number): string {
+        const len = text.length
         if ((text === null || text.length < 10)) {
             return text
         }
-        const len = text.length
-        return `${text.slice(0, 18)}...${text.slice(len - 4, len)}`
-
+        return `${text.slice(0, sliceIndex)}...${text.slice(len - 4, len)}`
     }
 
     goToTransactionSummary = () => {
@@ -453,12 +481,17 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                             selectedToNetwork={this.state.selectedToNetwork}
                             isFromConnected = {this.state.isFromConnected}
                             isToConnected={this.state.isToConnected}
+                            contractBalance={this.state.contractBalance}
+                            walletBalance={this.state.walletBalance}
+                            displayAmount={this.state.displayAmount}
                             onDisconnectFromNetwork={this.onDisconnectFromNetwork}
                             onDisconnectToNetwork={this.onDisconnectToNetwork}
                             onSelectFromNetwork={this.onSelectFromNetwork}
                             onSelectToNetwork={this.onSelectToNetwork}
                             onChnageTransactionDirection={this.onChnageTransactionDirection}
                             getAddress={this.getAddress}
+                            onChangeAmount={this.onChangeAmount}
+                            onClickMaxAmount={this.onClickMaxAmount}
                         />
                     }
                     {this.state.summary

@@ -17,10 +17,8 @@
     position:relative;
     margin: auto;
     margin-top: 50px;
-    /* width: 70vw;
-    max-width: 90%; */
-    height: 150vh;
-    max-width: 55vw;
+    height: 120vh;
+    max-width: 45%;
     min-width: 850px;
 }
 
@@ -63,6 +61,10 @@
     display: flex;
     justify-content: flex-start;
     flex: 50%;
+}
+
+.CudosBridge .Asset {
+    flex: 155%;
 }
 
 .CudosBridge .FlexEnd {
@@ -112,6 +114,12 @@
     width: 40px;
     height: 40px;
     margin-bottom: 10px;
+}
+
+.CudosBridge .AttentionIcon {
+    width: 16px;
+    height: 16px;
+    margin-left: 5px;
 }
 
 .CudosBridge .Wrapper .CudosFont {
@@ -170,6 +178,13 @@
     margin-right: 10px;
 }
 
+.CudosBridge .EthLogoSmall {
+    width: 14px;
+    height: 21px;
+    margin-left: 15px;
+    margin-right: 10px;
+}
+
 .CudosBridge .EthLogo {
     width: 16px;
     height: 27px;
@@ -178,6 +193,7 @@
 }
 
 .CudosBridge .Amount {
+    display: flex;
     margin-left: 15px;
     margin-top: 3px;
 }
@@ -263,6 +279,30 @@
     height: 380px;
 }
 
+.CudosBridge .SummaryContent .SummaryForm .SummaryInput {
+    background-color: rgb(45, 53, 78);
+    border: none;
+    color: #fff;
+    flex: 1;
+    max-width: 241px;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
+  }
+
+.CudosBridge .SummaryContent .SummaryForm .SummaryBalance {
+    flex: 75%
+}
+
 .CudosBridge .SummaryContent .SummaryForm .SummaryTitle {
     font-family: Poppins, sans-serif;
     font-weight: 700;
@@ -278,6 +318,11 @@
 
 .CudosBridge .SummaryForm .Spacing {
     margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.CudosBridge .SummaryForm .DoubleSpacing {
+    margin-top: 22px;
     margin-bottom: 5px;
 }
 
@@ -297,6 +342,11 @@
     border-left: 1px solid rgba(99, 109, 143, 0.3);
     margin-left: 35px;
     padding-left: 35px;
+}
+
+.CudosBridge .SummaryContent .SummaryForm .TopBorder {
+    border-top: 1px solid rgba(99, 109, 143, 0.3);
+    padding-top: 20px;
 }
 
 .CudosBridge .SummaryContent .SummaryForm .Row .SummaryAddress {
@@ -319,7 +369,7 @@
     justify-content: flex-start;
     position:relative;
     margin: auto;
-    margin-top: 20px;
+    margin-top: 50px;
     width: 473px;
     max-width: 90%;
 }
