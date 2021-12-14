@@ -24,12 +24,6 @@ export default class KeplrLedger implements Ledger {
         if (!window.getOfflineSigner || !window.keplr) {
             throw new Error('Failed to connect to Keplr!');
         }
-
-        window.addEventListener("keplr_keystorechange", () => {
-            console.log('reconnect...');
-            this.connect();
-        })
-
         if (window.keplr.experimentalSuggestChain) {
             try {
                 await window.keplr.experimentalSuggestChain({
@@ -126,7 +120,7 @@ export default class KeplrLedger implements Ledger {
         const offlineSigner = window.getOfflineSigner(Config.CUDOS_NETWORK.CHAIN_ID);
         this.account = (await offlineSigner.getAccounts())[0].address;
         console.log('account', this.account);
-        
+
         this.connected = S.INT_TRUE;
     }
 

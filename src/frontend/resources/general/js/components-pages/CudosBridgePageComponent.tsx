@@ -136,7 +136,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         return ledger instanceof MetamaskLedger;
     }
 
-    onDisconnectFromNetwork = async () => {
+    onDisconnectFromNetwork = async (): Promise<void> => {
         if (this.state.isFromConnected) {
             this.setState({
                 isFromConnected: false,
@@ -144,7 +144,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         }
     }
 
-    onDisconnectToNetwork = async () => {
+    onDisconnectToNetwork = async (): Promise<void> => {
         if (this.state.isToConnected) {
             this.setState({
                 isToConnected: false,
@@ -152,18 +152,20 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         }
     }
 
-    onSelectFromNetwork = async (value: number) => {
+    onSelectFromNetwork = async (): Promise<void> => {
         let balance = new BigNumber(0);
         let ledger = null;
         const toNetwork = null;
         let fromNetwork = null;
         let contractBalance = new BigNumber(0);
         let connectionError = false;
+        let account = null;
 
         try {
             fromNetwork = this.state.selectedFromNetwork;
             ledger = await this.connectWallet(fromNetwork);
             balance = await ledger.getBalance();
+            account = localStorage.setItem('fromAccount', await ledger.account)
             if (this.isFromCosmos(fromNetwork) === true) {
                 contractBalance = await this.getContractBalance();
             } else {
@@ -190,18 +192,20 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         }
     }
 
-    onSelectToNetwork = async (value: number) => {
+    onSelectToNetwork = async (): Promise<void> => {
         let balance = new BigNumber(0);
         let ledger = null;
         let toNetwork = null;
         const fromNetwork = null;
         let contractBalance = new BigNumber(0);
         let connectionError = false;
+        let account = null;
 
         try {
             toNetwork = this.state.selectedToNetwork;
             ledger = await this.connectWallet(toNetwork);
             balance = await ledger.getBalance();
+            account = localStorage.setItem('toAccount', await ledger.account)
             if (this.isFromCosmos(toNetwork) === true) {
                 contractBalance = await this.getContractBalance();
             } else {
@@ -305,7 +309,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             this.props.appStore.disableActions();
 
             const ledger = await this.checkWalletConnected();
-            await ledger.send(this.state.amount, this.state.destinationAddress);
+            await ledger.send(this.state.amount, this.getAddress(this.state.selectedToNetwork, 0));
             // await ledger.requestBatch();
             this.showAlertSuccess('Your transaction was sent successfully and will be executed in next 60 blocks');
         } catch (e) {
@@ -323,7 +327,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         }
     }
 
-    onChnageTransactionDirection = async () => {
+    onChnageTransactionDirection = async (): Promise<void> => {
         const toNetwork = this.state.selectedToNetwork;
         const fromNetwork = this.state.selectedFromNetwork;
         const toConnected = this.state.isToConnected;
@@ -332,12 +336,22 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         let contractBalance = new BigNumber(0);
         let ledger = null;
         let connectionError = false;
+        let toAccount = null;
+        let fromAccount = null;
+
+        if (!toConnected && !fromConnected) {
+            toAccount = localStorage.getItem('');
+            fromAccount = localStorage.getItem('');
+        } else {
+            toAccount = localStorage.getItem('toAccount');
+            fromAccount = localStorage.getItem('fromAccount');
+        }
 
         try {
             const networkId = toNetwork;
             ledger = this.props.networkStore.networkHolders[networkId].ledger;
 
-            if (toConnected || fromConnected) {
+            if (toConnected) {
                 balance = await ledger.getBalance();
             }
             if (this.isFromCosmos(toNetwork) === true) {
@@ -353,6 +367,8 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         }
 
         if (!connectionError) {
+            localStorage.setItem('fromAccount', toAccount);
+            localStorage.setItem('toAccount', fromAccount);
             this.setState({
                 displayAmount: S.Strings.EMPTY,
                 selectedFromNetwork: toNetwork,
@@ -386,6 +402,59 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         return ledger;
     }
 
+    onChangeAccount = async (): Promise<void> => {
+        const toNetwork = this.state.selectedToNetwork;
+        const fromNetwork = this.state.selectedFromNetwork;
+        const toConnected = this.state.isToConnected;
+        const fromConnected = this.state.isFromConnected;
+        let balance = new BigNumber(0);
+        let contractBalance = new BigNumber(0);
+        let ledger = null;
+        let connectionError = false;
+        let toAccount = null;
+        let fromAccount = null;
+
+        if (!toConnected && !fromConnected) {
+            toAccount = localStorage.getItem('');
+            fromAccount = localStorage.getItem('');
+        } else {
+            toAccount = localStorage.getItem('toAccount');
+            fromAccount = localStorage.getItem('fromAccount');
+        }
+
+        try {
+            ledger = this.props.networkStore.networkHolders[fromNetwork].ledger;
+
+            if (fromConnected) {
+                balance = await ledger.getBalance();
+            }
+            if (this.isFromCosmos(fromNetwork) === true) {
+                contractBalance = await this.getContractBalance();
+            } else {
+                contractBalance = new BigNumber(Number.MAX_SAFE_INTEGER);
+            }
+        } catch (e) {
+            this.showAlertError(e.toString());
+            connectionError = true;
+            balance = new BigNumber(0);
+            contractBalance = new BigNumber(0);
+        }
+
+        if (!connectionError) {
+            localStorage.setItem('fromAccount', toAccount);
+            localStorage.setItem('toAccount', fromAccount);
+            this.setState({
+                displayAmount: S.Strings.EMPTY,
+                selectedFromNetwork: fromNetwork,
+                selectedToNetwork: toNetwork,
+                isToConnected: toConnected,
+                isFromConnected: fromConnected,
+                walletBalance: balance,
+                contractBalance,
+            })
+        }
+    }
+
     showAlertError(msg) {
         this.props.alertStore.show((
             <div className={'Error'}>{msg}</div>
@@ -412,7 +481,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         return '';
     }
 
-    getAddress = (networkId: number, sliceIndex: number) => {
+    getAddress = (networkId: number, sliceIndex: number): string => {
         try {
             const ledger = this.props.networkStore.networkHolders[networkId].ledger
             if (sliceIndex === 0) {
@@ -433,7 +502,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         return `${text.slice(0, sliceIndex)}...${text.slice(len - 4, len)}`
     }
 
-    goToTransactionSummary = () => {
+    goToTransactionSummary = (): void => {
         this.setState({
             summary: true,
         })
@@ -475,6 +544,8 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                             onChnageTransactionDirection={this.onChnageTransactionDirection}
                             getAddress={this.getAddress}
                             goToTransactionSummary={this.goToTransactionSummary}
+                            connectWallet={this.connectWallet}
+                            onChangeAccount={this.onChangeAccount}
                         />
                         : <SummaryForm
                             selectedFromNetwork={this.state.selectedFromNetwork}
@@ -492,6 +563,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                             getAddress={this.getAddress}
                             onChangeAmount={this.onChangeAmount}
                             onClickMaxAmount={this.onClickMaxAmount}
+                            onClickSend={this.onClickSend}
                         />
                     }
                     {this.state.summary

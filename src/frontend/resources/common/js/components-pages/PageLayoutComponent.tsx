@@ -6,6 +6,7 @@ import Dimmer from '../components-core/Dimmer';
 import Alert from '../components-core/Alert';
 
 import S from '../utilities/Main';
+import ProjectUtils from '../ProjectUtils';
 
 import '../../css/utilities/main.css';
 import '../../css/utilities/content.css';
@@ -19,12 +20,11 @@ interface Props {
 }
 
 export default class PageLayoutComponent extends React.Component < Props > {
-
     render() {
         return (
             <div className = { `ReactBody ${this.props.className}` } >
 
-                <div className = { 'Page Transition' } >
+                <div style={ProjectUtils.makeBgImgStyle(background)} className = { 'Page Transition' } >
                     { this.props.children }
                 </div>
 
@@ -38,6 +38,8 @@ export default class PageLayoutComponent extends React.Component < Props > {
     }
 
 }
+
+const background = 'http://localhost:3000/resources/common/img/favicon/background-image.svg'
 
 PageLayoutComponent.defaultProps = {
     'className': S.Strings.EMPTY,
