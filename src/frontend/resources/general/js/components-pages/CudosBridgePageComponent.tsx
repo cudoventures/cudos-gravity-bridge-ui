@@ -5,6 +5,8 @@ import React, { RefObject } from 'react';
 import ContextPageComponent, { ContextPageComponentProps } from './common/ContextPageComponent';
 import TransferForm from './TransferForm';
 import SummaryForm from './SummaryForm';
+import SummaryModal from '../../../common/js/components-popups/SummaryModal';
+import FailureModal from '../../../common/js/components-popups/FailureModal';
 
 import Config from '../../../../../../builds/dev-generated/Config';
 import './../../css/components-pages/cudos-bridge-component.css';
@@ -42,6 +44,9 @@ interface State {
     // transactionPopupText: string;
     contractBalance: BigNumber;
     summary: boolean;
+    isOpen: boolean;
+    isTransferring: boolean;
+    isTransactionFail: boolean
 }
 
 const cudosMainLogo = '../../../../resources/common/img/favicon/cudos-40x40.svg'
@@ -79,6 +84,9 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             // transactionPopupText: S.Strings.EMPTY,
             contractBalance: new BigNumber(0),
             summary: false,
+            isOpen: false,
+            isTransactionFail: false,
+            isTransferring: false,
         }
 
         this.root = React.createRef();
@@ -244,6 +252,15 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         })
     }
 
+    onGetBalance = async () => {
+        const ledger = await this.checkWalletConnected();
+        const balance = await ledger.getBalance();
+
+        this.setState({
+            walletBalance: balance,
+        })
+    }
+
     onChangeAmount = (amount: string) => {
         clearTimeout(this.inputTimeouts.amount);
         const bigAmount = new BigNumber(amount);
@@ -307,17 +324,16 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
 
         try {
             this.props.appStore.disableActions();
-
+            this.setState({ isTransferring: true })
             const ledger = await this.checkWalletConnected();
             await ledger.send(this.state.amount, this.getAddress(this.state.selectedToNetwork, 0));
-            // await ledger.requestBatch();
-            this.showAlertSuccess('Your transaction was sent successfully and will be executed in next 60 blocks');
+            this.setState({ isOpen: true })
         } catch (e) {
-            this.showAlertError(e.toString());
+            this.setState({ isTransactionFail: true });
         } finally {
             this.setState({
                 amount: new BigNumber(0),
-                displayAmount: S.Strings.EMPTY,
+                isTransferring: false,
                 amountError: S.INT_FALSE,
                 destinationAddress: S.Strings.EMPTY,
                 destiantionAddressError: S.INT_FALSE,
@@ -491,10 +507,12 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         } catch (e) {
             this.showAlertError(e.toString());
         }
-
     }
 
     formatText(text: string, sliceIndex: number): string {
+        if (!text) {
+            return (null);
+        }
         const len = text.length
         if ((text === null || text.length < 10)) {
             return text
@@ -531,6 +549,19 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                     </div>
                 </div>
                 <div className={!this.state.summary ? 'PageContent' : 'SummaryContent'}>
+                    <SummaryModal
+                        getAddress={this.getAddress}
+                        displayAmount={this.state.displayAmount}
+                        selectedFromNetwork={this.state.selectedFromNetwork}
+                        selectedToNetwork={this.state.selectedToNetwork}
+                        closeModal={() => this.setState({ isOpen: false, displayAmount: S.Strings.EMPTY })}
+                        isOpen={this.state.isOpen}
+                        onGetBalance={this.onGetBalance}
+                    />
+                    <FailureModal
+                        isOpen={this.state.isTransactionFail}
+                        closeModal={() => this.setState({ isTransactionFail: false, isOpen: false, displayAmount: S.Strings.EMPTY })}
+                    />
                     {!this.state.summary
                         ? <TransferForm
                             selectedFromNetwork={this.state.selectedFromNetwork}
@@ -544,8 +575,8 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                             onChnageTransactionDirection={this.onChnageTransactionDirection}
                             getAddress={this.getAddress}
                             goToTransactionSummary={this.goToTransactionSummary}
-                            connectWallet={this.connectWallet}
                             onChangeAccount={this.onChangeAccount}
+                            checkWalletConnected={this.checkWalletConnected}
                         />
                         : <SummaryForm
                             selectedFromNetwork={this.state.selectedFromNetwork}
@@ -564,6 +595,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                             onChangeAmount={this.onChangeAmount}
                             onClickMaxAmount={this.onClickMaxAmount}
                             onClickSend={this.onClickSend}
+                            isTransferring={this.state.isTransferring}
                         />
                     }
                     {this.state.summary

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../../common/js/api/GasOracleAPI';
 
+import SummaryModal from '../../../common/js/components-popups/SummaryModal';
+
 import Button from '../../../common/js/components-inc/Button';
 import ProjectUtils from '../../../common/js/ProjectUtils';
 import S from '../../../common/js/utilities/Main';
@@ -15,10 +17,12 @@ interface ISummaryFormProps {
     onChangeAmount: any
     onClickMaxAmount: void
     onChnageTransactionDirection: any
-    onClickSend: void
+    onClickSend: Function
     selectedToNetwork: number
     isToConnected: boolean
     getAddress: any
+    isOpen: boolean
+    isTransferring: boolean,
 }
 
 const SummaryForm = (props: ISummaryFormProps) => {
@@ -33,7 +37,7 @@ const SummaryForm = (props: ISummaryFormProps) => {
     const fromNetwork = props.selectedFromNetwork ? 'CUDOS' : 'Ethereum';
     const ToNetwork = props.selectedToNetwork ? 'CUDOS' : 'Ethereum';
 
-    const [animate, setAnimate] = useState<boolean>(false)
+    const [animate, setAnimate] = useState<boolean>(false);
 
     const changeTransaction = (): void => {
         props.onChnageTransactionDirection();
@@ -57,9 +61,9 @@ const SummaryForm = (props: ISummaryFormProps) => {
                             </div>
                         </div>
                         <div className={'TransferLogoWrapper'}>
-                            <div className={animate ? 'TransferLogoSmall Rotate Down PulsingSmall' : 'TransferLogoSmall Rotate Up PulsingSmall'}
+                            <div className={(animate && !props.isTransferring) ? 'TransferLogoSmall Rotate Down PulsingSmall' : 'TransferLogoSmall Rotate Up PulsingSmall'}
                                 style={ProjectUtils.makeBgImgStyle(transferLogo)}
-                                onClick={() => changeTransaction()}
+                                onClick={() => !props.isTransferring && changeTransaction()}
                             ></div>
                         </div>
                         <div className={'Flex'}>
@@ -102,7 +106,7 @@ const SummaryForm = (props: ISummaryFormProps) => {
                                     color={Button.COLOR_SCHEME_4}
                                     className={'MaxBtn'}
                                     onClick={props.onClickMaxAmount}
-                                    disabled={props.selectedToNetwork === S.NOT_EXISTS || props.walletBalance.toFixed() === '0'}
+                                    disabled={props.selectedToNetwork === S.NOT_EXISTS || props.walletBalance.toFixed() === '0' || props.isTransferring}
                                 >
                                     MAX
                                 </Button>
@@ -164,11 +168,11 @@ const SummaryForm = (props: ISummaryFormProps) => {
                     <div>
                         <div className={'FormRow Wrapper'} >
                             <Button
-                                disabled={(!props.isFromConnected || !props.isToConnected || props.displayAmount === S.Strings.EMPTY)}
+                                disabled={(!props.isFromConnected || !props.isToConnected || props.displayAmount === S.Strings.EMPTY || props.isTransferring)}
                                 className={'TransferBtn Flex DoubleSpacing'}
                                 type={Button.TYPE_ROUNDED}
                                 color={Button.COLOR_SCHEME_1}
-                                onClick={props.onClickSend}
+                                onClick={() => props.onClickSend()}
                             >Transfer
                             </Button>
                         </div>

@@ -24,7 +24,7 @@ export default class PageLayoutComponent extends React.Component < Props > {
         return (
             <div className = { `ReactBody ${this.props.className}` } >
 
-                <div style={ProjectUtils.makeBgImgStyle(background)} className = { 'Page Transition' } >
+                <div style={ProjectUtils.makeBgImgStyle(background)} className = { 'Page Transition Background' } >
                     { this.props.children }
                 </div>
 

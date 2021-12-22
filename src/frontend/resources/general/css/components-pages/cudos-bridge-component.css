@@ -8,7 +8,7 @@
     margin-top: 50px;
     width: 473px;
     max-width: 90%;
-    height: 150vh;
+    height: 101vh;
 }
 
 .CudosBridge .SummaryContent {
@@ -17,7 +17,7 @@
     position:relative;
     margin: auto;
     margin-top: 50px;
-    height: 120vh;
+    height: 101vh;
     max-width: 45%;
     min-width: 850px;
 }
@@ -40,6 +40,10 @@
 .CudosBridge .Wrapper {
     display: flex;
     justify-content: center;
+}
+
+.Relative {
+    position: relative;
 }
 
 .CudosBridge .CenterContent {
@@ -176,6 +180,8 @@
     height: 18px;
     margin-left: 15px;
     margin-right: 10px;
+    display: flex;
+    align-self: center;
 }
 
 .CudosBridge .EthLogoSmall {
@@ -195,10 +201,6 @@
 .CudosBridge .Amount {
     display: flex;
     margin-left: 15px;
-    margin-top: 3px;
-}
-
-.CudosBridge .Cudos {
     margin-top: 3px;
 }
 

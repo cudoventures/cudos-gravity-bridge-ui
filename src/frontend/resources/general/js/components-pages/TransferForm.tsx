@@ -7,11 +7,26 @@ import Button from '../../../common/js/components-inc/Button';
 const KEPLR_WALLET = 1;
 const METAMASK_WALLET = 0;
 
-interface ISummaryFormProps {
+const TransferForm = ({
+    selectedFromNetwork,
+    isFromConnected,
+    onChnageTransactionDirection,
+    selectedToNetwork,
+    isToConnected,
+    getAddress,
+    onDisconnectFromNetwork,
+    onDisconnectToNetwork,
+    onSelectFromNetwork,
+    onSelectToNetwork,
+    goToTransactionSummary,
+    connectWallet,
+    onChangeAccount,
+}
+:
+{
     selectedFromNetwork: number
     isFromConnected: boolean
     onChnageTransactionDirection: any
-    onClickSend: void
     selectedToNetwork: number
     isToConnected: boolean
     getAddress: any
@@ -22,27 +37,25 @@ interface ISummaryFormProps {
     goToTransactionSummary: any
     connectWallet: any
     onChangeAccount: any
-}
-
-const TransferForm = (props: ISummaryFormProps) => {
+}) => {
 
     const cudosLogo = '../../../../resources/common/img/favicon/cudos-22x22.svg'
     const ethLogo = '../../../../resources/common/img/favicon/eth-16x25.svg'
     const transferLogo = '../../../../resources/common/img/favicon/transfer-logo.svg'
-    const fromNetwork = props.selectedFromNetwork ? 'CUDOS' : 'Ethereum'
-    const ToNetwork = props.selectedToNetwork ? 'CUDOS' : 'Ethereum'
+    const fromNetwork = selectedFromNetwork ? 'CUDOS' : 'Ethereum'
+    const ToNetwork = selectedToNetwork ? 'CUDOS' : 'Ethereum'
 
     const [animate, setAnimate] = useState<boolean>(false);
 
     const changeTransaction = () => {
-        props.onChnageTransactionDirection();
+        onChnageTransactionDirection();
         setAnimate(!animate);
     }
 
     useEffect(():void => {
         window.addEventListener('keplr_keystorechange', async () => {
-            await props.connectWallet(KEPLR_WALLET);
-            await props.onChangeAccount(KEPLR_WALLET)
+            await connectWallet(KEPLR_WALLET);
+            await onChangeAccount(KEPLR_WALLET)
             console.log('reconnect Keplr    ...');
         });
     }, []);
@@ -51,8 +64,8 @@ const TransferForm = (props: ISummaryFormProps) => {
         localStorage.setItem('manualAccountChange', 'false')
         window.ethereum.on('accountsChanged', async () => {
             localStorage.setItem('manualAccountChange', 'true')
-            await props.connectWallet(METAMASK_WALLET);
-            await props.onChangeAccount(METAMASK_WALLET)
+            await connectWallet(METAMASK_WALLET);
+            await onChangeAccount(METAMASK_WALLET)
             console.log('reconnect Metamask...');
         });
     }, []);
@@ -61,36 +74,35 @@ const TransferForm = (props: ISummaryFormProps) => {
         <div className={'SendForm'} >
             <div className={'Title'}>Transfer from</div>
             <div className={'Address'}>
-                <div className={props.selectedFromNetwork ? 'CudosLogo' : 'EthLogo'} style={props.selectedFromNetwork ? ProjectUtils.makeBgImgStyle(cudosLogo) : ProjectUtils.makeBgImgStyle(ethLogo)} />
-                {props.isFromConnected ? props.getAddress(props.selectedFromNetwork, 18) : fromNetwork}
+                <div className={selectedFromNetwork ? 'CudosLogo' : 'EthLogo'} style={selectedFromNetwork ? ProjectUtils.makeBgImgStyle(cudosLogo) : ProjectUtils.makeBgImgStyle(ethLogo)} />
+                {isFromConnected ? getAddress(selectedFromNetwork, 18) : fromNetwork}
                 <Button
-                    className={props.isFromConnected ? 'DisconnectBtn' : 'ConnectBtn'}
-                    onClick={() => (props.isFromConnected ? props.onDisconnectFromNetwork() : props.onSelectFromNetwork(props.selectedFromNetwork))}
-                    // value = { this.state.selectedFromNetwork }
+                    className={isFromConnected ? 'DisconnectBtn' : 'ConnectBtn'}
+                    onClick={() => (isFromConnected ? onDisconnectFromNetwork() : onSelectFromNetwork(selectedFromNetwork))}
                     type={Button.TYPE_ROUNDED}
-                    color={props.isFromConnected ? Button.COLOR_SCHEME_2 : Button.COLOR_SCHEME_1}>{props.isFromConnected ? 'Disconnect' : 'Connect'}</Button>
+                    color={isFromConnected ? Button.COLOR_SCHEME_2 : Button.COLOR_SCHEME_1}>{isFromConnected ? 'Disconnect' : 'Connect'}</Button>
             </div>
             <div className={'Wrapper'}>
                 <div className={animate ? 'TransferLogo Rotate Up Pulsing' : 'TransferLogo Rotate Down Pulsing'} style={ProjectUtils.makeBgImgStyle(transferLogo)} onClick={() => changeTransaction()}></div>
             </div>
             <div className={'Title'}>Transfer to</div>
             <div className={'Address'}>
-                <div className={props.selectedToNetwork ? 'CudosLogo' : 'EthLogo'} style={props.selectedToNetwork ? ProjectUtils.makeBgImgStyle(cudosLogo) : ProjectUtils.makeBgImgStyle(ethLogo)} />
-                {props.isToConnected ? (props.getAddress(props.selectedToNetwork, 18)) : ToNetwork}
+                <div className={selectedToNetwork ? 'CudosLogo' : 'EthLogo'} style={selectedToNetwork ? ProjectUtils.makeBgImgStyle(cudosLogo) : ProjectUtils.makeBgImgStyle(ethLogo)} />
+                {isToConnected ? (getAddress(selectedToNetwork, 18)) : ToNetwork}
                 <Button
-                    className={props.isToConnected ? 'DisconnectBtn' : 'ConnectBtn'}
-                    onClick={() => (props.isToConnected ? props.onDisconnectToNetwork() : props.onSelectToNetwork(props.selectedToNetwork))}
-                    value={props.selectedToNetwork}
+                    className={isToConnected ? 'DisconnectBtn' : 'ConnectBtn'}
+                    onClick={() => (isToConnected ? onDisconnectToNetwork() : onSelectToNetwork(selectedToNetwork))}
+                    value={selectedToNetwork}
                     type={Button.TYPE_ROUNDED}
-                    color={props.isToConnected ? Button.COLOR_SCHEME_2 : Button.COLOR_SCHEME_1}>{props.isToConnected ? 'Disconnect' : 'Connect'}</Button>
+                    color={isToConnected ? Button.COLOR_SCHEME_2 : Button.COLOR_SCHEME_1}>{isToConnected ? 'Disconnect' : 'Connect'}</Button>
             </div>
             <div className={'FormRow Wrapper'} >
                 <Button
-                    disabled={(!props.isFromConnected || !props.isToConnected)}
+                    disabled={(!isFromConnected || !isToConnected)}
                     className={'TransferBtn'}
                     type={Button.TYPE_ROUNDED}
                     color={Button.COLOR_SCHEME_1}
-                    onClick={() => props.goToTransactionSummary()}
+                    onClick={() => goToTransactionSummary()}
                 >Begin new transfer
                 </Button>
             </div>

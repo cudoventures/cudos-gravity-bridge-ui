@@ -229,3 +229,8 @@ select::-ms-value {
     color:inherit;
     background: transparent;
 }
+
+.Background {
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+}
