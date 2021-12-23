@@ -1,0 +1,183 @@
+
+.ModalContent {
+    position: absolute;
+    font-size: 14px;
+    background-color: var(--color-dark-blue);
+    border-radius: 20px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.ModalContent .SummaryForm {
+    align-items:flex-start;
+    justify-content: flex-start;
+    position:relative;
+    margin: auto;
+    margin-top: 25px;
+    max-width: 554px !important;
+    min-height: 680px !important;
+    max-height: 75% !important;
+}
+
+.ModalContent .SummaryForm .Title {
+    font-family: Poppins, sans-serif;
+    margin-bottom: 5px;
+    font-size: 30px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.ModalContent .SummaryForm .Column {
+    flex: 50%;
+}
+
+.ModalContent .SummaryForm .Wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.ModalContent .SummaryForm .Flex {
+    flex: 1;
+}
+
+.ModalContent .SummaryForm .FlexRight {
+    flex: 119% !important;
+}
+
+.ModalContent .SummaryForm .Row {
+    display: flex;
+}
+
+.ModalContent .SummaryForm .Spacing {
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.ModalContent .SummaryForm .DoubleSpacing {
+    margin-top: 22px;
+    margin-bottom: 5px;
+}
+
+.ModalContent .SummaryForm .FlexStart {
+    display: flex;
+    justify-content: flex-start;
+    flex: 50%;
+}
+
+.ModalContent .SummaryForm .NoMarginLeft {
+    margin-left: 0px !important;
+}
+
+.ModalContent .SummaryForm .Margin {
+    margin-left: 50px;
+    margin-right: 50px;
+}
+
+.ModalContent .SummaryForm .CudosLogoSmall {
+    width: 18px;
+    height: 18px;
+    margin-left: 15px;
+    margin-right: 10px;
+    display: flex;
+    align-self: center;
+}
+
+.ModalContent .SummaryForm .Amount {
+    flex: 970% !important;
+}
+
+.ModalContent .SummaryForm .Cudos {
+    flex: 940% !important;
+}
+
+.ModalContent .SummaryForm .EthLogoSmall {
+    width: 14px;
+    height: 21px;
+    margin-left: 15px;
+    margin-right: 10px;
+}
+
+.ModalContent .SummaryForm .GrayText {
+    color: var(--color-gray);
+    font-weight: 400;
+}
+
+.ModalContent .SummaryForm .SuceessIcon {
+    width: 70px;
+    height: 67px;
+    margin-bottom: 10px;
+}
+
+.ModalContent .SummaryForm .CloseIcon {
+    position: absolute;
+    right: 25px;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+}
+
+.ModalContent .SummaryForm .AttentionIcon {
+    width: 42px;
+    height: 20px;
+    margin-right: 7px;
+    align-self: center;
+}
+
+.ModalContent .SummaryForm .LinkIcon {
+    width: 18px;
+    height: 18px;
+    margin-left: 4px;
+}
+
+.ModalContent .SummaryForm .TopBorder {
+    border-top: 1px solid rgba(99, 109, 143, 0.3);
+    padding-top: 20px;
+}
+
+.ModalContent .SummaryForm .BtnWrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.ModalContent .SummaryForm .TransferBtn {
+    width: 257px;
+    height: 52px;
+}
+
+.ModalContent .SummaryForm .TransactionMesasge {
+  border-radius: 10px !important;
+  padding-left: 15px !important;
+  padding-right: 15px !important;
+  background-color: var(--color-darker-gray);
+  display: flex;
+  justify-content: center;
+  padding: 15px 10px;
+}
+
+.ModalContent .SummaryForm .LinkWrapper {
+    font-weight: 400;
+    color: var(--color-blue);
+}
+
+.ModalContent .SummaryForm .LinkContent {
+    display: flex;
+    align-items: end;
+}
+
+.ModalContent .SummaryForm .AlignCenter {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    font-family: Poppins, sans-serif;
+}
+
+.ModalContent .SummaryForm .Weight500 {
+    font-weight: 500;
+}
+
+.ModalContent .SummaryForm .Weight600 {
+    font-weight: 600;
+}
+
+

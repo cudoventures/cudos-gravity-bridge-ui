@@ -14,13 +14,14 @@ import CosmosNetworkH from './CosmosNetworkH';
 export default class MetamaskLedger implements Ledger {
     static NETWORK_NAME = 'Ethereum';
     @observable connected: number;
+    @observable account: string;
     erc20Instance: any;
     gasPrice: string;
     gas: string;
 
     constructor() {
         this.connected = S.INT_FALSE;
-
+        this.account = null;
         this.gasPrice = Config.ETHEREUM.ETHEREUM_GAS_PRICE;
         this.gas = Config.ETHEREUM.ETHEREUM_GAS;
 
@@ -29,8 +30,21 @@ export default class MetamaskLedger implements Ledger {
 
     async connect(): Promise<void> {
         try {
-            await window.ethereum.send('eth_requestAccounts');
+            if (localStorage.getItem('manualAccountChange') === 'true') {
+                await window.ethereum.send('eth_requestAccounts');
+            } else {
+                await window.ethereum.request({
+                    method: 'wallet_requestPermissions',
+                    params: [
+                        {
+                            eth_accounts: {},
+                        },
+                    ],
+                });
+            }
+            localStorage.setItem('manualAccountChange', 'false')
             window.web3 = new Web3(window.ethereum);
+            this.account = window.ethereum.selectedAddress;
             this.connected = S.INT_TRUE;
         } catch (e) {
             console.log(e);
@@ -40,6 +54,7 @@ export default class MetamaskLedger implements Ledger {
 
     async disconnect(): Promise<void> {
         return new Promise < void >((resolve, reject) => {
+            console.log('disconnecting...');
             resolve();
         });
     }

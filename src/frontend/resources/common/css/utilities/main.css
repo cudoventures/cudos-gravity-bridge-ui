@@ -34,6 +34,7 @@ body {
 }
 
 .ReactBody > .Page {
+    background-color: #1B2031;
     width:100%; min-height:100%;
     display:flex; flex-direction:column;
 }
@@ -227,4 +228,9 @@ input, textarea, select {
 select::-ms-value {
     color:inherit;
     background: transparent;
+}
+
+.Background {
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
 }
