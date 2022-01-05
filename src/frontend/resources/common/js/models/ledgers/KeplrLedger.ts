@@ -245,7 +245,7 @@ export default class KeplrLedger implements Ledger {
             const offlineSigner = window.getOfflineSigner(Config.CUDOS_NETWORK.CHAIN_ID);
             const account = (await offlineSigner.getAccounts())[0];
 
-            const url = `${Config.CUDOS_NETWORK.API}/cosmos/bank/v1beta1/balances/${account.address}/${CosmosNetworkH.CURRENCY_DENOM}`;
+            const url = `${Config.CUDOS_NETWORK.API}/cosmos/bank/v1beta1/balances/${account.address}/by_denom?denom=${CosmosNetworkH.CURRENCY_DENOM}`;
             const amount = (await (await fetch(url)).json()).balance.amount;
 
             return new BigNumber(amount).div(CosmosNetworkH.CURRENCY_1_CUDO);
