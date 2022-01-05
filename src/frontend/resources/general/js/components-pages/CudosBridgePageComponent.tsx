@@ -7,6 +7,7 @@ import TransferForm from './TransferForm';
 import SummaryForm from './SummaryForm';
 import SummaryModal from '../../../common/js/components-popups/SummaryModal';
 import FailureModal from '../../../common/js/components-popups/FailureModal';
+import LoadingModal from '../../../common/js/components-popups/LoadingModal';
 
 import Config from '../../../../../../builds/dev-generated/Config';
 import './../../css/components-pages/cudos-bridge-component.css';
@@ -46,7 +47,8 @@ interface State {
     summary: boolean;
     isOpen: boolean;
     isTransferring: boolean;
-    isTransactionFail: boolean
+    isTransactionFail: boolean;
+    isLoading: boolean;
 }
 
 const cudosMainLogo = '../../../../resources/common/img/favicon/cudos-40x40.svg'
@@ -87,6 +89,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             isOpen: false,
             isTransactionFail: false,
             isTransferring: false,
+            isLoading: false,
         }
 
         this.root = React.createRef();
@@ -324,16 +327,17 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
 
         try {
             this.props.appStore.disableActions();
-            this.setState({ isTransferring: true })
+            this.setState({ isTransferring: true, isLoading: true })
             const ledger = await this.checkWalletConnected();
             await ledger.send(this.state.amount, this.getAddress(this.state.selectedToNetwork, 0));
-            this.setState({ isOpen: true })
+            this.setState({ isOpen: true, isLoading: false })
         } catch (e) {
-            this.setState({ isTransactionFail: true });
+            this.setState({ isTransactionFail: true, isLoading: false });
         } finally {
             this.setState({
                 amount: new BigNumber(0),
                 isTransferring: false,
+                isLoading: false,
                 amountError: S.INT_FALSE,
                 destinationAddress: S.Strings.EMPTY,
                 destiantionAddressError: S.INT_FALSE,
@@ -549,6 +553,10 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                     </div>
                 </div>
                 <div className={!this.state.summary ? 'PageContent' : 'SummaryContent'}>
+                    <LoadingModal
+                        isOpen={this.state.isLoading}
+                        closeModal={() => this.setState({ isTransactionFail: false, isOpen: false })}
+                    />
                     <SummaryModal
                         getAddress={this.getAddress}
                         displayAmount={this.state.displayAmount}
@@ -577,6 +585,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                             goToTransactionSummary={this.goToTransactionSummary}
                             onChangeAccount={this.onChangeAccount}
                             checkWalletConnected={this.checkWalletConnected}
+                            connectWallet={this.connectWallet}
                         />
                         : <SummaryForm
                             selectedFromNetwork={this.state.selectedFromNetwork}

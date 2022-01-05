@@ -92,7 +92,6 @@ const TransferForm = ({
                 <Button
                     className={isToConnected ? 'DisconnectBtn' : 'ConnectBtn'}
                     onClick={() => (isToConnected ? onDisconnectToNetwork() : onSelectToNetwork(selectedToNetwork))}
-                    value={selectedToNetwork}
                     type={Button.TYPE_ROUNDED}
                     color={isToConnected ? Button.COLOR_SCHEME_2 : Button.COLOR_SCHEME_1}>{isToConnected ? 'Disconnect' : 'Connect'}</Button>
             </div>
