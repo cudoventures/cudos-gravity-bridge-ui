@@ -15,6 +15,8 @@ export default class MetamaskLedger implements Ledger {
     static NETWORK_NAME = 'Ethereum';
     @observable connected: number;
     @observable account: string;
+    @observable walletError: string;
+    @observable txHash: string;
     erc20Instance: any;
     gasPrice: string;
     gas: string;
@@ -24,11 +26,14 @@ export default class MetamaskLedger implements Ledger {
         this.account = null;
         this.gasPrice = Config.ETHEREUM.ETHEREUM_GAS_PRICE;
         this.gas = Config.ETHEREUM.ETHEREUM_GAS;
+        this.walletError = null;
+        this.txHash = null;
 
         makeObservable(this);
     }
 
     async connect(): Promise<void> {
+        this.walletError = null;
         try {
             if (localStorage.getItem('manualAccountChange') === 'true') {
                 await window.ethereum.send('eth_requestAccounts');
@@ -47,8 +52,11 @@ export default class MetamaskLedger implements Ledger {
             this.account = window.ethereum.selectedAddress;
             this.connected = S.INT_TRUE;
         } catch (e) {
-            console.log(e);
-            throw new Error('Failed to connect Metamask!');
+            if (!window.ethereum) {
+                this.walletError = 'Metamask wallet not found! Please install to continue!';
+            } else {
+                this.walletError = 'User rejected the request!';
+            }
         }
     }
 
@@ -60,6 +68,7 @@ export default class MetamaskLedger implements Ledger {
     }
 
     async send(amount: BigNumber, destiantionAddress: string) {
+        this.walletError = null;
         return new Promise < void >((resolve, reject) => {
             const run = async () => {
                 const account = (await window.web3.eth.requestAccounts())[0];
@@ -79,17 +88,24 @@ export default class MetamaskLedger implements Ledger {
                 erc20Instance.methods.approve(Config.ORCHESTRATOR.BRIDGE_CONTRACT_ADDRESS, stringAmount)
                     .send({ from: account, gas: this.gas },
                         (err, transactionHash) => {
+                            this.txHash = transactionHash;
+                            console.log('tr hash', transactionHash);
                             if (err) {
                                 reject(err);
+
+                                this.walletError = 'Failed to send transaction!'
                                 throw new Error('Failed to send transaction!');
                             }
 
                             gravityContract.methods.sendToCosmos(Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS, `0x${toHex(addressBytes32Array)}`, stringAmount).send({ from: account, gas: this.gas })
                                 .on('receipt', (confirmationNumber, receipt) => {
                                     resolve();
+                                    // this.txHash = confirmationNumber.blockHash;
+                                    // console.log('confirm', confirmationNumber);
                                 })
                                 .on('error', (e) => {
                                     reject();
+                                    this.walletError = 'Failed to send transaction!'
                                     throw new Error('Failed to send transaction!');
                                 });
                         });
@@ -106,6 +122,7 @@ export default class MetamaskLedger implements Ledger {
     }
 
     async getBalance(): Promise<BigNumber> {
+        this.walletError = null;
         try {
             const wallet = (await window.web3.eth.requestAccounts())[0];
             const erc20Contract = new window.web3.eth.Contract(ERC20TokenAbi, Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS);
@@ -114,8 +131,7 @@ export default class MetamaskLedger implements Ledger {
 
             return (new BigNumber(balance)).div(CosmosNetworkH.CURRENCY_1_CUDO);
         } catch (e) {
-            console.log(e);
-            throw new Error('Failed to fetch balance!');
+            this.walletError = 'Failed to fetch balance';
         }
     }
 

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 
 import ProjectUtils from '../../../common/js/ProjectUtils';
 import Button from '../../../common/js/components-inc/Button';
@@ -43,7 +42,7 @@ const TransferForm = ({
     const ethLogo = '../../../../resources/common/img/favicon/eth-16x25.svg'
     const transferLogo = '../../../../resources/common/img/favicon/transfer-logo.svg'
     const fromNetwork = selectedFromNetwork ? 'CUDOS' : 'Ethereum'
-    const ToNetwork = selectedToNetwork ? 'CUDOS' : 'Ethereum'
+    const toNetwork = selectedToNetwork ? 'CUDOS' : 'Ethereum'
 
     const [animate, setAnimate] = useState<boolean>(false);
 
@@ -56,18 +55,20 @@ const TransferForm = ({
         window.addEventListener('keplr_keystorechange', async () => {
             await connectWallet(KEPLR_WALLET);
             await onChangeAccount(KEPLR_WALLET)
-            console.log('reconnect Keplr    ...');
+            console.log('reconnect Keplr...');
         });
     }, []);
 
     useEffect(():void => {
         localStorage.setItem('manualAccountChange', 'false')
-        window.ethereum.on('accountsChanged', async () => {
-            localStorage.setItem('manualAccountChange', 'true')
-            await connectWallet(METAMASK_WALLET);
-            await onChangeAccount(METAMASK_WALLET)
-            console.log('reconnect Metamask...');
-        });
+        if (window.ethereum) {
+            window.ethereum.on('accountsChanged', async () => {
+                localStorage.setItem('manualAccountChange', 'true')
+                await connectWallet(METAMASK_WALLET);
+                await onChangeAccount(METAMASK_WALLET);
+                console.log('reconnect Metamask...');
+            });
+        }
     }, []);
 
     return (
@@ -88,7 +89,7 @@ const TransferForm = ({
             <div className={'Title'}>Transfer to</div>
             <div className={'Address'}>
                 <div className={selectedToNetwork ? 'CudosLogo' : 'EthLogo'} style={selectedToNetwork ? ProjectUtils.makeBgImgStyle(cudosLogo) : ProjectUtils.makeBgImgStyle(ethLogo)} />
-                {isToConnected ? (getAddress(selectedToNetwork, 18)) : ToNetwork}
+                {isToConnected ? (getAddress(selectedToNetwork, 18)) : toNetwork}
                 <Button
                     className={isToConnected ? 'DisconnectBtn' : 'ConnectBtn'}
                     onClick={() => (isToConnected ? onDisconnectToNetwork() : onSelectToNetwork(selectedToNetwork))}

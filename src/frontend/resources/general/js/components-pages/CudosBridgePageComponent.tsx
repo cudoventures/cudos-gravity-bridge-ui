@@ -40,22 +40,19 @@ interface State {
     amountError: number;
     destinationAddress: string;
     destiantionAddressError: number;
-    // showPopup: boolean;
-    // popupType: string;
-    // transactionPopupText: string;
     contractBalance: BigNumber;
     summary: boolean;
     isOpen: boolean;
     isTransferring: boolean;
     isTransactionFail: boolean;
     isLoading: boolean;
+    errorMessage: string;
+    txHash: string;
 }
 
 const cudosMainLogo = '../../../../resources/common/img/favicon/cudos-40x40.svg'
 const cudosFont = '../../../../resources/common/img/favicon/cudos-font.svg'
 const transferLogoAlt = '../../../../resources/common/img/favicon/transfer-logo-alt.svg'
-// const POPUP_TYPE_ERROR = 'Error';
-// const POPUP_TYPE_SUCCESS = 'Success';
 
 export default class CudosBridgeComponent extends ContextPageComponent<Props, State> {
 
@@ -81,15 +78,14 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             amountError: S.INT_FALSE,
             destinationAddress: S.Strings.EMPTY,
             destiantionAddressError: S.INT_FALSE,
-            // showPopup: false,
-            // popupType: S.Strings.EMPTY,
-            // transactionPopupText: S.Strings.EMPTY,
             contractBalance: new BigNumber(0),
             summary: false,
             isOpen: false,
             isTransactionFail: false,
             isTransferring: false,
             isLoading: false,
+            errorMessage: null,
+            txHash: null,
         }
 
         this.root = React.createRef();
@@ -170,13 +166,21 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         let fromNetwork = null;
         let contractBalance = new BigNumber(0);
         let connectionError = false;
-        let account = null;
+        const account = null;
 
         try {
             fromNetwork = this.state.selectedFromNetwork;
             ledger = await this.connectWallet(fromNetwork);
+            if (await ledger.walletError) {
+                this.setState({
+                    isTransactionFail: true,
+                    errorMessage: ledger.walletError,
+                })
+                connectionError = true
+                balance = new BigNumber(0);
+                contractBalance = new BigNumber(0);
+            }
             balance = await ledger.getBalance();
-            account = localStorage.setItem('fromAccount', await ledger.account)
             if (this.isFromCosmos(fromNetwork) === true) {
                 contractBalance = await this.getContractBalance();
             } else {
@@ -210,13 +214,20 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         const fromNetwork = null;
         let contractBalance = new BigNumber(0);
         let connectionError = false;
-        let account = null;
 
         try {
             toNetwork = this.state.selectedToNetwork;
             ledger = await this.connectWallet(toNetwork);
+            if (await ledger.walletError) {
+                this.setState({
+                    isTransactionFail: true,
+                    errorMessage: ledger.walletError,
+                })
+                connectionError = true
+                balance = new BigNumber(0);
+                contractBalance = new BigNumber(0);
+            }
             balance = await ledger.getBalance();
-            account = localStorage.setItem('toAccount', await ledger.account)
             if (this.isFromCosmos(toNetwork) === true) {
                 contractBalance = await this.getContractBalance();
             } else {
@@ -237,8 +248,6 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                 amountError: S.INT_FALSE,
                 destinationAddress: S.Strings.EMPTY,
                 destiantionAddressError: S.INT_FALSE,
-                // walletBalance: balance,
-                // contractBalance,
             })
         }
     }
@@ -284,7 +293,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                     amountError: S.INT_TRUE,
                 })
             }
-        }, 1000);
+        }, 200);
     }
 
     onChangeDestinationAddress = (address) => {
@@ -311,17 +320,16 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
 
     onClickSend = async () => {
         if (this.state.amount.isGreaterThan(this.state.walletBalance)) {
-            this.showAlertError('Error: The amount you entered is more than what you have in your wallet.');
+            this.setState({ errorMessage: 'The amount you entered is more than what you have in your wallet!', isTransactionFail: true });
             return;
         }
 
         if (this.state.amountError === S.INT_TRUE) {
-            this.showAlertError('Error: Please enter valid amount of tokens.');
-            return;
-        }
-
-        if (this.state.destiantionAddressError === S.INT_TRUE) {
-            this.showAlertError('Error: Please enter a valid destiantion address.');
+            this.setState({
+                errorMessage: 'Please enter a valid amount of tokens!',
+                isTransactionFail: true,
+                amountError: 0,
+            });
             return;
         }
 
@@ -330,9 +338,11 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             this.setState({ isTransferring: true, isLoading: true })
             const ledger = await this.checkWalletConnected();
             await ledger.send(this.state.amount, this.getAddress(this.state.selectedToNetwork, 0));
-            this.setState({ isOpen: true, isLoading: false })
+            const txHash = ledger.txHash
+            this.setState({ isOpen: true, isLoading: false, txHash })
         } catch (e) {
-            this.setState({ isTransactionFail: true, isLoading: false });
+            const ledger = await this.checkWalletConnected();
+            this.setState({ isTransactionFail: true, isLoading: false, errorMessage: ledger.walletError });
         } finally {
             this.setState({
                 amount: new BigNumber(0),
@@ -356,16 +366,6 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         let contractBalance = new BigNumber(0);
         let ledger = null;
         let connectionError = false;
-        let toAccount = null;
-        let fromAccount = null;
-
-        if (!toConnected && !fromConnected) {
-            toAccount = localStorage.getItem('');
-            fromAccount = localStorage.getItem('');
-        } else {
-            toAccount = localStorage.getItem('toAccount');
-            fromAccount = localStorage.getItem('fromAccount');
-        }
 
         try {
             const networkId = toNetwork;
@@ -387,8 +387,6 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         }
 
         if (!connectionError) {
-            localStorage.setItem('fromAccount', toAccount);
-            localStorage.setItem('toAccount', fromAccount);
             this.setState({
                 displayAmount: S.Strings.EMPTY,
                 selectedFromNetwork: toNetwork,
@@ -425,22 +423,11 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
     onChangeAccount = async (): Promise<void> => {
         const toNetwork = this.state.selectedToNetwork;
         const fromNetwork = this.state.selectedFromNetwork;
-        const toConnected = this.state.isToConnected;
         const fromConnected = this.state.isFromConnected;
         let balance = new BigNumber(0);
         let contractBalance = new BigNumber(0);
         let ledger = null;
         let connectionError = false;
-        let toAccount = null;
-        let fromAccount = null;
-
-        if (!toConnected && !fromConnected) {
-            toAccount = localStorage.getItem('');
-            fromAccount = localStorage.getItem('');
-        } else {
-            toAccount = localStorage.getItem('toAccount');
-            fromAccount = localStorage.getItem('fromAccount');
-        }
 
         try {
             ledger = this.props.networkStore.networkHolders[fromNetwork].ledger;
@@ -461,14 +448,10 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         }
 
         if (!connectionError) {
-            localStorage.setItem('fromAccount', toAccount);
-            localStorage.setItem('toAccount', fromAccount);
             this.setState({
                 displayAmount: S.Strings.EMPTY,
                 selectedFromNetwork: fromNetwork,
                 selectedToNetwork: toNetwork,
-                isToConnected: toConnected,
-                isFromConnected: fromConnected,
                 walletBalance: balance,
                 contractBalance,
             })
@@ -562,13 +545,16 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                         displayAmount={this.state.displayAmount}
                         selectedFromNetwork={this.state.selectedFromNetwork}
                         selectedToNetwork={this.state.selectedToNetwork}
+                        txHash={this.state.txHash}
                         closeModal={() => this.setState({ isOpen: false, displayAmount: S.Strings.EMPTY })}
                         isOpen={this.state.isOpen}
                         onGetBalance={this.onGetBalance}
+                        checkWalletConnected={this.checkWalletConnected}
                     />
                     <FailureModal
                         isOpen={this.state.isTransactionFail}
                         closeModal={() => this.setState({ isTransactionFail: false, isOpen: false, displayAmount: S.Strings.EMPTY })}
+                        errorMessage={this.state.errorMessage}
                     />
                     {!this.state.summary
                         ? <TransferForm
@@ -610,7 +596,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                     {this.state.summary
                         ? null
                         : <div className={'CreateAccount'}>
-                            <span>Need a CUDOS account? Create one <a target='_blank' style={{ color: 'rgba(78, 148, 238, 1)' }} href='https://www.google.bg/'>here</a></span>
+                            <span>Need a CUDOS account? Create one <a rel='noreferrer' target='_blank' style={{ color: 'rgba(78, 148, 238, 1)' }} href='https://www.google.bg/'>here</a></span>
                         </div>
                     }
                 </div>

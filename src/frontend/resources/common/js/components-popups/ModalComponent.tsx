@@ -4,10 +4,11 @@ import { Backdrop, Box, Modal, Fade } from '@material-ui/core/';
 import '../../css/components-popups/summary-modal.css';
 
 const ModalComponent = (
-    { isOpen, closeModal, children } :
+    { isOpen, closeModal, children, errorMessage } :
     {
         isOpen: boolean,
         closeModal: Function,
+        errorMessage: string
         children:React.ReactNode
     },
 ) => {

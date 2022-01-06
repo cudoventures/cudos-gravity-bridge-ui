@@ -8,10 +8,12 @@ import '../../css/components-popups/failure-modal.css';
 const FailureModal = ({
     closeModal,
     isOpen,
+    errorMessage,
 }
 : {
     closeModal: Function
     isOpen: boolean
+    errorMessage: string
 }) => {
 
     const transactionFailIcon = '../../../../resources/common/img/favicon/transaction-fail.svg';
@@ -27,7 +29,7 @@ const FailureModal = ({
                     <div className={'TransactionFailLogo'}style={ProjectUtils.makeBgImgStyle(transactionFailIcon)} ></div>
                 </div>
                 <div className={'Title'}>Oops!</div>
-                <div className={'Subheader'}>Failed to connect wallet. Try to change your browser or check your wallet connectivity.</div>
+                <div className={'Subheader'}>{errorMessage}</div>
                 <div className={'Flex DoubleSpacing BtnWrapper'}>
                     <Button
                         className={'TryAgainBtn'}
