@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../../common/js/api/GasOracleAPI';
 
-import SummaryModal from '../../../common/js/components-popups/SummaryModal';
-
 import Button from '../../../common/js/components-inc/Button';
 import ProjectUtils from '../../../common/js/ProjectUtils';
 import S from '../../../common/js/utilities/Main';
@@ -42,6 +40,17 @@ const SummaryForm = (props: ISummaryFormProps) => {
     const changeTransaction = (): void => {
         props.onChnageTransactionDirection();
         setAnimate(!animate);
+    }
+
+    const formatNumber = (text: string): string => {
+        if (!text) {
+            return (null);
+        }
+        let result = text;
+        if ((text === null || text.length > 18)) {
+            result = text.slice(0, 19);
+        }
+        return new BigNumber(result).toFixed(2);
     }
 
     useEffect(() => {
@@ -119,7 +128,7 @@ const SummaryForm = (props: ISummaryFormProps) => {
                     </div>
                     <div className={'Row Spacing'}>
                         <span className={'FlexStart GrayText'}>Wallet Balance:</span>
-                        <span className={'FlexEnd SummaryBalance'}>{props.walletBalance.toFixed()} CUDOS</span>
+                        <span className={'FlexEnd SummaryBalance'}>{props.walletBalance.toFixed(4)} CUDOS</span>
                     </div>
                 </div>
                 <div className={'Column PaddingRightColumn'}>
@@ -155,7 +164,7 @@ const SummaryForm = (props: ISummaryFormProps) => {
                         <span className={'FlexStart Asset'}>Asset</span>
                     </div>
                     <div className={'Row Spacing'}>
-                        <span className={'FlexStart GrayText'}>{!props.displayAmount ? '0.0' : props.displayAmount}</span>
+                        <span className={'FlexStart GrayText'}>{!props.displayAmount ? '0.00' : formatNumber(props.displayAmount)}</span>
                         <span className={'FlexStart GrayText Asset'}>CUDOS</span>
                     </div>
                     <div className={'Row DoubleSpacing TopBorder'}>

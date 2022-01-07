@@ -14,6 +14,7 @@ const SummaryModal = ({
     selectedToNetwork,
     displayAmount,
     onGetBalance,
+    txHash,
 }
     : { closeModal: Function,
         isOpen: boolean,
@@ -21,7 +22,8 @@ const SummaryModal = ({
         selectedFromNetwork: number,
         selectedToNetwork: number,
         displayAmount: string,
-        onGetBalance: Function
+        onGetBalance: Function,
+        txHash: string,
     }) => {
 
     const cudosLogoSmall = '../../../../resources/common/img/favicon/cudos-18x18.svg';
@@ -33,6 +35,10 @@ const SummaryModal = ({
 
     const fromNetwork = selectedFromNetwork ? 'CUDOS' : 'Ethereum';
     const ToNetwork = selectedToNetwork ? 'CUDOS' : 'Ethereum';
+
+    const ETHERSCAN_RINKEBY = 'https://rinkeby.etherscan.io/tx';
+    const ETHERSCAN_MAINNET = 'https://etherscan.io/tx';
+    const CUDOS_EXPLOREER = 'https://explorer.cudos.org/transactions';
 
     const onCloseModal = async () => {
         onGetBalance();
@@ -94,7 +100,7 @@ const SummaryModal = ({
                                 <div>Transaction</div>
                             </div>
                             <div className={'Row Spacing LinkWrapper'}>
-                                <div className={'LinkContent'}><a href='' >
+                                <div className={'LinkContent'}><a href= {`${selectedFromNetwork ? CUDOS_EXPLOREER : ETHERSCAN_RINKEBY}/${txHash}`} rel='noreferrer' target='_blank'>
                                     Bridge transaction link</a>
                                 <div className={'LinkIcon'} style={ProjectUtils.makeBgImgStyle(linkIcon)} />
                                 </div>
