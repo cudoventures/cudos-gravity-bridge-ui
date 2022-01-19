@@ -102,6 +102,7 @@ export default class KeplrLedger implements Ledger {
                         average: Number(Config.CUDOS_NETWORK.GAS_PRICE) / 8,
                         high: Number(Config.CUDOS_NETWORK.GAS_PRICE) * 2,
                     },
+                    features: ["stargate", "ibc-transfer", "no-legacy-stdTx"]
                 });
             } catch (ex) {
                 console.log(ex);
