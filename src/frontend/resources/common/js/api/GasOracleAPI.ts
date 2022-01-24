@@ -7,6 +7,7 @@ const url = `https://api.etherscan.io/api
 
 export const api = () => {
     axios.get(url).then((res) => {
-        console.log('response', res);
+        /* Gas Fee temporarily disabled */
+        // console.log('response', res);
     })
 }

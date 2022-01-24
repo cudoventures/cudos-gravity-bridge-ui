@@ -90,13 +90,14 @@ const SummaryModal = ({
                                 <span className={'FlexStart GrayText Weight600 Cudos'}>{!displayAmount ? '0.0' : displayAmount}</span>
                                 <span className={'FlexStart GrayText Asset Weight600 FlexRight'}>CUDOS</span>
                             </div>
-                            <div className={'Row DoubleSpacing TopBorder'}>
+                            {/* Gas Fee temporarily disabled */}
+                            {/* <div className={'Row DoubleSpacing TopBorder'}>
                                 <span className={'FlexStart'}>
                             Gas Fee
                                 </span>
                                 <span className={'FlexEnd Weight600'}>0.00012 CUDOS</span>
-                            </div>
-                            <div className={'Row DoubleSpacing TopBorder'}>
+                            </div> */}
+                            <div style={{ marginTop: '85px' }} className={'Row DoubleSpacing TopBorder'}>
                                 <div>Transaction</div>
                             </div>
                             <div className={'Row Spacing LinkWrapper'}>

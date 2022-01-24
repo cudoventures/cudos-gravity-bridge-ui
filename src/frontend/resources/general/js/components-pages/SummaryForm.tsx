@@ -168,14 +168,15 @@ const SummaryForm = (props: ISummaryFormProps) => {
                         <span className={'FlexStart GrayText Asset'}>CUDOS</span>
                     </div>
                     <div className={'Row DoubleSpacing TopBorder'}>
-                        <span className={'FlexStart'}>
+                        {/* Gas Fee temporarily disabled */}
+                        {/* <span className={'FlexStart'}>
                             Estimated Gas Fee
                             <div className={'AttentionIcon'} style={ProjectUtils.makeBgImgStyle(attentionIcon)}></div>
                         </span>
-                        <span className={'FlexEnd'}>0.00012 CUDOS</span>
+                        <span className={'FlexEnd'}>0.00012 CUDOS</span> */}
                     </div>
                     <div>
-                        <div className={'FormRow Wrapper'} >
+                        <div style={{ marginTop: '25px' }} className={'FormRow Wrapper'} >
                             <Button
                                 disabled={(!props.isFromConnected || !props.isToConnected || props.displayAmount === S.Strings.EMPTY || props.isTransferring)}
                                 className={'TransferBtn Flex DoubleSpacing'}
