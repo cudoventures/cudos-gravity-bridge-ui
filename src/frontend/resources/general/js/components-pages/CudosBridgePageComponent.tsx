@@ -53,6 +53,7 @@ interface State {
 const cudosMainLogo = '../../../../resources/common/img/favicon/cudos-40x40.svg'
 const cudosFont = '../../../../resources/common/img/favicon/cudos-font.svg'
 const transferLogoAlt = '../../../../resources/common/img/favicon/transfer-logo-alt.svg'
+const keplrLink = 'https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap?hl=en'
 
 export default class CudosBridgeComponent extends ContextPageComponent<Props, State> {
 
@@ -596,7 +597,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                     {this.state.summary
                         ? null
                         : <div className={'CreateAccount'}>
-                            <span>Need a CUDOS account? Create one <a rel='noreferrer' target='_blank' style={{ color: 'rgba(78, 148, 238, 1)' }} href='https://www.google.bg/'>here</a></span>
+                            <span>Need a CUDOS account? Create one <a rel='noreferrer' target='_blank' style={{ color: 'rgba(78, 148, 238, 1)' }} href={keplrLink}>here</a></span>
                         </div>
                     }
                 </div>
