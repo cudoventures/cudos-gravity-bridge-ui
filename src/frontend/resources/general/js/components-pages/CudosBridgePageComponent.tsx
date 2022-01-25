@@ -182,6 +182,9 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                 contractBalance = new BigNumber(0);
             }
             balance = await ledger.getBalance();
+            if (!balance) {
+                balance = new BigNumber(0);
+            }
             if (this.isFromCosmos(fromNetwork) === true) {
                 contractBalance = await this.getContractBalance();
             } else {
@@ -229,6 +232,9 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                 contractBalance = new BigNumber(0);
             }
             balance = await ledger.getBalance();
+            if (!balance) {
+                balance = new BigNumber(0);
+            }
             if (this.isFromCosmos(toNetwork) === true) {
                 contractBalance = await this.getContractBalance();
             } else {
@@ -255,7 +261,11 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
 
     onClickMaxAmount = async () => {
         const ledger = await this.checkWalletConnected();
-        const balance = await ledger.getBalance();
+        let balance = await ledger.getBalance();
+
+        if (!balance) {
+            balance = new BigNumber(0);
+        }
 
         const maximumAmount = BigNumber.minimum(balance, this.state.contractBalance);
         this.setState({
@@ -267,8 +277,10 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
 
     onGetBalance = async () => {
         const ledger = await this.checkWalletConnected();
-        const balance = await ledger.getBalance();
-
+        let balance = await ledger.getBalance();
+        if (!balance) {
+            balance = new BigNumber(0);
+        }
         this.setState({
             walletBalance: balance,
         })
@@ -374,6 +386,9 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
 
             if (toConnected) {
                 balance = await ledger.getBalance();
+                if (!balance) {
+                    balance = new BigNumber(0);
+                }
             }
             if (this.isFromCosmos(toNetwork) === true) {
                 contractBalance = await this.getContractBalance();
@@ -435,6 +450,9 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
 
             if (fromConnected) {
                 balance = await ledger.getBalance();
+                if (!balance) {
+                    balance = new BigNumber(0);
+                }
             }
             if (this.isFromCosmos(fromNetwork) === true) {
                 contractBalance = await this.getContractBalance();
