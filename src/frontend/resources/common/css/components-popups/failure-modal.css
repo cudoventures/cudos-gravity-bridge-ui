@@ -1,0 +1,67 @@
+.FailureForm {
+    align-items:flex-start;
+    justify-content: flex-start;
+    position:relative;
+    margin: auto;
+    max-width: 470px !important;
+    min-height: 36vh;
+    max-height: 475px !important;
+    min-width: 27vw;
+    padding: 20px;
+}
+
+.FailureForm .TransactionFailLogo {
+    width: 70px;
+    height: 70px;
+    margin-top: 18px;
+}
+
+.FailureForm .Wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.FailureForm .CloseIcon {
+    position: absolute;
+    right: 25px;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+}
+
+.FailureForm .Title {
+    font-family: Poppins, sans-serif;
+    margin-bottom: 5px;
+    font-size: 30px;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.FailureForm .Subheader {
+    font-size: 18px;
+    font-weight: 400;
+    text-align: center;
+    color: var(--color-gray);
+    margin-bottom: 25px;
+    margin-top: 25px;
+    padding:0px 80px 0px 80px;
+}
+
+.FailureForm .TryAgainBtn {
+    width: 257px;
+    height: 52px;
+    display: flex;
+    justify-content: center;
+}
+
+.FailureForm .BtnWrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.FailureForm .DoubleSpacing {
+    margin-top: 45px;
+    margin-bottom: 5px;
+}
+
