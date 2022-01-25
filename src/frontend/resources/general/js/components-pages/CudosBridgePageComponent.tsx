@@ -3,24 +3,22 @@
 import React, { RefObject } from 'react';
 
 import ContextPageComponent, { ContextPageComponentProps } from './common/ContextPageComponent';
+import TransferForm from './TransferForm';
+import SummaryForm from './SummaryForm';
+import SummaryModal from '../../../common/js/components-popups/SummaryModal';
+import FailureModal from '../../../common/js/components-popups/FailureModal';
+import LoadingModal from '../../../common/js/components-popups/LoadingModal';
 
 import Config from '../../../../../../builds/dev-generated/Config';
 import './../../css/components-pages/cudos-bridge-component.css';
-import LayoutBlock from '../../../common/js/components-inc/LayoutBlock';
-import Button from '../../../common/js/components-inc/Button';
-import Input from '../../../common/js/components-inc/Input';
-import Select from '../../../common/js/components-inc/Select';
-import Popover from '../../../common/js/components-inc/Popover';
 import PageComponent from '../../../common/js/components-pages/PageComponent';
 import { inject, observer } from 'mobx-react';
 import BigNumber from 'bignumber.js';
-import SvgArrowRight from '../../../common/svg/arrow-right.svg';
 
 import S from '../../../common/js/utilities/Main';
 import NetworkStore from '../../../common/js/stores/NetworkStore';
 import KeplrLedger from '../../../common/js/models/ledgers/KeplrLedger';
 import ProjectUtils from '../../../common/js/ProjectUtils';
-import { MenuItem } from '@material-ui/core';
 import Ledger from '../../../common/js/models/ledgers/Ledger';
 import CosmosNetworkH from '../../../common/js/models/ledgers/CosmosNetworkH';
 import MetamaskLedger from '../../../common/js/models/ledgers/MetamaskLedger';
@@ -34,22 +32,30 @@ interface Props extends ContextPageComponentProps {
 interface State {
     selectedFromNetwork: number;
     selectedToNetwork: number;
+    isFromConnected: boolean;
+    isToConnected: boolean;
     amount: BigNumber;
     displayAmount: string;
     walletBalance: BigNumber;
     amountError: number;
     destinationAddress: string;
     destiantionAddressError: number;
-    // showPopup: boolean;
-    // popupType: string;
-    // transactionPopupText: string;
     contractBalance: BigNumber;
+    summary: boolean;
+    isOpen: boolean;
+    isTransferring: boolean;
+    isTransactionFail: boolean;
+    isLoading: boolean;
+    errorMessage: string;
+    txHash: string;
 }
 
-// const POPUP_TYPE_ERROR = 'Error';
-// const POPUP_TYPE_SUCCESS = 'Success';
+const cudosMainLogo = '../../../../resources/common/img/favicon/cudos-40x40.svg'
+const cudosFont = '../../../../resources/common/img/favicon/cudos-font.svg'
+const transferLogoAlt = '../../../../resources/common/img/favicon/transfer-logo-alt.svg'
+const keplrLink = 'https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap?hl=en'
 
-export default class CudosBridgeComponent extends ContextPageComponent < Props, State > {
+export default class CudosBridgeComponent extends ContextPageComponent<Props, State> {
 
     inputTimeouts: any;
     root: RefObject<HTMLDivElement>;
@@ -63,18 +69,24 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
         super(props);
 
         this.state = {
-            selectedFromNetwork: S.NOT_EXISTS,
-            selectedToNetwork: S.NOT_EXISTS,
+            selectedFromNetwork: S.INT_TRUE,
+            selectedToNetwork: S.INT_FALSE,
+            isFromConnected: false,
+            isToConnected: false,
             amount: new BigNumber(0),
             displayAmount: S.Strings.EMPTY,
             walletBalance: new BigNumber(0),
             amountError: S.INT_FALSE,
             destinationAddress: S.Strings.EMPTY,
             destiantionAddressError: S.INT_FALSE,
-            // showPopup: false,
-            // popupType: S.Strings.EMPTY,
-            // transactionPopupText: S.Strings.EMPTY,
             contractBalance: new BigNumber(0),
+            summary: false,
+            isOpen: false,
+            isTransactionFail: false,
+            isTransferring: false,
+            isLoading: false,
+            errorMessage: null,
+            txHash: null,
         }
 
         this.root = React.createRef();
@@ -115,6 +127,7 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
         }
 
         const ledger = this.props.networkStore.networkHolders[networkId].ledger;
+
         return ledger instanceof KeplrLedger;
     }
 
@@ -131,82 +144,113 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
         return ledger instanceof MetamaskLedger;
     }
 
-    onSelectFromNetwork = async (value: number) => {
-        let balance = new BigNumber(0);
-        let ledger = null;
-        let toNetwork = null;
-        let fromNetwork = null;
-        let contractBalance = new BigNumber(0);
-
-        try {
-            fromNetwork = value;
-            ledger = await this.connectWallet(value);
-            toNetwork = this.props.networkStore.networkHolders.findIndex((v, i) => i !== value);
-            balance = await ledger.getBalance();
-            if (this.isFromCosmos(fromNetwork) === true) {
-                contractBalance = await this.getContractBalance();
-            } else {
-                contractBalance = new BigNumber(Number.MAX_SAFE_INTEGER);
-            }
-        } catch (e) {
-            this.showAlertError(e.toString());
-            fromNetwork = S.NOT_EXISTS;
-            ledger = null;
-            balance = new BigNumber(0);
-            toNetwork = S.NOT_EXISTS;
-            contractBalance = new BigNumber(0);
+    onDisconnectFromNetwork = async (): Promise<void> => {
+        if (this.state.isFromConnected) {
+            this.setState({
+                isFromConnected: false,
+            })
         }
-
-        this.setState({
-            selectedFromNetwork: fromNetwork,
-            selectedToNetwork: toNetwork,
-            amount: new BigNumber(0),
-            displayAmount: S.Strings.EMPTY,
-            amountError: S.INT_FALSE,
-            destinationAddress: S.Strings.EMPTY,
-            destiantionAddressError: S.INT_FALSE,
-            walletBalance: balance,
-            contractBalance,
-        })
     }
 
-    onSelectToNetwork = async (value) => {
+    onDisconnectToNetwork = async (): Promise<void> => {
+        if (this.state.isToConnected) {
+            this.setState({
+                isToConnected: false,
+            })
+        }
+    }
+
+    onSelectFromNetwork = async (): Promise<void> => {
         let balance = new BigNumber(0);
         let ledger = null;
-        let toNetwork = null;
+        const toNetwork = null;
         let fromNetwork = null;
         let contractBalance = new BigNumber(0);
+        let connectionError = false;
+        const account = null;
 
         try {
-            fromNetwork = `${this.props.networkStore.networkHolders.findIndex((v, i) => i !== value)}`;
+            fromNetwork = this.state.selectedFromNetwork;
             ledger = await this.connectWallet(fromNetwork);
+            if (await ledger.walletError) {
+                this.setState({
+                    isTransactionFail: true,
+                    errorMessage: ledger.walletError,
+                })
+                connectionError = true
+                balance = new BigNumber(0);
+                contractBalance = new BigNumber(0);
+            }
             balance = await ledger.getBalance();
             if (this.isFromCosmos(fromNetwork) === true) {
                 contractBalance = await this.getContractBalance();
             } else {
                 contractBalance = new BigNumber(Number.MAX_SAFE_INTEGER);
             }
-            toNetwork = value;
         } catch (e) {
             this.showAlertError(e.toString());
-            fromNetwork = S.NOT_EXISTS;
-            ledger = null;
+            connectionError = true
             balance = new BigNumber(0);
-            toNetwork = S.NOT_EXISTS;
             contractBalance = new BigNumber(0);
         }
+        if (!connectionError) {
+            this.setState({
+                selectedFromNetwork: fromNetwork,
+                isFromConnected: true,
+                amount: new BigNumber(0),
+                displayAmount: S.Strings.EMPTY,
+                amountError: S.INT_FALSE,
+                destinationAddress: S.Strings.EMPTY,
+                destiantionAddressError: S.INT_FALSE,
+                walletBalance: balance,
+                contractBalance,
+            })
+        }
+    }
 
-        this.setState({
-            selectedFromNetwork: fromNetwork,
-            selectedToNetwork: toNetwork,
-            amount: new BigNumber(0),
-            displayAmount: S.Strings.EMPTY,
-            amountError: S.INT_FALSE,
-            destinationAddress: S.Strings.EMPTY,
-            destiantionAddressError: S.INT_FALSE,
-            walletBalance: balance,
-            contractBalance,
-        })
+    onSelectToNetwork = async (): Promise<void> => {
+        let balance = new BigNumber(0);
+        let ledger = null;
+        let toNetwork = null;
+        const fromNetwork = null;
+        let contractBalance = new BigNumber(0);
+        let connectionError = false;
+
+        try {
+            toNetwork = this.state.selectedToNetwork;
+            ledger = await this.connectWallet(toNetwork);
+            if (await ledger.walletError) {
+                this.setState({
+                    isTransactionFail: true,
+                    errorMessage: ledger.walletError,
+                })
+                connectionError = true
+                balance = new BigNumber(0);
+                contractBalance = new BigNumber(0);
+            }
+            balance = await ledger.getBalance();
+            if (this.isFromCosmos(toNetwork) === true) {
+                contractBalance = await this.getContractBalance();
+            } else {
+                contractBalance = new BigNumber(Number.MAX_SAFE_INTEGER);
+            }
+        } catch (e) {
+            this.showAlertError(e.toString());
+            connectionError = true;
+            balance = new BigNumber(0);
+            contractBalance = new BigNumber(0);
+        }
+        if (!connectionError) {
+            this.setState({
+                selectedToNetwork: toNetwork,
+                isToConnected: true,
+                amount: new BigNumber(0),
+                displayAmount: S.Strings.EMPTY,
+                amountError: S.INT_FALSE,
+                destinationAddress: S.Strings.EMPTY,
+                destiantionAddressError: S.INT_FALSE,
+            })
+        }
     }
 
     onClickMaxAmount = async () => {
@@ -217,6 +261,15 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
         this.setState({
             amount: maximumAmount,
             displayAmount: maximumAmount.toFixed(),
+            walletBalance: balance,
+        })
+    }
+
+    onGetBalance = async () => {
+        const ledger = await this.checkWalletConnected();
+        const balance = await ledger.getBalance();
+
+        this.setState({
             walletBalance: balance,
         })
     }
@@ -241,7 +294,7 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
                     amountError: S.INT_TRUE,
                 })
             }
-        }, 1000);
+        }, 200);
     }
 
     onChangeDestinationAddress = (address) => {
@@ -268,33 +321,34 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
 
     onClickSend = async () => {
         if (this.state.amount.isGreaterThan(this.state.walletBalance)) {
-            this.showAlertError('Error: The amount you entered is more than what you have in your wallet.');
+            this.setState({ errorMessage: 'The amount you entered is more than what you have in your wallet!', isTransactionFail: true });
             return;
         }
 
         if (this.state.amountError === S.INT_TRUE) {
-            this.showAlertError('Error: Please enter valid amount of tokens.');
-            return;
-        }
-
-        if (this.state.destiantionAddressError === S.INT_TRUE) {
-            this.showAlertError('Error: Please enter a valid destiantion address.');
+            this.setState({
+                errorMessage: 'Please enter a valid amount of tokens!',
+                isTransactionFail: true,
+                amountError: 0,
+            });
             return;
         }
 
         try {
             this.props.appStore.disableActions();
-
+            this.setState({ isTransferring: true, isLoading: true })
             const ledger = await this.checkWalletConnected();
-            await ledger.send(this.state.amount, this.state.destinationAddress);
-            // await ledger.requestBatch();
-            this.showAlertSuccess('Your transaction was sent successfully and will be executed in next 60 blocks');
+            await ledger.send(this.state.amount, this.getAddress(this.state.selectedToNetwork, 0));
+            const txHash = ledger.txHash
+            this.setState({ isOpen: true, isLoading: false, txHash })
         } catch (e) {
-            this.showAlertError(e.toString());
+            const ledger = await this.checkWalletConnected();
+            this.setState({ isTransactionFail: true, isLoading: false, errorMessage: ledger.walletError });
         } finally {
             this.setState({
                 amount: new BigNumber(0),
-                displayAmount: S.Strings.EMPTY,
+                isTransferring: false,
+                isLoading: false,
                 amountError: S.INT_FALSE,
                 destinationAddress: S.Strings.EMPTY,
                 destiantionAddressError: S.INT_FALSE,
@@ -302,6 +356,49 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
 
             this.props.appStore.enableActions();
         }
+    }
+
+    onChnageTransactionDirection = async (): Promise<void> => {
+        const toNetwork = this.state.selectedToNetwork;
+        const fromNetwork = this.state.selectedFromNetwork;
+        const toConnected = this.state.isToConnected;
+        const fromConnected = this.state.isFromConnected;
+        let balance = new BigNumber(0);
+        let contractBalance = new BigNumber(0);
+        let ledger = null;
+        let connectionError = false;
+
+        try {
+            const networkId = toNetwork;
+            ledger = this.props.networkStore.networkHolders[networkId].ledger;
+
+            if (toConnected) {
+                balance = await ledger.getBalance();
+            }
+            if (this.isFromCosmos(toNetwork) === true) {
+                contractBalance = await this.getContractBalance();
+            } else {
+                contractBalance = new BigNumber(Number.MAX_SAFE_INTEGER);
+            }
+        } catch (e) {
+            this.showAlertError(e.toString());
+            connectionError = true;
+            balance = new BigNumber(0);
+            contractBalance = new BigNumber(0);
+        }
+
+        if (!connectionError) {
+            this.setState({
+                displayAmount: S.Strings.EMPTY,
+                selectedFromNetwork: toNetwork,
+                selectedToNetwork: fromNetwork,
+                isToConnected: fromConnected,
+                isFromConnected: toConnected,
+                walletBalance: balance,
+                contractBalance,
+            })
+        }
+
     }
 
     checkWalletConnected = async () => {
@@ -315,33 +412,62 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
         return ledger;
     }
 
-    // onClickConnectWallet = async () => {
-    //     const networkId = this.state.selectedFromNetwork;
-
-    //     this.connectWallet(networkId);
-    // }
-
     connectWallet = async (networkId: number): Promise<Ledger> => {
         const networkHolders = this.props.networkStore.networkHolders;
 
         const ledger = networkHolders[networkId].ledger;
-
-        if (!ledger.connected) {
-            await ledger.connect();
-        }
+        await ledger.connect();
 
         return ledger;
     }
 
+    onChangeAccount = async (): Promise<void> => {
+        const toNetwork = this.state.selectedToNetwork;
+        const fromNetwork = this.state.selectedFromNetwork;
+        const fromConnected = this.state.isFromConnected;
+        let balance = new BigNumber(0);
+        let contractBalance = new BigNumber(0);
+        let ledger = null;
+        let connectionError = false;
+
+        try {
+            ledger = this.props.networkStore.networkHolders[fromNetwork].ledger;
+
+            if (fromConnected) {
+                balance = await ledger.getBalance();
+            }
+            if (this.isFromCosmos(fromNetwork) === true) {
+                contractBalance = await this.getContractBalance();
+            } else {
+                contractBalance = new BigNumber(Number.MAX_SAFE_INTEGER);
+            }
+        } catch (e) {
+            this.showAlertError(e.toString());
+            connectionError = true;
+            balance = new BigNumber(0);
+            contractBalance = new BigNumber(0);
+        }
+
+        if (!connectionError) {
+            this.setState({
+                displayAmount: S.Strings.EMPTY,
+                selectedFromNetwork: fromNetwork,
+                selectedToNetwork: toNetwork,
+                walletBalance: balance,
+                contractBalance,
+            })
+        }
+    }
+
     showAlertError(msg) {
         this.props.alertStore.show((
-            <div className = { 'Error' }>{msg}</div>
+            <div className={'Error'}>{msg}</div>
         ));
     }
 
     showAlertSuccess(msg) {
         this.props.alertStore.show((
-            <div className = { 'Success' }>{msg}</div>
+            <div className={'Success'}>{msg}</div>
         ));
     }
 
@@ -359,101 +485,121 @@ export default class CudosBridgeComponent extends ContextPageComponent < Props, 
         return '';
     }
 
-    // toggleOpenState = () => {
-    //     this.setState({
-    //         showPopup: !this.state.showPopup,
-    //     })
-    // }
+    getAddress = (networkId: number, sliceIndex: number): string => {
+        try {
+            const ledger = this.props.networkStore.networkHolders[networkId].ledger
+            if (sliceIndex === 0) {
+                return ledger.account;
+            }
+            return this.formatText(ledger.account, sliceIndex);
+        } catch (e) {
+            this.showAlertError(e.toString());
+        }
+    }
 
-    // onClickClosePopup = () => {
-    //     this.setState({
-    //         showPopup: false,
-    //         transactionPopupText: S.Strings.EMPTY,
-    //     })
-    // }
+    formatText(text: string, sliceIndex: number): string {
+        if (!text) {
+            return (null);
+        }
+        const len = text.length
+        if ((text === null || text.length < 10)) {
+            return text
+        }
+        return `${text.slice(0, sliceIndex)}...${text.slice(len - 4, len)}`
+    }
+
+    goToTransactionSummary = (): void => {
+        this.setState({
+            summary: true,
+        })
+    }
 
     renderContent() {
         return (
-            <div className = { 'PageContent' }>
-                {/* <Popover
-                    anchorOrigin={{ vertical: 'center', horizontal: 'center' }}
-                    transformOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-                    onClose={this.toggleOpenState}
-                    open={this.state.showPopup}
-                    anchorEl={this.root.current}>
-                    <div className = { 'FlexColumn TransactionPopover' }>
-                        <div className = { `PopupText ${this.state.popupType}` }>
-                            {this.state.transactionPopupText}
-                        </div>
-                        <Button
-                            type = { Button.TYPE_ROUNDED }
-                            color = { Button.COLOR_SCHEME_1 }
-                            onClick = { this.onClickClosePopup }>Okay</Button>
+            <div>
+                <div className={'HeaderSection'}>
+                    <div className={'Wrapper'}>
+                        <div className={'CudosMainLogo'} style={ProjectUtils.makeBgImgStyle(cudosMainLogo)}></div>
                     </div>
-                </Popover> */}
-                <div className = { 'SendForm' } >
-                    <div className = { 'Header' } >Cudos Cosmos ‹-› Ethereum Bridge</div>
-                    <div ref={this.root} className = { 'FlexRow FormRow NetworkSelectMenu' }>
-                        <div className = { 'NetworkSelectContainer FlexColumn' }>
-                            <div className={ 'NetworkLogo' } style={ProjectUtils.makeBgImgStyle(this.state.selectedFromNetwork !== S.NOT_EXISTS ? `${Config.URL.Resources.Common.IMG}/${this.getLogoName(this.props.networkStore.networkHolders[this.state.selectedFromNetwork])}` : '')}></div>
-                            <div className = { 'DirectionText' }>FROM</div>
-                            <Select
-                                className = { 'NetworkSelect' }
-                                onChange = { this.onSelectFromNetwork }
-                                value = { this.state.selectedFromNetwork }>
-                                {this.props.networkStore.networkHolders.map((network, i) => <MenuItem key = { i } value = { i } >{ network.name }</MenuItem>)}
-                            </Select>
-                        </div>
-                        <div className={'SVG Icon'} dangerouslySetInnerHTML={{ __html: SvgArrowRight }}></div>
-                        <div className = { 'NetworkSelectContainer FlexColumn' }>
-                            <div className={ 'NetworkLogo' } style={ProjectUtils.makeBgImgStyle(this.state.selectedToNetwork !== S.NOT_EXISTS ? `${Config.URL.Resources.Common.IMG}/${this.getLogoName(this.props.networkStore.networkHolders[this.state.selectedToNetwork])}` : '')}></div>
-                            <div className = { 'DirectionText' }>TO</div>
-                            <Select
-                                className = { 'NetworkSelect' }
-                                onChange = { this.onSelectToNetwork }
-                                value = { this.state.selectedToNetwork }>
-                                {this.props.networkStore.networkHolders.map((network, i) => <MenuItem key = { i } value = { i } >{ network.name }</MenuItem>)}
-                            </Select>
-                        </div>
+                    <div className={'Wrapper'}>
+                        <div className={'CudosFont'} style={ProjectUtils.makeBgImgStyle(cudosFont)}></div>
                     </div>
-                    <LayoutBlock className = { 'FlexColumn FormRow' }>
-                        <Input
-                            label = { 'Amount' }
-                            value = {this.state.displayAmount}
-                            onChange = { this.onChangeAmount }
-                            InputProps = {{
-                                endAdornment: <div className = {' FlexRow Adornment'}>
-                                    <div className={this.state.selectedToNetwork === S.NOT_EXISTS ? 'Mui-disabled' : ''}>CUDOS</div>
-                                    <Button disabled = {this.state.selectedToNetwork === S.NOT_EXISTS}
-                                        className = {' InInput '}
-                                        type = { Button.TYPE_ROUNDED }
-                                        color = { Button.COLOR_SCHEME_1 }
-                                        onClick = { this.onClickMaxAmount }>Max</Button>
-                                </div> }}
-                            error = { this.state.amountError === S.INT_TRUE}/>
-                        { this.isFromCosmos() && (
-                            <div className = { 'ContractBalance' }>{`Bridge contract balance is: ${this.state.contractBalance.toFixed()} CUDOS`}</div>
-                        ) }
-                    </LayoutBlock>
-                    <LayoutBlock className = { 'FormRow' }>
-                        <Input
-                            label = { 'Destination address' }
-                            value = {this.state.destinationAddress}
-                            onChange = { this.onChangeDestinationAddress }
-                            error = { this.state.destiantionAddressError === S.INT_TRUE}/>
-                    </LayoutBlock>
-                    <LayoutBlock className = { 'FormRow' } >
-                        {this.state.selectedToNetwork !== S.NOT_EXISTS
-                        && <Button
-                            type = { Button.TYPE_ROUNDED }
-                            color = { Button.COLOR_SCHEME_1 }
-                            onClick = { this.onClickSend }>Send</Button>}
-                        {/* {this.state.selectedFromNetwork !== S.NOT_EXISTS && this.props.networkStore.networkHolders[this.state.selectedFromNetwork].name === KeplrLedger.NETWORK_NAME
-                        && <Button
-                            type = { Button.TYPE_ROUNDED }
-                            color = { Button.COLOR_SCHEME_1 }
-                            onClick = { this.onClickRequestBatch }>Request Batch</Button>} */}
-                    </LayoutBlock>
+                    <div className={'Header'} >Gravity Bridge</div>
+                    <div className={'Wrapper'}>
+                        <span className={'TransferInfoBox'}>{this.state.selectedFromNetwork ? 'CUDOS' : 'Ethereum'}</span>
+                        <div className={'TransferWrapper'}>
+                            <span className={'TransferLogoAlt'} style={ProjectUtils.makeBgImgStyle(transferLogoAlt)}></span>
+                        </div>
+                        <span className={'TransferInfoBox'}>{this.state.selectedToNetwork ? 'CUDOS' : 'Ethereum'}</span>
+                    </div>
+                    <div className={'Subheader'}>
+                        <div>Transfer tokens between Ethereum and CUDOS. Connect a CUDOS and Ethereum account to get started</div>
+                    </div>
+                </div>
+                <div className={!this.state.summary ? 'PageContent' : 'SummaryContent'}>
+                    <LoadingModal
+                        isOpen={this.state.isLoading}
+                        closeModal={() => this.setState({ isTransactionFail: false, isOpen: false })}
+                    />
+                    <SummaryModal
+                        getAddress={this.getAddress}
+                        displayAmount={this.state.displayAmount}
+                        selectedFromNetwork={this.state.selectedFromNetwork}
+                        selectedToNetwork={this.state.selectedToNetwork}
+                        txHash={this.state.txHash}
+                        closeModal={() => this.setState({ isOpen: false, displayAmount: S.Strings.EMPTY })}
+                        isOpen={this.state.isOpen}
+                        onGetBalance={this.onGetBalance}
+                        checkWalletConnected={this.checkWalletConnected}
+                    />
+                    <FailureModal
+                        isOpen={this.state.isTransactionFail}
+                        closeModal={() => this.setState({ isTransactionFail: false, isOpen: false, displayAmount: S.Strings.EMPTY })}
+                        errorMessage={this.state.errorMessage}
+                    />
+                    {!this.state.summary
+                        ? <TransferForm
+                            selectedFromNetwork={this.state.selectedFromNetwork}
+                            selectedToNetwork={this.state.selectedToNetwork}
+                            isFromConnected = {this.state.isFromConnected}
+                            isToConnected={this.state.isToConnected}
+                            onDisconnectFromNetwork={this.onDisconnectFromNetwork}
+                            onDisconnectToNetwork={this.onDisconnectToNetwork}
+                            onSelectFromNetwork={this.onSelectFromNetwork}
+                            onSelectToNetwork={this.onSelectToNetwork}
+                            onChnageTransactionDirection={this.onChnageTransactionDirection}
+                            getAddress={this.getAddress}
+                            goToTransactionSummary={this.goToTransactionSummary}
+                            onChangeAccount={this.onChangeAccount}
+                            checkWalletConnected={this.checkWalletConnected}
+                            connectWallet={this.connectWallet}
+                        />
+                        : <SummaryForm
+                            selectedFromNetwork={this.state.selectedFromNetwork}
+                            selectedToNetwork={this.state.selectedToNetwork}
+                            isFromConnected = {this.state.isFromConnected}
+                            isToConnected={this.state.isToConnected}
+                            contractBalance={this.state.contractBalance}
+                            walletBalance={this.state.walletBalance}
+                            displayAmount={this.state.displayAmount}
+                            onDisconnectFromNetwork={this.onDisconnectFromNetwork}
+                            onDisconnectToNetwork={this.onDisconnectToNetwork}
+                            onSelectFromNetwork={this.onSelectFromNetwork}
+                            onSelectToNetwork={this.onSelectToNetwork}
+                            onChnageTransactionDirection={this.onChnageTransactionDirection}
+                            getAddress={this.getAddress}
+                            onChangeAmount={this.onChangeAmount}
+                            onClickMaxAmount={this.onClickMaxAmount}
+                            onClickSend={this.onClickSend}
+                            isTransferring={this.state.isTransferring}
+                        />
+                    }
+                    {this.state.summary
+                        ? null
+                        : <div className={'CreateAccount'}>
+                            <span>Need a CUDOS account? Create one <a rel='noreferrer' target='_blank' style={{ color: 'rgba(78, 148, 238, 1)' }} href={keplrLink}>here</a></span>
+                        </div>
+                    }
                 </div>
             </div>
         )
