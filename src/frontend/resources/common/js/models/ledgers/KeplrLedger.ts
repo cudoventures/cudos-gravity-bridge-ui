@@ -192,7 +192,6 @@ export default class KeplrLedger implements Ledger {
             );
 
             this.txHash = result.transactionHash
-            console.log('result', result);
 
             assertIsBroadcastTxSuccess(result);
         } catch (e) {
