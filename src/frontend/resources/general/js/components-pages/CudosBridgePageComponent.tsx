@@ -8,6 +8,7 @@ import SummaryForm from './SummaryForm';
 import SummaryModal from '../../../common/js/components-popups/SummaryModal';
 import FailureModal from '../../../common/js/components-popups/FailureModal';
 import LoadingModal from '../../../common/js/components-popups/LoadingModal';
+import PreFlightModal from '../../../common/js/components-popups/PreFlightModal';
 
 import Config from '../../../../../../builds/dev-generated/Config';
 import './../../css/components-pages/cudos-bridge-component.css';
@@ -24,12 +25,19 @@ import CosmosNetworkH from '../../../common/js/models/ledgers/CosmosNetworkH';
 import MetamaskLedger from '../../../common/js/models/ledgers/MetamaskLedger';
 import Web3 from 'web3';
 import ERC20TokenAbi from '../../../common/js/solidity/contract_interfaces/ERC20_token.json';
+import axios from "axios";
 
 interface Props extends ContextPageComponentProps {
     networkStore: NetworkStore;
 }
 
 interface State {
+    preFlight: boolean;
+    preFlightAmount: string;
+    preFlightToAddress: string;
+    preFlightFromAddress: string;
+    preFlightToNetwork: string;
+    preFlightFromNetwork: string;
     selectedFromNetwork: number;
     selectedToNetwork: number;
     isFromConnected: boolean;
@@ -48,6 +56,7 @@ interface State {
     isLoading: boolean;
     errorMessage: string;
     txHash: string;
+    minTransferAmount: string;
 }
 
 const cudosMainLogo = '../../../../resources/common/img/favicon/cudos-40x40.svg'
@@ -69,6 +78,12 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         super(props);
 
         this.state = {
+            preFlight: false,
+            preFlightAmount: S.Strings.EMPTY,
+            preFlightToAddress: S.Strings.EMPTY,
+            preFlightFromAddress: S.Strings.EMPTY,
+            preFlightToNetwork: S.Strings.EMPTY,
+            preFlightFromNetwork: S.Strings.EMPTY,
             selectedFromNetwork: S.INT_TRUE,
             selectedToNetwork: S.INT_FALSE,
             isFromConnected: false,
@@ -87,6 +102,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             isLoading: false,
             errorMessage: null,
             txHash: null,
+            minTransferAmount: S.Strings.EMPTY
         }
 
         this.root = React.createRef();
@@ -346,6 +362,18 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             return;
         }
 
+        this.setState({
+            preFlight: true,
+            preFlightAmount: this.state.displayAmount,
+            preFlightFromAddress: this.getAddress(this.state.selectedFromNetwork, 6),
+            preFlightToAddress: this.getAddress(this.state.selectedToNetwork, 6),
+            preFlightFromNetwork: this.state.selectedFromNetwork ? 'CUDOS' : 'Ethereum',
+            preFlightToNetwork: this.state.selectedToNetwork ? 'CUDOS' : 'Ethereum',
+        })
+    }
+
+    executeTransaction = async () => {
+        this.setState({preFlight: false})
         try {
             this.props.appStore.disableActions();
             this.setState({ isTransferring: true, isLoading: true })
@@ -526,9 +554,25 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         return `${text.slice(0, sliceIndex)}...${text.slice(len - 4, len)}`
     }
 
-    goToTransactionSummary = (): void => {
+    goToTransactionSummary = async (): Promise<void> => {
+        await this.getMinTransferAmountFromGenesis()
         this.setState({
             summary: true,
+        })
+    }
+
+    getMinTransferAmountFromGenesis = async (): Promise<void> => {
+        const response = await axios.get(Config.CUDOS_NETWORK.PARAMS_ENDPOINT);
+        const minTransferAmount = response.data.params.minimum_transfer_to_eth;
+        if (minTransferAmount === undefined || response.status != 200) {
+            this.setState({
+                isTransactionFail: true,
+                errorMessage: "We cannot proceed with your request at the moment",
+            })
+            throw new Error('Failed to fetch minimum transfer amount');
+        }
+        this.setState({
+            minTransferAmount: minTransferAmount
         })
     }
 
@@ -575,6 +619,16 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                         closeModal={() => this.setState({ isTransactionFail: false, isOpen: false, displayAmount: S.Strings.EMPTY })}
                         errorMessage={this.state.errorMessage}
                     />
+                    <PreFlightModal
+                        isOpen={this.state.preFlight}
+                        closeModal={() => this.executeTransaction()}
+                        rejectModal={() => this.setState({ preFlight: false })}
+                        transferAmount={this.state.preFlightAmount}
+                        fromAddress={this.state.preFlightFromAddress}
+                        toAddress={this.state.preFlightToAddress}
+                        fromNetwork={this.state.preFlightFromNetwork}
+                        toNetwork={this.state.preFlightToNetwork}
+                        />
                     {!this.state.summary
                         ? <TransferForm
                             selectedFromNetwork={this.state.selectedFromNetwork}
@@ -610,6 +664,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                             onClickMaxAmount={this.onClickMaxAmount}
                             onClickSend={this.onClickSend}
                             isTransferring={this.state.isTransferring}
+                            minTransferAmount={this.state.minTransferAmount}
                         />
                     }
                     {this.state.summary

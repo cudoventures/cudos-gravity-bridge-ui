@@ -1,26 +1,13 @@
-.FailureForm {
+.PreFlightForm {
     align-items:flex-start;
     justify-content: flex-start;
     position:relative;
     margin: auto;
-    max-width: 470px !important;
-    max-height: 475px !important;
-    min-width: 27vw;
+    max-width: 500px !important;
     padding: 20px;
 }
 
-.FailureForm .TransactionFailLogo {
-    width: 70px;
-    height: 70px;
-    margin-top: 18px;
-}
-
-.FailureForm .Wrapper {
-    display: flex;
-    justify-content: center;
-}
-
-.FailureForm .CloseIcon {
+.PreFlightForm .CloseIcon {
     position: absolute;
     right: 25px;
     width: 24px;
@@ -28,7 +15,7 @@
     cursor: pointer;
 }
 
-.FailureForm .Title {
+.PreFlightForm .Title {
     font-family: Poppins, sans-serif;
     margin-bottom: 5px;
     font-size: 30px;
@@ -37,29 +24,49 @@
     margin-top: 20px;
 }
 
-.FailureForm .Subheader {
+.PreFlightForm .Subheader {
     font-size: 18px;
     font-weight: 400;
     text-align: center;
     color: var(--color-gray);
     margin-bottom: 25px;
     margin-top: 25px;
-    padding:0px 80px 0px 80px;
 }
 
-.FailureForm .TryAgainBtn {
+.PreFlightForm .warningMessage ul{
+    line-height:180%;
+    font-size: 15px;
+}
+
+.PreFlightForm .transactionMessage {
+    margin: 30px 10px 0px 40px;
+    font-size: 17px;
+}
+
+.PreFlightForm .spanRed {
+    color: var(--color-red);
+}
+
+.PreFlightForm .ConfirmButton {
     width: 257px;
     height: 52px;
     display: flex;
     justify-content: center;
 }
 
-.FailureForm .BtnWrapper {
+.PreFlightForm .BackButton {
+    width: 257px;
+    height: 52px;
     display: flex;
     justify-content: center;
 }
 
-.FailureForm .DoubleSpacing {
+.PreFlightForm .BtnWrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.PreFlightForm .DoubleSpacing {
     margin-top: 45px;
     margin-bottom: 5px;
 }
