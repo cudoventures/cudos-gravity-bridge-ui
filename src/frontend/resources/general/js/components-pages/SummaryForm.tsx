@@ -21,6 +21,7 @@ interface ISummaryFormProps {
     getAddress: any
     isOpen: boolean
     isTransferring: boolean,
+    minTransferAmount: string,
 }
 
 const SummaryForm = (props: ISummaryFormProps) => {
@@ -52,7 +53,7 @@ const SummaryForm = (props: ISummaryFormProps) => {
         }
         return new BigNumber(result).toFixed(2);
     }
-
+    
     useEffect(() => {
         api()
     }, [])
@@ -97,7 +98,7 @@ const SummaryForm = (props: ISummaryFormProps) => {
                             <div className={'SummaryAddress'}>
                                 <div className={'CudosLogoSmall'} style={ProjectUtils.makeBgImgStyle(cudosLogoSmall)}></div>
                                 <div className={'Cudos'}>
-                            CUDOS
+                                    CUDOS
                                 </div>
                             </div>
                         </div>
@@ -130,6 +131,14 @@ const SummaryForm = (props: ISummaryFormProps) => {
                         <span className={'FlexStart GrayText'}>Wallet Balance:</span>
                         <span className={'FlexEnd SummaryBalance'}>{props.walletBalance.toFixed(4)} CUDOS</span>
                     </div>
+
+                    {ToNetwork === "Ethereum" ?
+                        <div className={'Row Spacing'}>
+                            <span className={'FlexStart RedText'}>Minimum amount:</span>
+                            <span className={'FlexEnd SummaryBalance'}>{props.minTransferAmount} CUDOS</span>
+                        </div> : null
+                    }
+
                 </div>
                 <div className={'Column PaddingRightColumn'}>
                     <div>
@@ -178,7 +187,12 @@ const SummaryForm = (props: ISummaryFormProps) => {
                     <div>
                         <div style={{ marginTop: '25px' }} className={'FormRow Wrapper'} >
                             <Button
-                                disabled={(!props.isFromConnected || !props.isToConnected || props.displayAmount === S.Strings.EMPTY || props.isTransferring)}
+                                disabled={
+                                    ToNetwork === "Ethereum" ?
+                                        (!props.isFromConnected || !props.isToConnected || props.displayAmount === S.Strings.EMPTY || props.isTransferring || +props.displayAmount < +props.minTransferAmount || isNaN(+props.displayAmount))
+                                        :
+                                        (!props.isFromConnected || !props.isToConnected || props.displayAmount === S.Strings.EMPTY || props.isTransferring || isNaN(+props.displayAmount))
+                                }
                                 className={'TransferBtn Flex DoubleSpacing'}
                                 type={Button.TYPE_ROUNDED}
                                 color={Button.COLOR_SCHEME_1}

@@ -349,6 +349,11 @@ input[type=number] {
     font-weight: 400;
 }
 
+.CudosBridge .SummaryContent .SummaryForm .RedText {
+    color: var(--color-red);
+    font-weight: 400;
+}
+
 .CudosBridge .SummaryForm .Spacing {
     margin-top: 10px;
     margin-bottom: 5px;
