@@ -101,7 +101,7 @@ export default class KeplrLedger implements Ledger {
                 // Make sure that the gas prices are higher than the minimum gas prices accepted by chain validators and RPC/REST endpoint.
                 gasPriceStep: {
                     low: Number(Config.CUDOS_NETWORK.GAS_PRICE) / 2,
-                    average: Number(Config.CUDOS_NETWORK.GAS_PRICE) / 8,
+                    average: Number(Config.CUDOS_NETWORK.GAS_PRICE),
                     high: Number(Config.CUDOS_NETWORK.GAS_PRICE) * 2,
                 },
             });
