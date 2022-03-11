@@ -33,7 +33,8 @@ const envVariables = [
     'BRIDGE_FEE',
     'ETHEREUM_GAS_PRICE',
     'ETHEREUM_GAS',
-    'STAKING'
+    'STAKING',
+    'PARAMS_ENDPOINT'
 ];
 
 if (process.env.NODE_ENV === 'production') {
@@ -207,7 +208,8 @@ const Config = {
         GAS_PRICE: process.env.GAS_PRICE,
         FEE: process.env.FEE,
         GAS: process.env.GAS,
-        STAKING: process.env.STAKING
+        STAKING: process.env.STAKING,
+        PARAMS_ENDPOINT: process.env.PARAMS_ENDPOINT
     },
     ORCHESTRATOR: {
         ERC20_CONTRACT_ADDRESS: process.env.ERC20_CONTRACT_ADDRESS,
