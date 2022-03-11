@@ -100,9 +100,9 @@ export default class KeplrLedger implements Ledger {
                 // Currently, Keplr doesn't support dynamic calculation of the gas prices based on on-chain data.
                 // Make sure that the gas prices are higher than the minimum gas prices accepted by chain validators and RPC/REST endpoint.
                 gasPriceStep: {
-                    low: Number(Config.CUDOS_NETWORK.GAS_PRICE) / 2,
-                    average: Number(Config.CUDOS_NETWORK.GAS_PRICE),
-                    high: Number(Config.CUDOS_NETWORK.GAS_PRICE) * 2,
+                    low: Number(Config.CUDOS_NETWORK.GAS_PRICE),
+                    average: Number(Config.CUDOS_NETWORK.GAS_PRICE) * 2,
+                    high: Number(Config.CUDOS_NETWORK.GAS_PRICE) * 4,
                 },
             });
         } catch (ex) {
