@@ -103,7 +103,7 @@ export default class KeplrLedger implements Ledger {
                 gasPriceStep: {
                     low: Number(Config.CUDOS_NETWORK.GAS_PRICE),
                     average: Number(Config.CUDOS_NETWORK.GAS_PRICE) * 2,
-                    high: Number(Config.CUDOS_NETWORK.GAS_PRICE) * 8,
+                    high: Number(Config.CUDOS_NETWORK.GAS_PRICE) * 4,
                 },
             });
         } catch (ex) {
