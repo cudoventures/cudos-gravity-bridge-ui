@@ -3,10 +3,11 @@ import { makeObservable, observable } from 'mobx';
 import S from '../../utilities/Main';
 import Config from '../../../../../../../builds/dev-generated/Config';
 import CosmosNetworkH from './CosmosNetworkH';
-import { MsgSendToEth, MsgRequestBatch } from '../../cosmos/codec/gravity/gravity/v1/msgs';
+import { MsgSendToEth, MsgRequestBatch, MsgCancelSendToEth } from '../../cosmos/codec/gravity/gravity/v1/msgs';
 import { assertIsBroadcastTxSuccess, SigningStargateClient, defaultRegistryTypes } from '@cosmjs/stargate';
 import { Registry } from '@cosmjs/proto-signing';
 import BigNumber from 'bignumber.js';
+import Long from 'long';
 
 export default class KeplrLedger implements Ledger {
     @observable connected: number;
@@ -200,6 +201,58 @@ export default class KeplrLedger implements Ledger {
         }
     }
 
+    async cancelSend(transactionId: Long): Promise<void> {
+        const proposalTypePath = '/gravity.v1.MsgCancelSendToEth'
+
+        const chainId = Config.CUDOS_NETWORK.CHAIN_ID;
+        await window.keplr.enable(chainId);
+        const offlineSigner = window.getOfflineSigner(chainId);
+
+        const account = (await offlineSigner.getAccounts())[0];
+
+        const msgSend = [{
+            typeUrl: proposalTypePath,
+            value: {
+                transactionId: Long.fromNumber(1),
+                sender: account.address,
+            },
+        }];
+
+        const msgFee = {
+            amount: [{
+                denom: CosmosNetworkH.CURRENCY_DENOM,
+                amount: Config.CUDOS_NETWORK.FEE,
+            }],
+            gas: Config.CUDOS_NETWORK.GAS,
+        }
+
+        try {
+            this.walletError = null;
+            const myRegistry = new Registry([
+                ...defaultRegistryTypes,
+                [proposalTypePath, MsgCancelSendToEth],
+            ])
+
+            const rpcEndpoint = Config.CUDOS_NETWORK.RPC;
+            const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, offlineSigner, {
+                registry: myRegistry,
+            });
+
+            const result = await client.signAndBroadcast(
+                account.address,
+                msgSend,
+                msgFee,
+            );
+
+            this.txHash = result.transactionHash
+
+            assertIsBroadcastTxSuccess(result);
+        } catch (e) {
+            console.log(e);
+            throw new Error(this.walletError = 'Failed to send transaction!');
+        }
+    }
+    
     async requestBatch() {
         const proposalTypePath = '/gravity.v1.MsgRequestBatch'
 
