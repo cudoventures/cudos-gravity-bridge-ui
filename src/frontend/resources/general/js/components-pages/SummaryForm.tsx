@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../../../common/js/api/GasOracleAPI';
 
+import CosmosNetworkH from '../../../common/js/models/ledgers/CosmosNetworkH';
 import Button from '../../../common/js/components-inc/Button';
 import ProjectUtils from '../../../common/js/ProjectUtils';
 import S from '../../../common/js/utilities/Main';
 import BigNumber from 'bignumber.js';
+import { config } from 'dotenv/types';
 
 interface ISummaryFormProps {
     selectedFromNetwork: number
@@ -21,7 +23,8 @@ interface ISummaryFormProps {
     getAddress: any
     isOpen: boolean
     isTransferring: boolean,
-    minTransferAmount: string,
+    minTransferAmount: BigNumber,
+    minBridgeFeeAmount: BigNumber,
 }
 
 const SummaryForm = (props: ISummaryFormProps) => {
@@ -135,7 +138,7 @@ const SummaryForm = (props: ISummaryFormProps) => {
                     {ToNetwork === "Ethereum" ?
                         <div className={'Row Spacing'}>
                             <span className={'FlexStart RedText'}>Minimum amount:</span>
-                            <span className={'FlexEnd SummaryBalance'}>{props.minTransferAmount} CUDOS</span>
+                            <span className={'FlexEnd SummaryBalance'}>{props.minTransferAmount.toFixed(4)} CUDOS</span>
                         </div> : null
                     }
 
@@ -183,13 +186,18 @@ const SummaryForm = (props: ISummaryFormProps) => {
                             <div className={'AttentionIcon'} style={ProjectUtils.makeBgImgStyle(attentionIcon)}></div>
                         </span>
                         <span className={'FlexEnd'}>0.00012 CUDOS</span> */}
+                        <span className={'FlexStart'}>
+                            Bridge Fee
+                            <div className={'AttentionIcon'} style={ProjectUtils.makeBgImgStyle(attentionIcon)}></div>
+                        </span>
+                        <span className={'FlexEnd'}>{props.minBridgeFeeAmount.toFixed(4)} CUDOS</span>
                     </div>
                     <div>
                         <div style={{ marginTop: '25px' }} className={'FormRow Wrapper'} >
                             <Button
                                 disabled={
                                     ToNetwork === "Ethereum" ?
-                                        (!props.isFromConnected || !props.isToConnected || props.displayAmount === S.Strings.EMPTY || props.isTransferring || +props.displayAmount < +props.minTransferAmount || isNaN(+props.displayAmount))
+                                        (!props.isFromConnected || !props.isToConnected || props.displayAmount === S.Strings.EMPTY || props.isTransferring || props.minTransferAmount.gte(props.displayAmount) || isNaN(+props.displayAmount))
                                         :
                                         (!props.isFromConnected || !props.isToConnected || props.displayAmount === S.Strings.EMPTY || props.isTransferring || isNaN(+props.displayAmount))
                                 }

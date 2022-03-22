@@ -15,6 +15,7 @@ export default class KeplrLedger implements Ledger {
     @observable txHash: string;
 
     static NETWORK_NAME = 'Cudos';
+    private BRIDGE_FEE = (new BigNumber(1)).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO);
 
     constructor() {
         this.connected = S.INT_FALSE;
@@ -148,6 +149,7 @@ export default class KeplrLedger implements Ledger {
 
         const account = (await offlineSigner.getAccounts())[0];
 
+        
         const msgSend = [{
             typeUrl: proposalTypePath,
             value: {
@@ -158,17 +160,18 @@ export default class KeplrLedger implements Ledger {
                     denom: CosmosNetworkH.CURRENCY_DENOM,
                 },
                 bridgeFee: {
-                    amount: Config.ORCHESTRATOR.BRIDGE_FEE,
+                    amount: this.BRIDGE_FEE.multipliedBy(CosmosNetworkH.CURRENCY_1_CUDO).toString(),
                     denom: CosmosNetworkH.CURRENCY_DENOM,
                 },
             },
 
         }];
 
+        console.log(msgSend)
         const msgFee = {
             amount: [{
                 denom: CosmosNetworkH.CURRENCY_DENOM,
-                amount: Config.CUDOS_NETWORK.FEE,
+                amount: 1000000,
             }],
             gas: Config.CUDOS_NETWORK.GAS,
         }
@@ -266,6 +269,14 @@ export default class KeplrLedger implements Ledger {
             console.log(e);
             this.walletError = 'Failed to get balance!'
         }
+    }
+
+    setBridgeFee(bridgeFee: BigNumber) {
+        if (bridgeFee.lt((new BigNumber(1)).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO))) {
+            return;
+        }
+
+        this.BRIDGE_FEE = bridgeFee;
     }
 
     isAddressValid(address: string): boolean {

@@ -56,7 +56,8 @@ interface State {
     isLoading: boolean;
     errorMessage: string;
     txHash: string;
-    minTransferAmount: string;
+    minTransferAmount: BigNumber;
+    minBridgeFeeAmount: BigNumber
 }
 
 const cudosMainLogo = '../../../../resources/common/img/favicon/cudos-40x40.svg'
@@ -102,7 +103,8 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             isLoading: false,
             errorMessage: null,
             txHash: null,
-            minTransferAmount: S.Strings.EMPTY
+            minTransferAmount: new BigNumber(0),
+            minBridgeFeeAmount: new BigNumber(0),
         }
 
         this.root = React.createRef();
@@ -283,7 +285,12 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             balance = new BigNumber(0);
         }
 
-        const maximumAmount = BigNumber.minimum(balance, this.state.contractBalance);
+        let maximumAmount = BigNumber.minimum(balance, this.state.contractBalance).minus(this.state.minBridgeFeeAmount);
+
+        if (maximumAmount.lt(0)) {
+            maximumAmount = new BigNumber(0);
+        }
+
         this.setState({
             amount: maximumAmount,
             displayAmount: maximumAmount.toFixed(),
@@ -317,7 +324,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                 return;
             }
 
-            if (bigAmount.isNaN() || bigAmount.isLessThan(new BigNumber(1).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO)) || bigAmount.isGreaterThan(BigNumber.minimum(this.state.walletBalance, this.state.contractBalance))) {
+            if (bigAmount.isNaN() || bigAmount.isLessThan(new BigNumber(1).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO)) || bigAmount.isGreaterThan(BigNumber.minimum(this.state.walletBalance, this.state.contractBalance).minus(this.state.minBridgeFeeAmount))) {
                 this.setState({
                     amountError: S.INT_TRUE,
                 })
@@ -360,6 +367,11 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                 amountError: 0,
             });
             return;
+        }
+        const ledger = this.props.networkStore.networkHolders[this.state.selectedFromNetwork].ledger;
+
+        if (ledger instanceof KeplrLedger) {
+            ledger.setBridgeFee(this.state.minBridgeFeeAmount)
         }
 
         this.setState({
@@ -555,24 +567,27 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
     }
 
     goToTransactionSummary = async (): Promise<void> => {
-        await this.getMinTransferAmountFromGenesis()
+        await this.getMinTransferAndBridgeFeeAmounts()
         this.setState({
             summary: true,
         })
     }
 
-    getMinTransferAmountFromGenesis = async (): Promise<void> => {
+    getMinTransferAndBridgeFeeAmounts = async (): Promise<void> => {
         const response = await axios.get(Config.CUDOS_NETWORK.PARAMS_ENDPOINT);
         const minTransferAmount = response.data.params.minimum_transfer_to_eth;
-        if (minTransferAmount === undefined || response.status != 200) {
+        const minBridgeFeeAmount = response.data.params.minimum_fee_transfer_to_eth;
+
+        if (minTransferAmount === undefined || minBridgeFeeAmount === undefined || response.status != 200) {
             this.setState({
                 isTransactionFail: true,
                 errorMessage: "We cannot proceed with your request at the moment",
             })
-            throw new Error('Failed to fetch minimum transfer amount');
+            throw new Error('Failed to fetch minimum transfer and minimum transfer fee amount');
         }
         this.setState({
-            minTransferAmount: minTransferAmount
+            minTransferAmount: (new BigNumber(minTransferAmount)).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO),
+            minBridgeFeeAmount: new BigNumber(minBridgeFeeAmount).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO),
         })
     }
 
@@ -665,6 +680,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                             onClickSend={this.onClickSend}
                             isTransferring={this.state.isTransferring}
                             minTransferAmount={this.state.minTransferAmount}
+                            minBridgeFeeAmount={this.state.minBridgeFeeAmount}
                         />
                     }
                     {this.state.summary
