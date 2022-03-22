@@ -25,7 +25,7 @@ import CosmosNetworkH from '../../../common/js/models/ledgers/CosmosNetworkH';
 import MetamaskLedger from '../../../common/js/models/ledgers/MetamaskLedger';
 import Web3 from 'web3';
 import ERC20TokenAbi from '../../../common/js/solidity/contract_interfaces/ERC20_token.json';
-import axios from "axios";
+import axios from 'axios';
 
 interface Props extends ContextPageComponentProps {
     networkStore: NetworkStore;
@@ -285,7 +285,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             balance = new BigNumber(0);
         }
 
-        let maximumAmount = BigNumber.minimum(balance, this.state.contractBalance).minus(this.state.minBridgeFeeAmount);
+        let maximumAmount = BigNumber.maximum(balance, this.state.contractBalance).minus(this.state.minBridgeFeeAmount);
 
         if (maximumAmount.lt(0)) {
             maximumAmount = new BigNumber(0);
@@ -324,7 +324,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                 return;
             }
 
-            if (bigAmount.isNaN() || bigAmount.isLessThan(new BigNumber(1).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO)) || bigAmount.isGreaterThan(BigNumber.minimum(this.state.walletBalance, this.state.contractBalance).minus(this.state.minBridgeFeeAmount))) {
+            if (bigAmount.isNaN() || bigAmount.isLessThan(new BigNumber(1).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO)) || bigAmount.isGreaterThan(BigNumber.minimum(this.state.walletBalance, this.state.contractBalance).minus(this.state.minBridgeFeeAmount).absoluteValue())) {
                 this.setState({
                     amountError: S.INT_TRUE,
                 })
@@ -385,7 +385,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
     }
 
     executeTransaction = async () => {
-        this.setState({preFlight: false})
+        this.setState({ preFlight: false })
         try {
             this.props.appStore.disableActions();
             this.setState({ isTransferring: true, isLoading: true })
@@ -581,12 +581,12 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         if (minTransferAmount === undefined || minBridgeFeeAmount === undefined || response.status != 200) {
             this.setState({
                 isTransactionFail: true,
-                errorMessage: "We cannot proceed with your request at the moment",
+                errorMessage: 'We cannot proceed with your request at the moment',
             })
             throw new Error('Failed to fetch minimum transfer and minimum transfer fee amount');
         }
         this.setState({
-            minTransferAmount: (new BigNumber(minTransferAmount)).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO),
+            minTransferAmount: new BigNumber(minTransferAmount).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO),
             minBridgeFeeAmount: new BigNumber(minBridgeFeeAmount).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO),
         })
     }
@@ -643,7 +643,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                         toAddress={this.state.preFlightToAddress}
                         fromNetwork={this.state.preFlightFromNetwork}
                         toNetwork={this.state.preFlightToNetwork}
-                        />
+                    />
                     {!this.state.summary
                         ? <TransferForm
                             selectedFromNetwork={this.state.selectedFromNetwork}

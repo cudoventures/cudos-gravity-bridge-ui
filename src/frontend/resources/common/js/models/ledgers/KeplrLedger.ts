@@ -15,7 +15,6 @@ export default class KeplrLedger implements Ledger {
     @observable txHash: string;
 
     static NETWORK_NAME = 'Cudos';
-    private BRIDGE_FEE = (new BigNumber(1)).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO);
 
     constructor() {
         this.connected = S.INT_FALSE;
@@ -149,7 +148,6 @@ export default class KeplrLedger implements Ledger {
 
         const account = (await offlineSigner.getAccounts())[0];
 
-        
         const msgSend = [{
             typeUrl: proposalTypePath,
             value: {
@@ -160,7 +158,7 @@ export default class KeplrLedger implements Ledger {
                     denom: CosmosNetworkH.CURRENCY_DENOM,
                 },
                 bridgeFee: {
-                    amount: this.BRIDGE_FEE.multipliedBy(CosmosNetworkH.CURRENCY_1_CUDO).toString(),
+                    amount: Config.ORCHESTRATOR.BRIDGE_FEE,
                     denom: CosmosNetworkH.CURRENCY_DENOM,
                 },
             },
