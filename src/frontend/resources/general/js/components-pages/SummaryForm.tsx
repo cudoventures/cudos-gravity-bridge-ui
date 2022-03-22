@@ -56,11 +56,10 @@ const SummaryForm = (props: ISummaryFormProps) => {
         }
         return new BigNumber(result).toFixed(2);
     }
-    
+
     useEffect(() => {
         api()
     }, [])
-
     return (
         <div className={'SummaryForm'}>
             <div className={'Row'}>
@@ -135,8 +134,8 @@ const SummaryForm = (props: ISummaryFormProps) => {
                         <span className={'FlexEnd SummaryBalance'}>{props.walletBalance.toFixed(4)} CUDOS</span>
                     </div>
 
-                    {ToNetwork === "Ethereum" ?
-                        <div className={'Row Spacing'}>
+                    {ToNetwork === 'Ethereum'
+                        ? <div className={'Row Spacing'}>
                             <span className={'FlexStart RedText'}>Minimum amount:</span>
                             <span className={'FlexEnd SummaryBalance'}>{props.minTransferAmount.toFixed(4)} CUDOS</span>
                         </div> : null
@@ -196,10 +195,9 @@ const SummaryForm = (props: ISummaryFormProps) => {
                         <div style={{ marginTop: '25px' }} className={'FormRow Wrapper'} >
                             <Button
                                 disabled={
-                                    ToNetwork === "Ethereum" ?
-                                        (!props.isFromConnected || !props.isToConnected || props.displayAmount === S.Strings.EMPTY || props.isTransferring || props.minTransferAmount.gte(props.displayAmount) || isNaN(+props.displayAmount))
-                                        :
-                                        (!props.isFromConnected || !props.isToConnected || props.displayAmount === S.Strings.EMPTY || props.isTransferring || isNaN(+props.displayAmount))
+                                    ToNetwork === 'Ethereum'
+                                        ? (!props.isFromConnected || !props.isToConnected || props.displayAmount === S.Strings.EMPTY || props.isTransferring || props.minTransferAmount.gte(props.displayAmount) || isNaN(+props.displayAmount))
+                                        : (!props.isFromConnected || !props.isToConnected || props.displayAmount === S.Strings.EMPTY || props.isTransferring || isNaN(+props.displayAmount))
                                 }
                                 className={'TransferBtn Flex DoubleSpacing'}
                                 type={Button.TYPE_ROUNDED}
