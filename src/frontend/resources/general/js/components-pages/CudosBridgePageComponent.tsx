@@ -279,6 +279,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
 
     onClickMaxAmount = async () => {
         const ledger = await this.checkWalletConnected();
+        const fromNetwork = this.state.selectedFromNetwork;
         let balance = await ledger.getBalance();
 
         if (!balance) {
@@ -286,6 +287,10 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         }
 
         let maximumAmount = BigNumber.maximum(balance, this.state.contractBalance).minus(this.state.minBridgeFeeAmount);
+
+        if (!this.isFromCosmos(fromNetwork) === true) {
+            maximumAmount = balance;
+        }
 
         if (maximumAmount.lt(0)) {
             maximumAmount = new BigNumber(0);

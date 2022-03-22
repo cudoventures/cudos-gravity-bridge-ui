@@ -185,11 +185,11 @@ const SummaryForm = (props: ISummaryFormProps) => {
                             <div className={'AttentionIcon'} style={ProjectUtils.makeBgImgStyle(attentionIcon)}></div>
                         </span>
                         <span className={'FlexEnd'}>0.00012 CUDOS</span> */}
-                        <span className={'FlexStart'}>
+                        {props.selectedFromNetwork ? <span className={'FlexStart'}>
                             Bridge Fee
                             <div className={'AttentionIcon'} style={ProjectUtils.makeBgImgStyle(attentionIcon)}></div>
-                        </span>
-                        <span className={'FlexEnd'}>{props.minBridgeFeeAmount.toFixed(4)} CUDOS</span>
+                            <span className={'FlexEnd'}>{props.minBridgeFeeAmount.toFixed(4)} CUDOS</span>
+                        </span> : null}
                     </div>
                     <div>
                         <div style={{ marginTop: '25px' }} className={'FormRow Wrapper'} >
