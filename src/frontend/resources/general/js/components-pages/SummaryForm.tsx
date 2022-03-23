@@ -134,13 +134,6 @@ const SummaryForm = (props: ISummaryFormProps) => {
                         <span className={'FlexEnd SummaryBalance'}>{props.walletBalance.toFixed(4)} CUDOS</span>
                     </div>
 
-                    {ToNetwork === 'Ethereum'
-                        ? <div className={'Row Spacing'}>
-                            <span className={'FlexStart RedText'}>Minimum amount:</span>
-                            <span className={'FlexEnd SummaryBalance'}>{props.minTransferAmount.toFixed(4)} CUDOS</span>
-                        </div> : null
-                    }
-
                 </div>
                 <div className={'Column PaddingRightColumn'}>
                     <div>
