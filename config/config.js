@@ -35,6 +35,7 @@ const envVariables = [
     'ETHEREUM_GAS',
     'STAKING',
     'PARAMS_ENDPOINT',
+    'BLOCK_EXPLORER',
 ];
 
 if (process.env.NODE_ENV === 'production') {
@@ -210,6 +211,7 @@ const Config = {
         GAS: process.env.GAS,
         STAKING: process.env.STAKING,
         PARAMS_ENDPOINT: process.env.PARAMS_ENDPOINT,
+        BLOCK_EXPLORER: process.env.BLOCK_EXPLORER,
     },
     ORCHESTRATOR: {
         ERC20_CONTRACT_ADDRESS: process.env.ERC20_CONTRACT_ADDRESS,
