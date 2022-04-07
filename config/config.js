@@ -31,7 +31,6 @@ const envVariables = [
     'ERC20_CONTRACT_ADDRESS',
     'BRIDGE_CONTRACT_ADDRESS',
     'BRIDGE_FEE',
-    'ETHEREUM_GAS_PRICE',
     'ETHEREUM_GAS',
     'STAKING',
     'PARAMS_ENDPOINT',
@@ -217,7 +216,6 @@ const Config = {
         BRIDGE_FEE: process.env.BRIDGE_FEE,
     },
     ETHEREUM: {
-        ETHEREUM_GAS_PRICE: process.env.ETHEREUM_GAS_PRICE,
         ETHEREUM_GAS: process.env.ETHEREUM_GAS,
         ETHEREUM_RPC: process.env.ETHEREUM_RPC,
     },
