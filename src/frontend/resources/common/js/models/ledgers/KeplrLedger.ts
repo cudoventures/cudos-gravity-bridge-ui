@@ -13,6 +13,7 @@ export default class KeplrLedger implements Ledger {
     @observable account: string;
     @observable walletError: string;
     @observable txHash: string;
+    @observable bridgeFee: BigNumber;
 
     static NETWORK_NAME = 'Cudos';
 
@@ -158,7 +159,7 @@ export default class KeplrLedger implements Ledger {
                     denom: CosmosNetworkH.CURRENCY_DENOM,
                 },
                 bridgeFee: {
-                    amount: Config.ORCHESTRATOR.BRIDGE_FEE,
+                    amount: this.bridgeFee.toString(),
                     denom: CosmosNetworkH.CURRENCY_DENOM,
                 },
             },
@@ -274,7 +275,7 @@ export default class KeplrLedger implements Ledger {
             return;
         }
 
-        this.BRIDGE_FEE = bridgeFee;
+        this.bridgeFee = bridgeFee;
     }
 
     isAddressValid(address: string): boolean {
