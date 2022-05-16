@@ -376,7 +376,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         const ledger = this.props.networkStore.networkHolders[this.state.selectedFromNetwork].ledger;
 
         if (ledger instanceof KeplrLedger) {
-            ledger.setBridgeFee(this.state.minBridgeFeeAmount)
+            ledger.setBridgeFee(new BigNumber(this.state.minBridgeFeeAmount).multipliedBy(CosmosNetworkH.CURRENCY_1_CUDO));
         }
 
         this.setState({
