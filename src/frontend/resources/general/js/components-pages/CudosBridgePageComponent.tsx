@@ -135,7 +135,13 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         try {
             const gravityModuleAddress = Config.CUDOS_NETWORK.GRAVITY_MODULE_ADDRESS;
             const balance = await this.getAccountBalance(gravityModuleAddress);
-            return (new BigNumber(balance).div(CosmosNetworkH.CURRENCY_1_CUDO));
+            let moduleBalance = new BigNumber(balance);
+            if (moduleBalance.gt(0)) {
+                moduleBalance = moduleBalance.div(CosmosNetworkH.CURRENCY_1_CUDO);
+            } else {
+                moduleBalance = new BigNumber(0);
+            }
+            return moduleBalance;
         } catch (e) {
             console.log(e);
             throw new Error('Failed to fetch module balance!');
@@ -315,8 +321,10 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
 
         let maximumAmount = BigNumber.maximum(balance, this.state.walletBalance).minus(this.state.minBridgeFeeAmount);
 
-        await this.setSimulatedMsgsCost(maximumAmount.toString());
-        maximumAmount = maximumAmount.minus(this.state.estimatedGasFees);
+        if (maximumAmount.gt(0)) {
+            const simulatedCost = await this.setSimulatedMsgsCost(maximumAmount.toString());
+            maximumAmount = maximumAmount.minus(simulatedCost);
+        }
 
         if (!this.isFromCosmos(fromNetwork) === true) {
             maximumAmount = balance;
@@ -615,8 +623,11 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         return checkResult === "OK";
     }
 
-    setSimulatedMsgsCost = async (amount: string): Promise<void> => {
+    setSimulatedMsgsCost = async (amount: string): Promise<BigNumber> => {
+        let simulatedCost = new BigNumber(0);
+
         if (this.validCudosNumber(amount)) {
+            this.setState({ validAmount: true });
             const stringifiedAmount = new BigNumber(amount).multipliedBy(CosmosNetworkH.CURRENCY_1_CUDO).toString(10);
             const ledger = this.props.networkStore.networkHolders[this.state.selectedFromNetwork].ledger;
             const [client, account] = await ledger.GetKeplrClientAndAccount();
@@ -657,16 +668,13 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
               );
 
             const estimatedCost = approxCost.amount[0]?approxCost.amount[0].amount:'0';
-            this.setState({ 
-                validAmount: true,
-                estimatedGasFees: new BigNumber(estimatedCost).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO)
-            });
+            simulatedCost = new BigNumber(estimatedCost).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO)
         } else {
-            this.setState({
-                estimatedGasFees: new BigNumber(0),
-                validAmount: false
-            });
+            this.setState({ validAmount: false });
         }
+
+        this.setState({ estimatedGasFees: simulatedCost });
+        return simulatedCost;
       }
 
     getMinTransferAndBridgeFeeAmounts = async (): Promise<void> => {
