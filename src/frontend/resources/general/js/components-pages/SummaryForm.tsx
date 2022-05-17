@@ -182,7 +182,7 @@ const SummaryForm = (props: ISummaryFormProps) => {
                         <span className={'FlexStart Asset'}>Asset</span>
                     </div>
                     <div className={'Row Spacing'}>
-                        <span className={'FlexStart GrayText'}>{!props.displayAmount ? '0.00' : formatNumber(props.displayAmount)}</span>
+                        <span className={'FlexStart GrayText'}>{!props.validAmount?<span style={{color: '#a15d5d'}}>Please enter valid amount</span>: formatNumber(props.displayAmount)}</span>
                         <span className={'FlexStart GrayText Asset'}>CUDOS</span>
                     </div>
                     {props.selectedFromNetwork ?
