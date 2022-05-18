@@ -18,8 +18,8 @@
     margin: auto;
     margin-top: 50px;
     height: 101vh;
-    max-width: 45%;
     min-width: 850px;
+    max-width: 850px;
 }
 
 .CudosBridge .PageContent .CreateAccount {
