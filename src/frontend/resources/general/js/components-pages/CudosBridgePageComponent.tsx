@@ -321,7 +321,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
 
         let maximumAmount = BigNumber.maximum(balance, this.state.walletBalance).minus(this.state.minBridgeFeeAmount);
 
-        if (maximumAmount.gt(0)) {
+        if (maximumAmount.gt(0) && this.isFromCosmos(fromNetwork)) {
             const simulatedCost = await this.setSimulatedMsgsCost(maximumAmount.toString());
             maximumAmount = maximumAmount.minus(simulatedCost);
         }
@@ -355,7 +355,11 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
     onChangeAmount = async (amount: string) => {
         clearTimeout(this.inputTimeouts.amount);
         const bigAmount = new BigNumber(amount);
-        await this.setSimulatedMsgsCost(amount);
+        const fromNetwork = this.state.selectedFromNetwork;
+        
+        if (this.isFromCosmos(fromNetwork)) {
+            await this.setSimulatedMsgsCost(amount);
+        }
 
         this.setState({
             amount: bigAmount,
