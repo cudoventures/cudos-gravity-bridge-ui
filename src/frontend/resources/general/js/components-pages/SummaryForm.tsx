@@ -21,6 +21,10 @@ interface ISummaryFormProps {
     getAddress: any
     isOpen: boolean
     isTransferring: boolean,
+    minTransferAmount: BigNumber,
+    minBridgeFeeAmount: BigNumber,
+    estimatedGasFees: BigNumber;
+    validAmount: Boolean;
 }
 
 const SummaryForm = (props: ISummaryFormProps) => {
@@ -56,7 +60,6 @@ const SummaryForm = (props: ISummaryFormProps) => {
     useEffect(() => {
         api()
     }, [])
-
     return (
         <div className={'SummaryForm'}>
             <div className={'Row'}>
@@ -97,7 +100,7 @@ const SummaryForm = (props: ISummaryFormProps) => {
                             <div className={'SummaryAddress'}>
                                 <div className={'CudosLogoSmall'} style={ProjectUtils.makeBgImgStyle(cudosLogoSmall)}></div>
                                 <div className={'Cudos'}>
-                            CUDOS
+                                    CUDOS
                                 </div>
                             </div>
                         </div>
@@ -110,7 +113,14 @@ const SummaryForm = (props: ISummaryFormProps) => {
                     <div className={'Flex'}>
                         <div className={'SummaryAddress'}>
                             <div className={'Amount Flex'}>
-                                <input inputMode='decimal' type='text' value={props.displayAmount} onChange={(e) => props.onChangeAmount(e.target.value)} className={'SummaryInput'} placeholder='0'></input>
+                                <input 
+                                    inputMode='decimal' 
+                                    type='text' 
+                                    value={props.displayAmount} 
+                                    onChange={(e) => props.onChangeAmount(e.target.value)} 
+                                    className={'SummaryInput'} 
+                                    placeholder='0'>
+                                </input>
                                 <Button
                                     color={Button.COLOR_SCHEME_4}
                                     className={'MaxBtn'}
@@ -118,18 +128,26 @@ const SummaryForm = (props: ISummaryFormProps) => {
                                     disabled={props.selectedToNetwork === S.NOT_EXISTS || props.walletBalance.toFixed() === '0' || props.isTransferring}
                                 >
                                     MAX
+                                    {props.selectedFromNetwork ?
+                                    <div className={'AttentionIcon'} style={ProjectUtils.makeBgImgStyle(attentionIcon)}>
+                                        <span className="tooltiptext">Your MAX balance minus approximate fees</span>
+                                    </div>:
+                                    null}
                                 </Button>
                             </div>
                         </div>
                     </div>
                     <div className={'Row Spacing'}>
-                        <span className={'FlexStart GrayText'}>Contract Balance:</span>
+                        <span className={'FlexStart GrayText'}>
+                            Max Allowed Amount
+                        </span>
                         <span className={'FlexEnd SummaryBalance'}>{props.contractBalance.toFixed(2)} CUDOS</span>
                     </div>
                     <div className={'Row Spacing'}>
                         <span className={'FlexStart GrayText'}>Wallet Balance:</span>
                         <span className={'FlexEnd SummaryBalance'}>{props.walletBalance.toFixed(4)} CUDOS</span>
                     </div>
+
                 </div>
                 <div className={'Column PaddingRightColumn'}>
                     <div>
@@ -164,21 +182,39 @@ const SummaryForm = (props: ISummaryFormProps) => {
                         <span className={'FlexStart Asset'}>Asset</span>
                     </div>
                     <div className={'Row Spacing'}>
-                        <span className={'FlexStart GrayText'}>{!props.displayAmount ? '0.00' : formatNumber(props.displayAmount)}</span>
+                        <span className={'FlexStart GrayText'}>{!props.validAmount?<span style={{color: '#a15d5d'}}>Please enter valid amount</span>: formatNumber(props.displayAmount)}</span>
                         <span className={'FlexStart GrayText Asset'}>CUDOS</span>
                     </div>
-                    <div className={'Row DoubleSpacing TopBorder'}>
-                        {/* Gas Fee temporarily disabled */}
-                        {/* <span className={'FlexStart'}>
-                            Estimated Gas Fee
-                            <div className={'AttentionIcon'} style={ProjectUtils.makeBgImgStyle(attentionIcon)}></div>
-                        </span>
-                        <span className={'FlexEnd'}>0.00012 CUDOS</span> */}
+                    {props.selectedFromNetwork ?
+                    <div>
+                        <div className={'Row DoubleSpacing TopBorder'}>
+                            <span className={'FlexStart'}>
+                                Bridge Fee
+                                <div className={'AttentionIcon'} style={ProjectUtils.makeBgImgStyle(attentionIcon)}>
+                                    <span className="tooltiptext">The amount due for the transfer service</span>
+                                </div>
+                                <span className={'FlexEnd'}>{props.minBridgeFeeAmount.toFixed(2)} CUDOS</span>
+                            </span>
+                        </div>
+                        <div className={'Row DoubleSpacing TopBorder'}>
+                            <span className={'FlexStart'}>
+                                Estimated Gas Fee
+                                <div className={'AttentionIcon'} style={ProjectUtils.makeBgImgStyle(attentionIcon)}>
+                                    <span className="tooltiptext">(Estimated GAS * 1.3 multiplier) * GAS price</span>
+                                </div>
+                            </span>
+                            <span className={'FlexEnd'}>{props.estimatedGasFees.toFixed(4)} CUDOS</span>
+                        </div>
                     </div>
+                    :null}
                     <div>
                         <div style={{ marginTop: '25px' }} className={'FormRow Wrapper'} >
                             <Button
-                                disabled={(!props.isFromConnected || !props.isToConnected || props.displayAmount === S.Strings.EMPTY || props.isTransferring)}
+                                disabled={
+                                    ToNetwork === 'Ethereum'
+                                        ? (!props.validAmount || !props.isFromConnected || !props.isToConnected || props.displayAmount === S.Strings.EMPTY || props.isTransferring || props.minTransferAmount.gte(props.displayAmount) || isNaN(+props.displayAmount))
+                                        : (!props.validAmount || !props.isFromConnected || !props.isToConnected || props.displayAmount === S.Strings.EMPTY || props.isTransferring || isNaN(+props.displayAmount))
+                                }
                                 className={'TransferBtn Flex DoubleSpacing'}
                                 type={Button.TYPE_ROUNDED}
                                 color={Button.COLOR_SCHEME_1}

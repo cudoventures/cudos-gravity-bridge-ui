@@ -4,15 +4,21 @@ import S from '../../utilities/Main';
 import Config from '../../../../../../../builds/dev-generated/Config';
 import CosmosNetworkH from './CosmosNetworkH';
 import { MsgSendToEth, MsgRequestBatch } from '../../cosmos/codec/gravity/gravity/v1/msgs';
-import { assertIsBroadcastTxSuccess, SigningStargateClient, defaultRegistryTypes } from '@cosmjs/stargate';
-import { Registry } from '@cosmjs/proto-signing';
+import { assertIsBroadcastTxSuccess, SigningStargateClient, defaultRegistryTypes, assertIsDeliverTxSuccess } from '@cosmjs/stargate';
+import { EncodeObject, Registry } from '@cosmjs/proto-signing';
 import BigNumber from 'bignumber.js';
+import { GasPrice } from '@cosmjs/launchpad';
+import { Uint53 } from "@cosmjs/math";
+import { coins } from "@cosmjs/amino";
 
 export default class KeplrLedger implements Ledger {
     @observable connected: number;
     @observable account: string;
     @observable walletError: string;
     @observable txHash: string;
+    @observable bridgeFee: BigNumber;
+    @observable chainID: string;
+    @observable rpcEndpoint: string;
 
     static NETWORK_NAME = 'Cudos';
 
@@ -21,6 +27,8 @@ export default class KeplrLedger implements Ledger {
         this.account = null;
         this.walletError = null;
         this.txHash = null;
+        this.chainID = Config.CUDOS_NETWORK.CHAIN_ID;
+        this.rpcEndpoint = Config.CUDOS_NETWORK.RPC;
         makeObservable(this);
     }
 
@@ -100,9 +108,9 @@ export default class KeplrLedger implements Ledger {
                 // Currently, Keplr doesn't support dynamic calculation of the gas prices based on on-chain data.
                 // Make sure that the gas prices are higher than the minimum gas prices accepted by chain validators and RPC/REST endpoint.
                 gasPriceStep: {
-                    low: Number(Config.CUDOS_NETWORK.GAS_PRICE) / 2,
-                    average: Number(Config.CUDOS_NETWORK.GAS_PRICE) / 8,
-                    high: Number(Config.CUDOS_NETWORK.GAS_PRICE) * 2,
+                    low: Number(Config.CUDOS_NETWORK.GAS_PRICE),
+                    average: Number(Config.CUDOS_NETWORK.GAS_PRICE) * 2,
+                    high: Number(Config.CUDOS_NETWORK.GAS_PRICE) * 4,
                 },
             });
         } catch (ex) {
@@ -117,6 +125,12 @@ export default class KeplrLedger implements Ledger {
         try {
             await window.keplr.enable(Config.CUDOS_NETWORK.CHAIN_ID);
 
+            window.keplr.defaultOptions = {
+                sign: {
+                    preferNoSetFee: true,
+                }
+              };
+              
             const offlineSigner = window.getOfflineSigner(Config.CUDOS_NETWORK.CHAIN_ID);
             this.account = (await offlineSigner.getAccounts())[0].address;
 
@@ -137,19 +151,40 @@ export default class KeplrLedger implements Ledger {
         });
     }
 
+    calculateFee = (gasLimit: number, { denom, amount: gasPriceAmount }) => {
+        const amount = Math.ceil(gasPriceAmount.multiply(new Uint53(gasLimit)).toFloatApproximation());
+        return {
+            amount: coins(amount.toString(), denom),
+            gas: gasLimit.toString(),
+        };
+      };
+      
+    EstimateFee = async (client: SigningStargateClient, gasPrice: GasPrice, signerAddress: string, messages: readonly EncodeObject[], memo = "") => {
+        const multiplier = 1.3;
+        const gasEstimation = await client.simulate(signerAddress, messages, memo);
+        return this.calculateFee(Math.round(gasEstimation * multiplier), gasPrice);
+      };
+
+    GetKeplrClientAndAccount = async () => {
+        const offlineSigner = window.getOfflineSigner(this.chainID);
+        const myRegistry = new Registry([
+            ...defaultRegistryTypes,
+            [Config.CUDOS_NETWORK.MESSAGE_TYPE_URL, MsgSendToEth],
+        ]);
+        const client = await SigningStargateClient.connectWithSigner(this.rpcEndpoint, offlineSigner, {
+            registry: myRegistry,
+        });
+        const account = (await offlineSigner.getAccounts())[0];
+        return [client, account];
+    }
+
     async send(amount: BigNumber, destiantionAddress: string): Promise<void> {
         const stringifiedAmount = amount.multipliedBy(CosmosNetworkH.CURRENCY_1_CUDO).toString(10);
-
-        const proposalTypePath = '/gravity.v1.MsgSendToEth'
-
-        const chainId = Config.CUDOS_NETWORK.CHAIN_ID;
-        await window.keplr.enable(chainId);
-        const offlineSigner = window.getOfflineSigner(chainId);
-
-        const account = (await offlineSigner.getAccounts())[0];
+        await window.keplr.enable(this.chainID);
+        const [client, account] = await this.GetKeplrClientAndAccount();
 
         const msgSend = [{
-            typeUrl: proposalTypePath,
+            typeUrl: Config.CUDOS_NETWORK.MESSAGE_TYPE_URL,
             value: {
                 sender: account.address,
                 ethDest: destiantionAddress,
@@ -158,42 +193,31 @@ export default class KeplrLedger implements Ledger {
                     denom: CosmosNetworkH.CURRENCY_DENOM,
                 },
                 bridgeFee: {
-                    amount: Config.ORCHESTRATOR.BRIDGE_FEE,
+                    amount: this.bridgeFee.toString(),
                     denom: CosmosNetworkH.CURRENCY_DENOM,
                 },
             },
-
         }];
-
-        const msgFee = {
-            amount: [{
-                denom: CosmosNetworkH.CURRENCY_DENOM,
-                amount: Config.CUDOS_NETWORK.FEE,
-            }],
-            gas: Config.CUDOS_NETWORK.GAS,
-        }
 
         try {
             this.walletError = null;
-            const myRegistry = new Registry([
-                ...defaultRegistryTypes,
-                [proposalTypePath, MsgSendToEth],
-            ])
-
-            const rpcEndpoint = Config.CUDOS_NETWORK.RPC;
-            const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, offlineSigner, {
-                registry: myRegistry,
-            });
+            const msgFee = await this.EstimateFee(
+                client,
+                GasPrice.fromString(Config.CUDOS_NETWORK.FEE+'acudos'),
+                account.address, 
+                msgSend, 
+                'Fee Estimation Message'
+              );
 
             const result = await client.signAndBroadcast(
                 account.address,
                 msgSend,
                 msgFee,
+                'Sent with CUDOS Gravity Bridge'
             );
 
-            this.txHash = result.transactionHash
-
-            assertIsBroadcastTxSuccess(result);
+            this.txHash = result.transactionHash;
+            assertIsDeliverTxSuccess(result);
         } catch (e) {
             console.log(e);
             throw new Error(this.walletError = 'Failed to send transaction!');
@@ -266,6 +290,14 @@ export default class KeplrLedger implements Ledger {
             console.log(e);
             this.walletError = 'Failed to get balance!'
         }
+    }
+
+    setBridgeFee(bridgeFee: BigNumber) {
+        if (bridgeFee.lt((new BigNumber(1)).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO))) {
+            return;
+        }
+
+        this.bridgeFee = bridgeFee;
     }
 
     isAddressValid(address: string): boolean {

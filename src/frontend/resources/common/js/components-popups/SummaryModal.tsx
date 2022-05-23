@@ -2,6 +2,7 @@ import React from 'react';
 import ModalComponent from './ModalComponent';
 
 import '../../css/components-popups/summary-modal.css';
+import Config from '../../../../../../builds/dev-generated/Config';
 
 import Button from '../components-inc/Button';
 import ProjectUtils from '../ProjectUtils';
@@ -38,7 +39,7 @@ const SummaryModal = ({
 
     const ETHERSCAN_RINKEBY = 'https://rinkeby.etherscan.io/tx';
     const ETHERSCAN_MAINNET = 'https://etherscan.io/tx';
-    const CUDOS_EXPLOREER = 'https://explorer.cudos.org/transactions';
+    const CUDOS_EXPLORER = Config.CUDOS_NETWORK.BLOCK_EXPLORER;
 
     const onCloseModal = async () => {
         onGetBalance();
@@ -101,7 +102,7 @@ const SummaryModal = ({
                                 <div>Transaction</div>
                             </div>
                             <div className={'Row Spacing LinkWrapper'}>
-                                <div className={'LinkContent'}><a href= {`${selectedFromNetwork ? CUDOS_EXPLOREER : ETHERSCAN_RINKEBY}/${txHash}`} rel='noreferrer' target='_blank'>
+                                <div className={'LinkContent'}><a href= {`${selectedFromNetwork ? CUDOS_EXPLORER : ETHERSCAN_RINKEBY}/${txHash}`} rel='noreferrer' target='_blank'>
                                     Bridge transaction link</a>
                                 <div className={'LinkIcon'} style={ProjectUtils.makeBgImgStyle(linkIcon)} />
                                 </div>

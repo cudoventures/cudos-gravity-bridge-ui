@@ -18,13 +18,11 @@ export default class MetamaskLedger implements Ledger {
     @observable walletError: string;
     @observable txHash: string;
     erc20Instance: any;
-    gasPrice: string;
     gas: string;
 
     constructor() {
         this.connected = S.INT_FALSE;
         this.account = null;
-        this.gasPrice = Config.ETHEREUM.ETHEREUM_GAS_PRICE;
         this.gas = Config.ETHEREUM.ETHEREUM_GAS;
         this.walletError = null;
         this.txHash = null;
@@ -78,15 +76,14 @@ export default class MetamaskLedger implements Ledger {
                 addressByteArray.forEach((byte, i) => { addressBytes32Array[32 - addressByteArray.length + i] = byte });
 
                 const gravityContract = new window.web3.eth.Contract(gravityContractAbi, Config.ORCHESTRATOR.BRIDGE_CONTRACT_ADDRESS, {
-                    from: account,
-                    gasPrice: this.gasPrice,
+                    from: account
                 });
                 const erc20Instance = new window.web3.eth.Contract(ERC20TokenAbi, Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS);
 
                 const stringAmount = amount.multipliedBy(CosmosNetworkH.CURRENCY_1_CUDO).toString(10);
 
                 erc20Instance.methods.approve(Config.ORCHESTRATOR.BRIDGE_CONTRACT_ADDRESS, stringAmount)
-                    .send({ from: account, gas: this.gas },
+                    .send({ from: account },
                         (err, transactionHash) => {
                             this.txHash = transactionHash;
                             if (err) {

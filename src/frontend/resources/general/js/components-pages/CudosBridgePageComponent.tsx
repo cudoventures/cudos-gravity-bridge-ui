@@ -8,6 +8,7 @@ import SummaryForm from './SummaryForm';
 import SummaryModal from '../../../common/js/components-popups/SummaryModal';
 import FailureModal from '../../../common/js/components-popups/FailureModal';
 import LoadingModal from '../../../common/js/components-popups/LoadingModal';
+import PreFlightModal from '../../../common/js/components-popups/PreFlightModal';
 
 import Config from '../../../../../../builds/dev-generated/Config';
 import './../../css/components-pages/cudos-bridge-component.css';
@@ -24,12 +25,19 @@ import CosmosNetworkH from '../../../common/js/models/ledgers/CosmosNetworkH';
 import MetamaskLedger from '../../../common/js/models/ledgers/MetamaskLedger';
 import Web3 from 'web3';
 import ERC20TokenAbi from '../../../common/js/solidity/contract_interfaces/ERC20_token.json';
-
+import axios from 'axios';
+import { GasPrice } from '@cosmjs/launchpad';
 interface Props extends ContextPageComponentProps {
     networkStore: NetworkStore;
 }
 
 interface State {
+    preFlight: boolean;
+    preFlightAmount: string;
+    preFlightToAddress: string;
+    preFlightFromAddress: string;
+    preFlightToNetwork: string;
+    preFlightFromNetwork: string;
     selectedFromNetwork: number;
     selectedToNetwork: number;
     isFromConnected: boolean;
@@ -48,6 +56,10 @@ interface State {
     isLoading: boolean;
     errorMessage: string;
     txHash: string;
+    minTransferAmount: BigNumber;
+    minBridgeFeeAmount: BigNumber;
+    estimatedGasFees: BigNumber;
+    validAmount: Boolean;
 }
 
 const cudosMainLogo = '../../../../resources/common/img/favicon/cudos-40x40.svg'
@@ -69,6 +81,12 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         super(props);
 
         this.state = {
+            preFlight: false,
+            preFlightAmount: S.Strings.EMPTY,
+            preFlightToAddress: S.Strings.EMPTY,
+            preFlightFromAddress: S.Strings.EMPTY,
+            preFlightToNetwork: S.Strings.EMPTY,
+            preFlightFromNetwork: S.Strings.EMPTY,
             selectedFromNetwork: S.INT_TRUE,
             selectedToNetwork: S.INT_FALSE,
             isFromConnected: false,
@@ -87,6 +105,10 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             isLoading: false,
             errorMessage: null,
             txHash: null,
+            minTransferAmount: new BigNumber(0),
+            minBridgeFeeAmount: new BigNumber(0),
+            estimatedGasFees: new BigNumber(0),
+            validAmount: false,
         }
 
         this.root = React.createRef();
@@ -94,6 +116,35 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         this.inputTimeouts = {
             'amount': null,
             'destiantionAddress': null,
+        }
+    }
+
+    getAccountBalance = async (account: string): Promise<string> => {
+        const url: string = Config.CUDOS_NETWORK.API + '/bank/balances/' + account;
+        const response = await axios.get(url);
+        let accountBalance: string;
+            if (response.status === 200 && response.data.result[0]) {
+                accountBalance = response.data.result[0].amount;
+                } else {
+                    accountBalance = '0';
+            }
+        return accountBalance;
+    }
+
+    getModuleBalance = async (): Promise<BigNumber> => {
+        try {
+            const gravityModuleAddress = Config.CUDOS_NETWORK.GRAVITY_MODULE_ADDRESS;
+            const balance = await this.getAccountBalance(gravityModuleAddress);
+            let moduleBalance = new BigNumber(balance);
+            if (moduleBalance.gt(0)) {
+                moduleBalance = moduleBalance.div(CosmosNetworkH.CURRENCY_1_CUDO);
+            } else {
+                moduleBalance = new BigNumber(0);
+            }
+            return moduleBalance;
+        } catch (e) {
+            console.log(e);
+            throw new Error('Failed to fetch module balance!');
         }
     }
 
@@ -188,7 +239,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             if (this.isFromCosmos(fromNetwork) === true) {
                 contractBalance = await this.getContractBalance();
             } else {
-                contractBalance = new BigNumber(Number.MAX_SAFE_INTEGER);
+                contractBalance = await this.getModuleBalance();
             }
         } catch (e) {
             this.showAlertError(e.toString());
@@ -238,7 +289,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             if (this.isFromCosmos(toNetwork) === true) {
                 contractBalance = await this.getContractBalance();
             } else {
-                contractBalance = new BigNumber(Number.MAX_SAFE_INTEGER);
+                contractBalance = await this.getModuleBalance();
             }
         } catch (e) {
             this.showAlertError(e.toString());
@@ -261,13 +312,28 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
 
     onClickMaxAmount = async () => {
         const ledger = await this.checkWalletConnected();
+        const fromNetwork = this.state.selectedFromNetwork;
         let balance = await ledger.getBalance();
 
         if (!balance) {
             balance = new BigNumber(0);
         }
 
-        const maximumAmount = BigNumber.minimum(balance, this.state.contractBalance);
+        let maximumAmount = BigNumber.maximum(balance, this.state.walletBalance).minus(this.state.minBridgeFeeAmount);
+
+        if (maximumAmount.gt(0) && this.isFromCosmos(fromNetwork)) {
+            const simulatedCost = await this.setSimulatedMsgsCost(maximumAmount.toString());
+            maximumAmount = maximumAmount.minus(simulatedCost);
+        }
+
+        if (!this.isFromCosmos(fromNetwork) === true) {
+            maximumAmount = balance;
+        }
+
+        if (maximumAmount.lt(0)) {
+            maximumAmount = new BigNumber(0);
+        }
+
         this.setState({
             amount: maximumAmount,
             displayAmount: maximumAmount.toFixed(),
@@ -286,9 +352,14 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         })
     }
 
-    onChangeAmount = (amount: string) => {
+    onChangeAmount = async (amount: string) => {
         clearTimeout(this.inputTimeouts.amount);
         const bigAmount = new BigNumber(amount);
+        const fromNetwork = this.state.selectedFromNetwork;
+        
+        if (this.isFromCosmos(fromNetwork)) {
+            await this.setSimulatedMsgsCost(amount);
+        }
 
         this.setState({
             amount: bigAmount,
@@ -301,7 +372,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                 return;
             }
 
-            if (bigAmount.isNaN() || bigAmount.isLessThan(new BigNumber(1).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO)) || bigAmount.isGreaterThan(BigNumber.minimum(this.state.walletBalance, this.state.contractBalance))) {
+            if (bigAmount.isNaN() || bigAmount.isLessThan(new BigNumber(1).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO)) || bigAmount.isGreaterThan(BigNumber.minimum(this.state.walletBalance, this.state.contractBalance).minus(this.state.minBridgeFeeAmount).absoluteValue())) {
                 this.setState({
                     amountError: S.INT_TRUE,
                 })
@@ -345,7 +416,24 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             });
             return;
         }
+        const ledger = this.props.networkStore.networkHolders[this.state.selectedFromNetwork].ledger;
 
+        if (ledger instanceof KeplrLedger) {
+            ledger.setBridgeFee(new BigNumber(this.state.minBridgeFeeAmount).multipliedBy(CosmosNetworkH.CURRENCY_1_CUDO));
+        }
+
+        this.setState({
+            preFlight: true,
+            preFlightAmount: this.state.displayAmount,
+            preFlightFromAddress: this.getAddress(this.state.selectedFromNetwork, 6),
+            preFlightToAddress: this.getAddress(this.state.selectedToNetwork, 6),
+            preFlightFromNetwork: this.state.selectedFromNetwork ? 'CUDOS' : 'Ethereum',
+            preFlightToNetwork: this.state.selectedToNetwork ? 'CUDOS' : 'Ethereum',
+        })
+    }
+
+    executeTransaction = async () => {
+        this.setState({ preFlight: false })
         try {
             this.props.appStore.disableActions();
             this.setState({ isTransferring: true, isLoading: true })
@@ -393,7 +481,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             if (this.isFromCosmos(toNetwork) === true) {
                 contractBalance = await this.getContractBalance();
             } else {
-                contractBalance = new BigNumber(Number.MAX_SAFE_INTEGER);
+                contractBalance = await this.getModuleBalance();
             }
         } catch (e) {
             this.showAlertError(e.toString());
@@ -457,7 +545,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             if (this.isFromCosmos(fromNetwork) === true) {
                 contractBalance = await this.getContractBalance();
             } else {
-                contractBalance = new BigNumber(Number.MAX_SAFE_INTEGER);
+                contractBalance = await this.getModuleBalance();
             }
         } catch (e) {
             this.showAlertError(e.toString());
@@ -526,9 +614,88 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         return `${text.slice(0, sliceIndex)}...${text.slice(len - 4, len)}`
     }
 
-    goToTransactionSummary = (): void => {
+    goToTransactionSummary = async (): Promise<void> => {
+        await this.getMinTransferAndBridgeFeeAmounts();
         this.setState({
             summary: true,
+        })
+    }
+
+    validCudosNumber = (amount: string) => {
+        //Should be a whole number or a float with maximum 18 digits after the point
+        const checkResult = amount.replace(/^[0-9]+\.?[0-9]{0,18}$/gm, "OK");
+        return checkResult === "OK";
+    }
+
+    setSimulatedMsgsCost = async (amount: string): Promise<BigNumber> => {
+        let simulatedCost = new BigNumber(0);
+
+        if (this.validCudosNumber(amount)) {
+            this.setState({ validAmount: true });
+            const stringifiedAmount = new BigNumber(amount).multipliedBy(CosmosNetworkH.CURRENCY_1_CUDO).toString(10);
+            const ledger = this.props.networkStore.networkHolders[this.state.selectedFromNetwork].ledger;
+            const [client, account] = await ledger.GetKeplrClientAndAccount();
+            let destination: string;
+            let sender: string;
+
+            if (this.isFromCosmos(this.state.selectedFromNetwork) === true) {
+                sender = this.getAddress(this.state.selectedFromNetwork, 0);
+                destination = this.getAddress(this.state.selectedToNetwork, 0);
+            } else {
+                destination = this.getAddress(this.state.selectedFromNetwork, 0);
+                sender = this.getAddress(this.state.selectedToNetwork, 0);
+            }
+
+            const simulatedMsg = [{
+                typeUrl: Config.CUDOS_NETWORK.MESSAGE_TYPE_URL,
+                value: {
+                    sender: sender,
+                    ethDest:destination,
+                    amount: {
+                        amount: stringifiedAmount,
+                        denom: CosmosNetworkH.CURRENCY_DENOM,
+                    },
+                    bridgeFee: {
+                        amount: this.state.minBridgeFeeAmount.multipliedBy(CosmosNetworkH.CURRENCY_1_CUDO).toString(),
+                        denom: CosmosNetworkH.CURRENCY_DENOM,
+                    },
+                },
+    
+            }];
+
+            const approxCost = await ledger.EstimateFee(
+                client,
+                GasPrice.fromString(Config.CUDOS_NETWORK.FEE+'acudos'),
+                account.address, 
+                simulatedMsg, 
+                'Fee Estimation Message'
+              );
+
+            const estimatedCost = approxCost.amount[0]?approxCost.amount[0].amount:'0';
+            simulatedCost = new BigNumber(estimatedCost).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO)
+        } else {
+            this.setState({ validAmount: false });
+        }
+
+        this.setState({ estimatedGasFees: simulatedCost });
+        return simulatedCost;
+      }
+
+    getMinTransferAndBridgeFeeAmounts = async (): Promise<void> => {
+        const response = await axios.get(Config.CUDOS_NETWORK.PARAMS_ENDPOINT);
+        const minTransferAmount = response.data.params.minimum_transfer_to_eth;
+        const minBridgeFeeAmount = response.data.params.minimum_fee_transfer_to_eth;
+
+        if (minTransferAmount === undefined || minBridgeFeeAmount === undefined || response.status != 200) {
+            this.setState({
+                isTransactionFail: true,
+                errorMessage: 'We cannot proceed with your request at the moment',
+            })
+            throw new Error('Failed to fetch minimum transfer and minimum transfer fee amount');
+        }
+        this.setState({
+            minTransferAmount: new BigNumber(minTransferAmount).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO),
+            minBridgeFeeAmount: new BigNumber(minBridgeFeeAmount).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO),
         })
     }
 
@@ -575,6 +742,16 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                         closeModal={() => this.setState({ isTransactionFail: false, isOpen: false, displayAmount: S.Strings.EMPTY })}
                         errorMessage={this.state.errorMessage}
                     />
+                    <PreFlightModal
+                        isOpen={this.state.preFlight}
+                        closeModal={() => this.executeTransaction()}
+                        rejectModal={() => this.setState({ preFlight: false })}
+                        transferAmount={this.state.preFlightAmount}
+                        fromAddress={this.state.preFlightFromAddress}
+                        toAddress={this.state.preFlightToAddress}
+                        fromNetwork={this.state.preFlightFromNetwork}
+                        toNetwork={this.state.preFlightToNetwork}
+                    />
                     {!this.state.summary
                         ? <TransferForm
                             selectedFromNetwork={this.state.selectedFromNetwork}
@@ -610,6 +787,10 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                             onClickMaxAmount={this.onClickMaxAmount}
                             onClickSend={this.onClickSend}
                             isTransferring={this.state.isTransferring}
+                            minTransferAmount={this.state.minTransferAmount}
+                            minBridgeFeeAmount={this.state.minBridgeFeeAmount}
+                            estimatedGasFees = {this.state.estimatedGasFees}
+                            validAmount = {this.state.validAmount}
                         />
                     }
                     {this.state.summary

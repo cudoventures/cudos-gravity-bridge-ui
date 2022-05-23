@@ -23,6 +23,7 @@ const envVariables = [
     'SESSION_UNIQUE_KEY',
     'CHAIN_NAME',
     'CHAIN_ID',
+    'GRAVITY_MODULE_ADDRESS',
     'RPC',
     'API',
     'GAS_PRICE',
@@ -30,10 +31,10 @@ const envVariables = [
     'FEE',
     'ERC20_CONTRACT_ADDRESS',
     'BRIDGE_CONTRACT_ADDRESS',
-    'BRIDGE_FEE',
-    'ETHEREUM_GAS_PRICE',
     'ETHEREUM_GAS',
-    'STAKING'
+    'STAKING',
+    'PARAMS_ENDPOINT',
+    'BLOCK_EXPLORER',
 ];
 
 if (process.env.NODE_ENV === 'production') {
@@ -202,20 +203,22 @@ const Config = {
     CUDOS_NETWORK: {
         CHAIN_NAME: process.env.CHAIN_NAME,
         CHAIN_ID: process.env.CHAIN_ID,
+        GRAVITY_MODULE_ADDRESS: process.env.GRAVITY_MODULE_ADDRESS,
         RPC: process.env.RPC,
         API: process.env.API,
         GAS_PRICE: process.env.GAS_PRICE,
         FEE: process.env.FEE,
         GAS: process.env.GAS,
-        STAKING: process.env.STAKING
+        STAKING: process.env.STAKING,
+        PARAMS_ENDPOINT: process.env.PARAMS_ENDPOINT,
+        BLOCK_EXPLORER: process.env.BLOCK_EXPLORER,
+        MESSAGE_TYPE_URL: '/gravity.v1.MsgSendToEth',
     },
     ORCHESTRATOR: {
         ERC20_CONTRACT_ADDRESS: process.env.ERC20_CONTRACT_ADDRESS,
         BRIDGE_CONTRACT_ADDRESS: process.env.BRIDGE_CONTRACT_ADDRESS,
-        BRIDGE_FEE: process.env.BRIDGE_FEE,
     },
     ETHEREUM: {
-        ETHEREUM_GAS_PRICE: process.env.ETHEREUM_GAS_PRICE,
         ETHEREUM_GAS: process.env.ETHEREUM_GAS,
         ETHEREUM_RPC: process.env.ETHEREUM_RPC,
     },
