@@ -385,7 +385,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                     maximumAmount = maximumAmount.minus(simulatedCost);
                 }
 
-                if (maximumAmount.isGreaterThan(0) && maximumAmount.isLessThan(this.state.contractBalance)) {
+                if (maximumAmount.isGreaterThanOrEqualTo(0) && maximumAmount.isLessThan(this.state.contractBalance)) {
                     validAmount = true
                     amountError = S.INT_FALSE
                 }
