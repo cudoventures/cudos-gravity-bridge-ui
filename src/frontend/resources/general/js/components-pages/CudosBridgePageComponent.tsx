@@ -356,10 +356,6 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         clearTimeout(this.inputTimeouts.amount);
         const bigAmount = new BigNumber(amount);
         const fromNetwork = this.state.selectedFromNetwork;
-        
-        if (this.isFromCosmos(fromNetwork)) {
-            await this.setSimulatedMsgsCost(amount);
-        }
 
         this.setState({
             amount: bigAmount,
@@ -367,7 +363,8 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             amountError: S.INT_FALSE,
         })
 
-        this.inputTimeouts.amount = setTimeout(() => {
+        this.inputTimeouts.amount = setTimeout( async () => {
+            
             if (amount === S.Strings.EMPTY) {
                 return;
             }
@@ -375,7 +372,12 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             if (bigAmount.isNaN() || bigAmount.isLessThan(new BigNumber(1).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO)) || bigAmount.isGreaterThan(BigNumber.minimum(this.state.walletBalance, this.state.contractBalance).minus(this.state.minBridgeFeeAmount).absoluteValue())) {
                 this.setState({
                     amountError: S.INT_TRUE,
-                })
+                });
+                return;
+            }
+
+            if (this.isFromCosmos(fromNetwork)) {
+                await this.setSimulatedMsgsCost(amount);
             }
         }, 200);
     }
