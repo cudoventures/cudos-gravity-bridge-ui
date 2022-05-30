@@ -656,7 +656,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                         denom: CosmosNetworkH.CURRENCY_DENOM,
                     },
                     bridgeFee: {
-                        amount: this.state.minBridgeFeeAmount.multipliedBy(CosmosNetworkH.CURRENCY_1_CUDO).toString(),
+                        amount: this.state.minBridgeFeeAmount.multipliedBy(CosmosNetworkH.CURRENCY_1_CUDO).toString(10),
                         denom: CosmosNetworkH.CURRENCY_DENOM,
                     },
                 },
