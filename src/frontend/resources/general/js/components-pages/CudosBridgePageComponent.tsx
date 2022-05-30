@@ -313,31 +313,32 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
     onClickMaxAmount = async () => {
         const ledger = await this.checkWalletConnected();
         const fromNetwork = this.state.selectedFromNetwork;
+        const maxButtonMultiplier = 1.05; // Fixing issue, when fee estimates are less for MAX amount than smaller number entered by hand.
         let balance = await ledger.getBalance();
+        let simulatedCost = new BigNumber(0);
 
-        if (!balance) {
-            balance = new BigNumber(0);
-        }
+        if (!balance) { return }
 
         let maximumAmount = BigNumber.maximum(balance, this.state.walletBalance).minus(this.state.minBridgeFeeAmount);
 
         if (maximumAmount.gt(0) && this.isFromCosmos(fromNetwork)) {
-            const simulatedCost = await this.setSimulatedMsgsCost(maximumAmount.toString());
-            maximumAmount = maximumAmount.minus(simulatedCost);
+            simulatedCost = await this.simulatedMsgsCost(maximumAmount.toString());
+            maximumAmount = maximumAmount.minus(simulatedCost.multipliedBy(maxButtonMultiplier));
         }
 
         if (!this.isFromCosmos(fromNetwork) === true) {
             maximumAmount = balance;
         }
 
-        if (maximumAmount.lt(0)) {
-            maximumAmount = new BigNumber(0);
-        }
+        if (maximumAmount.lte(0)) { return }
 
         this.setState({
             amount: maximumAmount,
             displayAmount: maximumAmount.toFixed(),
             walletBalance: balance,
+            estimatedGasFees: simulatedCost.multipliedBy(maxButtonMultiplier),
+            validAmount: true,
+            amountError: S.INT_FALSE,
         })
     }
 
@@ -356,34 +357,54 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         clearTimeout(this.inputTimeouts.amount);
         const bigAmount = new BigNumber(amount);
         const fromNetwork = this.state.selectedFromNetwork;
+        let validAmount = false;
+        let amountError = S.INT_TRUE;
+        let simulatedCost = new BigNumber(0);
         
         this.setState({
             amount: bigAmount,
             displayAmount: amount,
         });
 
+        let minBridgeFeeAmount = new BigNumber(0);
+
+        if (this.isFromCosmos(fromNetwork)) {
+            minBridgeFeeAmount = this.state.minBridgeFeeAmount;
+        }
+
         if (!bigAmount.isNaN() && 
         !bigAmount.isLessThan(new BigNumber(1).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO)) && 
-        !bigAmount.isGreaterThan(BigNumber.minimum(this.state.walletBalance, this.state.contractBalance).minus(this.state.minBridgeFeeAmount).absoluteValue()) && 
-        this.validCudosNumber(amount)) {
+        this.validCudosNumber(amount) && 
+        !bigAmount.isGreaterThan(BigNumber.minimum(this.state.walletBalance, this.state.contractBalance).minus(minBridgeFeeAmount).absoluteValue())) {
             
-            this.setState({
-                amountError: S.INT_FALSE,
-                validAmount: true
-            });
+            let maximumAmount = this.state.walletBalance.minus(minBridgeFeeAmount).minus(amount);
 
             this.inputTimeouts.amount = setTimeout( async () => {    
                 if (this.isFromCosmos(fromNetwork)) {
-                    await this.setSimulatedMsgsCost(amount);
+                    simulatedCost = await this.simulatedMsgsCost(amount);
+                    maximumAmount = maximumAmount.minus(simulatedCost);
                 }
+
+                if (maximumAmount.isGreaterThan(0) && maximumAmount.isLessThan(this.state.contractBalance)) {
+                    validAmount = true
+                    amountError = S.INT_FALSE
+                }
+
+                this.setState({ 
+                    validAmount: validAmount,
+                    amountError: amountError,
+                    estimatedGasFees: simulatedCost
+                });
             }, 200);
-            
-        } else {
-            this.setState({ 
-                validAmount: false,
-                amountError: S.INT_TRUE
-            });
+
+            return;
         }
+
+        this.setState({ 
+            validAmount: validAmount,
+            amountError: amountError,
+            estimatedGasFees: simulatedCost
+        });
     }
 
     onChangeDestinationAddress = (address) => {
@@ -633,7 +654,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         return checkResult === "OK";
     }
 
-    setSimulatedMsgsCost = async (amount: string): Promise<BigNumber> => {
+    simulatedMsgsCost = async (amount: string): Promise<BigNumber> => {
         let simulatedCost = new BigNumber(0);
         const stringifiedAmount = new BigNumber(amount).multipliedBy(CosmosNetworkH.CURRENCY_1_CUDO).toString(10);
         const ledger = this.props.networkStore.networkHolders[this.state.selectedFromNetwork].ledger;
@@ -676,9 +697,6 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
 
         const estimatedCost = approxCost.amount[0]?approxCost.amount[0].amount:'0';
         simulatedCost = new BigNumber(estimatedCost).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO)
-
-
-        this.setState({ estimatedGasFees: simulatedCost });
         return simulatedCost;
       }
 
