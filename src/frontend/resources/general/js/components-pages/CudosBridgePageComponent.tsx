@@ -356,30 +356,34 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         clearTimeout(this.inputTimeouts.amount);
         const bigAmount = new BigNumber(amount);
         const fromNetwork = this.state.selectedFromNetwork;
-
+        
         this.setState({
             amount: bigAmount,
             displayAmount: amount,
-            amountError: S.INT_FALSE,
-        })
+        });
 
-        this.inputTimeouts.amount = setTimeout( async () => {
+        if (!bigAmount.isNaN() && 
+        !bigAmount.isLessThan(new BigNumber(1).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO)) && 
+        !bigAmount.isGreaterThan(BigNumber.minimum(this.state.walletBalance, this.state.contractBalance).minus(this.state.minBridgeFeeAmount).absoluteValue()) && 
+        this.validCudosNumber(amount)) {
             
-            if (amount === S.Strings.EMPTY) {
-                return;
-            }
+            this.setState({
+                amountError: S.INT_FALSE,
+                validAmount: true
+            });
 
-            if (bigAmount.isNaN() || bigAmount.isLessThan(new BigNumber(1).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO)) || bigAmount.isGreaterThan(BigNumber.minimum(this.state.walletBalance, this.state.contractBalance).minus(this.state.minBridgeFeeAmount).absoluteValue())) {
-                this.setState({
-                    amountError: S.INT_TRUE,
-                });
-                return;
-            }
-
-            if (this.isFromCosmos(fromNetwork)) {
-                await this.setSimulatedMsgsCost(amount);
-            }
-        }, 200);
+            this.inputTimeouts.amount = setTimeout( async () => {    
+                if (this.isFromCosmos(fromNetwork)) {
+                    await this.setSimulatedMsgsCost(amount);
+                }
+            }, 200);
+            
+        } else {
+            this.setState({ 
+                validAmount: false,
+                amountError: S.INT_TRUE
+            });
+        }
     }
 
     onChangeDestinationAddress = (address) => {
@@ -631,53 +635,48 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
 
     setSimulatedMsgsCost = async (amount: string): Promise<BigNumber> => {
         let simulatedCost = new BigNumber(0);
+        const stringifiedAmount = new BigNumber(amount).multipliedBy(CosmosNetworkH.CURRENCY_1_CUDO).toString(10);
+        const ledger = this.props.networkStore.networkHolders[this.state.selectedFromNetwork].ledger;
+        const [client, account] = await ledger.GetKeplrClientAndAccount();
+        let destination: string;
+        let sender: string;
 
-        if (this.validCudosNumber(amount)) {
-            this.setState({ validAmount: true });
-            const stringifiedAmount = new BigNumber(amount).multipliedBy(CosmosNetworkH.CURRENCY_1_CUDO).toString(10);
-            const ledger = this.props.networkStore.networkHolders[this.state.selectedFromNetwork].ledger;
-            const [client, account] = await ledger.GetKeplrClientAndAccount();
-            let destination: string;
-            let sender: string;
-
-            if (this.isFromCosmos(this.state.selectedFromNetwork) === true) {
-                sender = this.getAddress(this.state.selectedFromNetwork, 0);
-                destination = this.getAddress(this.state.selectedToNetwork, 0);
-            } else {
-                destination = this.getAddress(this.state.selectedFromNetwork, 0);
-                sender = this.getAddress(this.state.selectedToNetwork, 0);
-            }
-
-            const simulatedMsg = [{
-                typeUrl: Config.CUDOS_NETWORK.MESSAGE_TYPE_URL,
-                value: {
-                    sender: sender,
-                    ethDest:destination,
-                    amount: {
-                        amount: stringifiedAmount,
-                        denom: CosmosNetworkH.CURRENCY_DENOM,
-                    },
-                    bridgeFee: {
-                        amount: this.state.minBridgeFeeAmount.multipliedBy(CosmosNetworkH.CURRENCY_1_CUDO).toString(10),
-                        denom: CosmosNetworkH.CURRENCY_DENOM,
-                    },
-                },
-    
-            }];
-
-            const approxCost = await ledger.EstimateFee(
-                client,
-                GasPrice.fromString(Config.CUDOS_NETWORK.FEE+'acudos'),
-                account.address, 
-                simulatedMsg, 
-                'Fee Estimation Message'
-              );
-
-            const estimatedCost = approxCost.amount[0]?approxCost.amount[0].amount:'0';
-            simulatedCost = new BigNumber(estimatedCost).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO)
+        if (this.isFromCosmos(this.state.selectedFromNetwork) === true) {
+            sender = this.getAddress(this.state.selectedFromNetwork, 0);
+            destination = this.getAddress(this.state.selectedToNetwork, 0);
         } else {
-            this.setState({ validAmount: false });
+            destination = this.getAddress(this.state.selectedFromNetwork, 0);
+            sender = this.getAddress(this.state.selectedToNetwork, 0);
         }
+
+        const simulatedMsg = [{
+            typeUrl: Config.CUDOS_NETWORK.MESSAGE_TYPE_URL,
+            value: {
+                sender: sender,
+                ethDest:destination,
+                amount: {
+                    amount: stringifiedAmount,
+                    denom: CosmosNetworkH.CURRENCY_DENOM,
+                },
+                bridgeFee: {
+                    amount: this.state.minBridgeFeeAmount.multipliedBy(CosmosNetworkH.CURRENCY_1_CUDO).toString(10),
+                    denom: CosmosNetworkH.CURRENCY_DENOM,
+                },
+            },
+
+        }];
+
+        const approxCost = await ledger.EstimateFee(
+            client,
+            GasPrice.fromString(Config.CUDOS_NETWORK.FEE+'acudos'),
+            account.address, 
+            simulatedMsg, 
+            'Fee Estimation Message'
+            );
+
+        const estimatedCost = approxCost.amount[0]?approxCost.amount[0].amount:'0';
+        simulatedCost = new BigNumber(estimatedCost).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO)
+
 
         this.setState({ estimatedGasFees: simulatedCost });
         return simulatedCost;
