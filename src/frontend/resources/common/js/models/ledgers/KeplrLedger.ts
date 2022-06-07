@@ -193,7 +193,7 @@ export default class KeplrLedger implements Ledger {
                     denom: CosmosNetworkH.CURRENCY_DENOM,
                 },
                 bridgeFee: {
-                    amount: this.bridgeFee.toString(),
+                    amount: this.bridgeFee.toString(10),
                     denom: CosmosNetworkH.CURRENCY_DENOM,
                 },
             },

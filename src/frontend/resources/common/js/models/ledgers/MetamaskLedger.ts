@@ -85,7 +85,6 @@ export default class MetamaskLedger implements Ledger {
                 erc20Instance.methods.approve(Config.ORCHESTRATOR.BRIDGE_CONTRACT_ADDRESS, stringAmount)
                     .send({ from: account },
                         (err, transactionHash) => {
-                            this.txHash = transactionHash;
                             if (err) {
                                 reject(err);
 
@@ -96,7 +95,7 @@ export default class MetamaskLedger implements Ledger {
                             gravityContract.methods.sendToCosmos(Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS, `0x${toHex(addressBytes32Array)}`, stringAmount).send({ from: account, gas: this.gas })
                                 .on('receipt', (confirmationNumber, receipt) => {
                                     resolve();
-                                    // console.log('receipt', confirmationNumber);
+                                    this.txHash = confirmationNumber.transactionHash;
                                 })
                                 .on('error', (e) => {
                                     reject();
