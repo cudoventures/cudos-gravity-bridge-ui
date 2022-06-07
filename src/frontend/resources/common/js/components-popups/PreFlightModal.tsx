@@ -42,7 +42,7 @@ const PreFlightModal = ({
                     <ul>
                         <li>You will not be able to cancel the transaction once you submit it.</li>
                         <li>Your transaction could get stuck for an indefinite amount of time.</li>
-                        <li>Funds canot be returned if they are sent to the wrong address.</li>
+                        <li>Funds cannot be returned if they are sent to the wrong address.</li>
                     </ul>
                 </div>
                 <div className={'transactionMessage'}>
