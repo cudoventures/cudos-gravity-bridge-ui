@@ -37,8 +37,10 @@ const SummaryModal = ({
     const fromNetwork = selectedFromNetwork ? 'CUDOS' : 'Ethereum';
     const ToNetwork = selectedToNetwork ? 'CUDOS' : 'Ethereum';
 
-    const ETHERSCAN_RINKEBY = 'https://rinkeby.etherscan.io/tx';
-    const ETHERSCAN_MAINNET = 'https://etherscan.io/tx';
+    const ETHERSCAN_EXPLORER = 
+        Config.CUDOS_NETWORK.NETWORK_TYPE === "mainnet"?
+            Config.ETHEREUM.ETHERSCAN_MAINNET:
+            Config.ETHEREUM.ETHERSCAN_RINKEBY
     const CUDOS_EXPLORER = Config.CUDOS_NETWORK.BLOCK_EXPLORER;
 
     const onCloseModal = async () => {
@@ -102,7 +104,7 @@ const SummaryModal = ({
                                 <div>Transaction</div>
                             </div>
                             <div className={'Row Spacing LinkWrapper'}>
-                                <div className={'LinkContent'}><a href= {`${selectedFromNetwork ? CUDOS_EXPLORER : ETHERSCAN_RINKEBY}/${txHash}`} rel='noreferrer' target='_blank'>
+                                <div className={'LinkContent'}><a href= {`${selectedFromNetwork ? CUDOS_EXPLORER : ETHERSCAN_EXPLORER}/${txHash}`} rel='noreferrer' target='_blank'>
                                     Bridge transaction link</a>
                                 <div className={'LinkIcon'} style={ProjectUtils.makeBgImgStyle(linkIcon)} />
                                 </div>

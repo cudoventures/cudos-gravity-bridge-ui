@@ -35,6 +35,7 @@ const envVariables = [
     'STAKING',
     'PARAMS_ENDPOINT',
     'BLOCK_EXPLORER',
+    'NETWORK_TYPE'
 ];
 
 if (process.env.NODE_ENV === 'production') {
@@ -201,6 +202,7 @@ const Config = {
         API: `${URL_ROOT}/api`,
     },
     CUDOS_NETWORK: {
+        NETWORK_TYPE: process.env.NETWORK_TYPE,
         CHAIN_NAME: process.env.CHAIN_NAME,
         CHAIN_ID: process.env.CHAIN_ID,
         GRAVITY_MODULE_ADDRESS: process.env.GRAVITY_MODULE_ADDRESS,
@@ -221,6 +223,8 @@ const Config = {
     ETHEREUM: {
         ETHEREUM_GAS: process.env.ETHEREUM_GAS,
         ETHEREUM_RPC: process.env.ETHEREUM_RPC,
+        ETHERSCAN_RINKEBY: 'https://rinkeby.etherscan.io/tx',
+        ETHERSCAN_MAINNET: 'https://etherscan.io/tx'
     },
 };
 
