@@ -32,7 +32,6 @@ const envVariables = [
     'BRIDGE_CONTRACT_ADDRESS',
     'ETHEREUM_GAS',
     'STAKING',
-    'PARAMS_ENDPOINT',
     'BLOCK_EXPLORER',
     'NETWORK_TYPE'
 ];
@@ -210,7 +209,6 @@ const Config = {
         GAS_PRICE: process.env.GAS_PRICE,
         GAS: process.env.GAS,
         STAKING: process.env.STAKING,
-        PARAMS_ENDPOINT: process.env.PARAMS_ENDPOINT,
         BLOCK_EXPLORER: process.env.BLOCK_EXPLORER,
         MESSAGE_TYPE_URL: '/gravity.v1.MsgSendToEth',
     },

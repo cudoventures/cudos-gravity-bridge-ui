@@ -8,6 +8,7 @@ export default interface Ledger {
     account: string,
     walletError: string,
     txHash: string,
+    txNonce: Number,
     connect: () => Promise<void>,
     disconnect: () => Promise<void>,
     send: (amount: BigNumber, destination: string) => Promise<void>,
