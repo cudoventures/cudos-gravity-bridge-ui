@@ -56,6 +56,7 @@ interface State {
     isLoading: boolean;
     errorMessage: string;
     txHash: string;
+    destTxHash: string;
     minTransferAmount: BigNumber;
     minBridgeFeeAmount: BigNumber;
     estimatedGasFees: BigNumber;
@@ -66,6 +67,11 @@ const cudosMainLogo = '../../../../resources/common/img/favicon/cudos-40x40.svg'
 const cudosFont = '../../../../resources/common/img/favicon/cudos-font.svg'
 const transferLogoAlt = '../../../../resources/common/img/favicon/transfer-logo-alt.svg'
 const keplrLink = 'https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap?hl=en'
+
+const GRAVITY_TX_BY_HASH_REST_ENDPOINT = '/cosmos/tx/v1beta1/txs/'
+const GRAVITY_TXS_RPC_ENDPOINT = '/tx_search?query="message.action=\'/gravity.v1.MsgSendToCosmosClaim\'"'
+const PARAMS_REST_ENDPOINT = '/gravity/v1beta/params'
+const BLOCK_HEIGHT__RPC_ENDPOINT = '/abci_info'
 
 export default class CudosBridgeComponent extends ContextPageComponent<Props, State> {
 
@@ -105,6 +111,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             isLoading: false,
             errorMessage: null,
             txHash: null,
+            destTxHash: null,
             minTransferAmount: new BigNumber(0),
             minBridgeFeeAmount: new BigNumber(0),
             estimatedGasFees: new BigNumber(0),
@@ -123,11 +130,11 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         const url: string = Config.CUDOS_NETWORK.API + '/bank/balances/' + account;
         const response = await axios.get(url);
         let accountBalance: string;
-            if (response.status === 200 && response.data.result[0]) {
-                accountBalance = response.data.result[0].amount;
-                } else {
-                    accountBalance = '0';
-            }
+        if (response.status === 200 && response.data.result[0]) {
+            accountBalance = response.data.result[0].amount;
+            } else {
+                accountBalance = '0';
+        }
         return accountBalance;
     }
 
@@ -462,12 +469,18 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
     executeTransaction = async () => {
         this.setState({ preFlight: false })
         try {
+
             this.props.appStore.disableActions();
             this.setState({ isTransferring: true, isLoading: true })
             const ledger = await this.checkWalletConnected();
             await ledger.send(this.state.amount, this.getAddress(this.state.selectedToNetwork, 0));
             const txHash = ledger.txHash
-            this.setState({ isOpen: true, isLoading: false, txHash })
+
+            let destTxHash = '';
+            if (!this.isFromCosmos(this.state.selectedFromNetwork)) {
+                destTxHash = await this.getCosmosGravityTxByNonce(ledger.txNonce);
+            }
+            this.setState({ isOpen: true, isLoading: false, txHash, destTxHash });
         } catch (e) {
             const ledger = await this.checkWalletConnected();
             this.setState({ isTransactionFail: true, isLoading: false, errorMessage: ledger.walletError });
@@ -673,8 +686,8 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         const simulatedMsg = [{
             typeUrl: Config.CUDOS_NETWORK.MESSAGE_TYPE_URL,
             value: {
-                sender: sender,
-                ethDest:destination,
+                sender,
+                ethDest: destination,
                 amount: {
                     amount: stringifiedAmount,
                     denom: CosmosNetworkH.CURRENCY_DENOM,
@@ -689,19 +702,19 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
 
         const approxCost = await ledger.EstimateFee(
             client,
-            GasPrice.fromString(Config.CUDOS_NETWORK.FEE+'acudos'),
-            account.address, 
-            simulatedMsg, 
-            'Fee Estimation Message'
-            );
+            GasPrice.fromString(Config.CUDOS_NETWORK.GAS_PRICE+'acudos'),
+            account.address,
+            simulatedMsg,
+            'Fee Estimation Message',
+        );
 
         const estimatedCost = approxCost.amount[0]?approxCost.amount[0].amount:'0';
         simulatedCost = new BigNumber(estimatedCost).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO)
         return simulatedCost;
-      }
+    }
 
     getMinTransferAndBridgeFeeAmounts = async (): Promise<void> => {
-        const response = await axios.get(Config.CUDOS_NETWORK.PARAMS_ENDPOINT);
+        const response = await axios.get(Config.CUDOS_NETWORK.API + PARAMS_REST_ENDPOINT);
         const minTransferAmount = response.data.params.minimum_transfer_to_eth;
         const minBridgeFeeAmount = response.data.params.minimum_fee_transfer_to_eth;
 
@@ -716,6 +729,36 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             minTransferAmount: new BigNumber(minTransferAmount).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO),
             minBridgeFeeAmount: new BigNumber(minBridgeFeeAmount).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO),
         })
+    }
+
+    getCosmosGravityTxByNonce = async (nonce: Number): Promise<string> => {
+        let result = '';
+        const heightRes = await (await fetch(Config.CUDOS_NETWORK.RPC + BLOCK_HEIGHT__RPC_ENDPOINT)).json();
+        let height = heightRes.result.response.last_block_height;
+        while (result === '') {
+            const txData = await (await fetch(Config.CUDOS_NETWORK.RPC + GRAVITY_TXS_RPC_ENDPOINT)).json();
+            const txHashes: string[] = txData.result.txs.filter((tx) => tx.height > height).map((tx) => tx.hash);
+
+            height = txData.result.txs.reduce((a, b) => {
+                return a.height > b.height ? a : b;
+            }).height;
+
+            for (let i=0; i < txHashes.length; i++) {
+                const hash = txHashes[i];
+                let res = await (await fetch(Config.CUDOS_NETWORK.API + GRAVITY_TX_BY_HASH_REST_ENDPOINT + hash)).json();
+                const txEventNonce = res.tx.body.messages[0].event_nonce;
+
+                if (nonce === txEventNonce) {
+                    console.log("FOUNDDD");
+                    result = hash;
+                    return result;
+                }
+            }
+
+            await new Promise((resolve) => setTimeout(resolve, 10000));
+        }
+
+        return '';
     }
 
     renderContent() {
@@ -751,6 +794,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                         selectedFromNetwork={this.state.selectedFromNetwork}
                         selectedToNetwork={this.state.selectedToNetwork}
                         txHash={this.state.txHash}
+                        destTxHash={this.state.destTxHash}
                         closeModal={() => this.setState({ isOpen: false, displayAmount: S.Strings.EMPTY })}
                         isOpen={this.state.isOpen}
                         onGetBalance={this.onGetBalance}
