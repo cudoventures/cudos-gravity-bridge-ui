@@ -17,6 +17,7 @@ export default class MetamaskLedger implements Ledger {
     @observable account: string;
     @observable walletError: string;
     @observable txHash: string;
+    @observable txNonce: Number;
     erc20Instance: any;
     gas: string;
 
@@ -93,9 +94,10 @@ export default class MetamaskLedger implements Ledger {
                             }
 
                             gravityContract.methods.sendToCosmos(Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS, `0x${toHex(addressBytes32Array)}`, stringAmount).send({ from: account, gas: this.gas })
-                                .on('receipt', (confirmationNumber, receipt) => {
+                                .on('receipt', (confirmationNumber) => {
                                     resolve();
                                     this.txHash = confirmationNumber.transactionHash;
+                                    this.txNonce = confirmationNumber.events.SendToCosmosEvent.returnValues._eventNonce;
                                 })
                                 .on('error', (e) => {
                                     reject();

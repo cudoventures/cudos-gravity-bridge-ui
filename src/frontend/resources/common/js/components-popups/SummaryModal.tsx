@@ -17,6 +17,7 @@ const SummaryModal = ({
     displayAmount,
     onGetBalance,
     txHash,
+    destTxHash,
 }
     : { closeModal: Function,
         isOpen: boolean,
@@ -26,6 +27,7 @@ const SummaryModal = ({
         displayAmount: string,
         onGetBalance: Function,
         txHash: string,
+        destTxHash: string,
     }) => {
 
     const CUDOS_SUCCESS_MESSAGE = `Your bridge transaction was successfully submitted to ${ProjectUtils.CUDOS_NETWORK_TEXT}. It is awaiting to be included in a batch and can take up to 120 ${ProjectUtils.CUDOS_NETWORK_TEXT} blocks to be fully executed on ${ProjectUtils.ETHEREUM_NETWORK_TEXT}.`;
@@ -109,10 +111,18 @@ const SummaryModal = ({
                             </div>
                             <div className={'Row Spacing LinkWrapper'}>
                                 <div className={'LinkContent'}><a href= {`${selectedFromNetwork ? CUDOS_EXPLORER : ETHERSCAN_EXPLORER}/${txHash}`} rel='noreferrer' target='_blank'>
-                                    Bridge transaction link</a>
+                                    {selectedFromNetwork ? 'Cudos' : 'Ethereum'} Bridge transaction link</a>
                                 <div className={'LinkIcon'} style={ProjectUtils.makeBgImgStyle(linkIcon)} />
                                 </div>
                             </div>
+                            { selectedFromNetwork ? ''
+                                : <div className={'Row Spacing LinkWrapper'}>
+                                    <div className={'LinkContent'}><a href= {`${CUDOS_EXPLORER}/${txHash}`} rel='noreferrer' target='_blank'>
+                                        Cudos Bridge transaction link</a>
+                                    <div className={'LinkIcon'} style={ProjectUtils.makeBgImgStyle(linkIcon)} />
+                                    </div>
+                                </div>
+                            }
                             <div className={'Row DoubleSpacing'}>
                                 <div className={'TransactionMesasge'}>
                                     <div className={'AttentionIcon'} style={ProjectUtils.makeBgImgStyle(attentionIcon)}/>
