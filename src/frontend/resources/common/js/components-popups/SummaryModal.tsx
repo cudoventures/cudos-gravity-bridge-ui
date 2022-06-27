@@ -37,6 +37,9 @@ const SummaryModal = ({
     const fromNetwork = selectedFromNetwork ? 'CUDOS' : 'Ethereum';
     const ToNetwork = selectedToNetwork ? 'CUDOS' : 'Ethereum';
 
+    const CUDOS_SUCCESS_MESSAGE = 'Your bridge transaction was successfully submitted to Cudos. It is awaiting to be included in a batch and can take up to 120 CUDOS blocks to be fully executed on ethereum.';
+    const ETHEREUM_SUCCESS_MESSAGE = 'Your bridge transaction was successfully submitted to Ethereum and will be fully executed on Cudos in roughly 6 minutes.';
+
     const ETHERSCAN_EXPLORER = 
         Config.CUDOS_NETWORK.NETWORK_TYPE === "mainnet"?
             Config.ETHEREUM.ETHERSCAN_MAINNET:
@@ -112,7 +115,7 @@ const SummaryModal = ({
                             <div className={'Row DoubleSpacing'}>
                                 <div className={'TransactionMesasge'}>
                                     <div className={'AttentionIcon'} style={ProjectUtils.makeBgImgStyle(attentionIcon)}/>
-                                    Your transaction was sent successfully and will be executed in the next max 5-6 minutes.
+                                    <div>{ selectedFromNetwork ? CUDOS_SUCCESS_MESSAGE : ETHEREUM_SUCCESS_MESSAGE}</div>
                                 </div>
                             </div>
                             <div className={'Flex DoubleSpacing BtnWrapper'}>
