@@ -210,7 +210,6 @@ const Config = {
         GAS: process.env.GAS,
         STAKING: process.env.STAKING,
         BLOCK_EXPLORER: process.env.BLOCK_EXPLORER,
-        MESSAGE_TYPE_URL: '/gravity.v1.MsgSendToEth',
     },
     ORCHESTRATOR: {
         ERC20_CONTRACT_ADDRESS: process.env.ERC20_CONTRACT_ADDRESS,

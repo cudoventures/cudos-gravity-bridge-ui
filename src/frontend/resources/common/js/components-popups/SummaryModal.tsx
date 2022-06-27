@@ -31,7 +31,7 @@ const SummaryModal = ({
     }) => {
 
     const CUDOS_SUCCESS_MESSAGE = `Your bridge transaction was successfully submitted to ${ProjectUtils.CUDOS_NETWORK_TEXT}. It is awaiting to be included in a batch and can take up to 120 ${ProjectUtils.CUDOS_NETWORK_TEXT} blocks to be fully executed on ${ProjectUtils.ETHEREUM_NETWORK_TEXT}.`;
-    const ETHEREUM_SUCCESS_MESSAGE = `Your bridge transaction was successfully submitted to ${ProjectUtils.ETHEREUM_NETWORK_TEXT} and will be fully executed on ${ProjectUtils.CUDOS_NETWORK_TEXT} in roughly 6 minutes.`;
+    const ETHEREUM_SUCCESS_MESSAGE = `Your bridge transaction was successfully submitted to ${ProjectUtils.ETHEREUM_NETWORK_TEXT} and ${ProjectUtils.CUDOS_NETWORK_TEXT}.`;
 
     const cudosLogoSmall = '../../../../resources/common/img/favicon/cudos-18x18.svg';
     const ethLogoSmall = '../../../../resources/common/img/favicon/eth-18x18.svg';

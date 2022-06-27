@@ -8,7 +8,7 @@ export default interface Ledger {
     account: string,
     walletError: string,
     txHash: string,
-    txNonce: Number,
+    txNonce: string,
     connect: () => Promise<void>,
     disconnect: () => Promise<void>,
     send: (amount: BigNumber, destination: string) => Promise<void>,
@@ -17,7 +17,6 @@ export default interface Ledger {
         gas: string;
     }>,
     GetKeplrClientAndAccount: () => Promise<any[]>,
-    requestBatch: () => Promise < void >,
     isAddressValid: (address: string) => boolean,
     getBalance(): Promise<BigNumber>,
 }

@@ -114,7 +114,6 @@ export default class KeplrLedger implements Ledger {
                 },
             });
         } catch (ex) {
-            console.log(ex);
             this.walletError = 'Failed to suggest the chain'
         }
 
@@ -169,7 +168,7 @@ export default class KeplrLedger implements Ledger {
         const offlineSigner = window.getOfflineSigner(this.chainID);
         const myRegistry = new Registry([
             ...defaultRegistryTypes,
-            [Config.CUDOS_NETWORK.MESSAGE_TYPE_URL, MsgSendToEth],
+            [CosmosNetworkH.MESSAGE_TYPE_URL, MsgSendToEth],
         ]);
         const client = await SigningStargateClient.connectWithSigner(this.rpcEndpoint, offlineSigner, {
             registry: myRegistry,
@@ -184,7 +183,7 @@ export default class KeplrLedger implements Ledger {
         const [client, account] = await this.GetKeplrClientAndAccount();
 
         const msgSend = [{
-            typeUrl: Config.CUDOS_NETWORK.MESSAGE_TYPE_URL,
+            typeUrl: CosmosNetworkH.MESSAGE_TYPE_URL,
             value: {
                 sender: account.address,
                 ethDest: destiantionAddress,
@@ -203,76 +202,23 @@ export default class KeplrLedger implements Ledger {
             this.walletError = null;
             const msgFee = await this.EstimateFee(
                 client,
-                GasPrice.fromString(Config.CUDOS_NETWORK.FEE+'acudos'),
-                account.address, 
-                msgSend, 
-                'Fee Estimation Message'
-              );
+                GasPrice.fromString(`${Config.CUDOS_NETWORK.GAS_PRICE}acudos`),
+                account.address,
+                msgSend,
+                'Fee Estimation Message',
+            );
 
             const result = await client.signAndBroadcast(
                 account.address,
                 msgSend,
                 msgFee,
-                'Sent with CUDOS Gravity Bridge'
+                'Sent with CUDOS Gravity Bridge',
             );
 
             this.txHash = result.transactionHash;
             assertIsDeliverTxSuccess(result);
         } catch (e) {
-            console.log(e);
             throw new Error(this.walletError = 'Failed to send transaction!');
-        }
-    }
-
-    async requestBatch() {
-        const proposalTypePath = '/gravity.v1.MsgRequestBatch'
-
-        const chainId = Config.CUDOS_NETWORK.CHAIN_ID;
-        await window.keplr.enable(chainId);
-        const offlineSigner = window.getOfflineSigner(chainId);
-
-        const account = (await offlineSigner.getAccounts())[0];
-
-        const msgSend = [{
-            typeUrl: proposalTypePath,
-            value: {
-                sender: account.address,
-                denom: CosmosNetworkH.CURRENCY_DENOM,
-            },
-
-        }];
-
-        const msgFee = {
-            amount: [{
-                denom: CosmosNetworkH.CURRENCY_DENOM,
-                amount: Config.CUDOS_NETWORK.FEE,
-            }],
-            gas: Config.CUDOS_NETWORK.GAS,
-        }
-
-        try {
-            this.walletError = null;
-            const myRegistry = new Registry([
-                ...defaultRegistryTypes,
-                [proposalTypePath, MsgRequestBatch],
-            ])
-
-            const rpcEndpoint = Config.CUDOS_NETWORK.RPC;
-            const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, offlineSigner, {
-                registry: myRegistry,
-            });
-
-            const result = await client.signAndBroadcast(
-                account.address,
-                msgSend,
-                msgFee,
-            );
-
-            assertIsBroadcastTxSuccess(result);
-        } catch (e) {
-            console.log(e);
-            this.walletError = 'Failed to send transaction!'
-            throw new Error('Failed to send transaction!');
         }
     }
 
@@ -287,7 +233,6 @@ export default class KeplrLedger implements Ledger {
 
             return new BigNumber(amount).div(CosmosNetworkH.CURRENCY_1_CUDO);
         } catch (e) {
-            console.log(e);
             this.walletError = 'Failed to get balance!'
         }
     }

@@ -1,14 +1,13 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
-import { createMuiTheme } from '@material-ui/core/styles';
+import { createTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
 import MuiButton from '@material-ui/core/Button';
 
 import './../../css/components-inc/button.css';
 import S from '../utilities/Main';
 
-const theme01 = createMuiTheme({
+const theme01 = createTheme({
     palette: {
         action: {
             disabledBackground: 'rgba(54, 62, 89, 1)',
@@ -25,7 +24,7 @@ const theme01 = createMuiTheme({
     },
 });
 
-const theme02 = createMuiTheme({
+const theme02 = createTheme({
     palette: {
         action: {
             disabledBackground: 'rgba(99, 109, 143, 0.3)',

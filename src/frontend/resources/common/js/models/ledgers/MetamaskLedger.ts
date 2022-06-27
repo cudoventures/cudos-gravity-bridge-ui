@@ -17,7 +17,7 @@ export default class MetamaskLedger implements Ledger {
     @observable account: string;
     @observable walletError: string;
     @observable txHash: string;
-    @observable txNonce: Number;
+    @observable txNonce: string;
     erc20Instance: any;
     gas: string;
 
@@ -61,7 +61,6 @@ export default class MetamaskLedger implements Ledger {
 
     async disconnect(): Promise<void> {
         return new Promise < void >((resolve, reject) => {
-            console.log('disconnecting...');
             resolve();
         });
     }
@@ -109,12 +108,6 @@ export default class MetamaskLedger implements Ledger {
             run();
         });
 
-    }
-
-    async requestBatch(): Promise<void> {
-        return new Promise < void >((resolve, reject) => {
-            resolve();
-        });
     }
 
     async getBalance(): Promise<BigNumber> {

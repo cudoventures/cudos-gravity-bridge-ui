@@ -55,7 +55,6 @@ const TransferForm = ({
         window.addEventListener('keplr_keystorechange', async () => {
             await connectWallet(KEPLR_WALLET);
             await onChangeAccount(KEPLR_WALLET)
-            console.log('reconnect Keplr...');
         });
     }, []);
 
@@ -66,7 +65,6 @@ const TransferForm = ({
                 localStorage.setItem('manualAccountChange', 'true')
                 await connectWallet(METAMASK_WALLET);
                 await onChangeAccount(METAMASK_WALLET);
-                console.log('reconnect Metamask...');
             });
         }
     }, []);
