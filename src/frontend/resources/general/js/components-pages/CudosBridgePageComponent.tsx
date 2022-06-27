@@ -27,6 +27,7 @@ import Web3 from 'web3';
 import ERC20TokenAbi from '../../../common/js/solidity/contract_interfaces/ERC20_token.json';
 import axios from 'axios';
 import { GasPrice } from '@cosmjs/launchpad';
+
 interface Props extends ContextPageComponentProps {
     networkStore: NetworkStore;
 }
@@ -120,14 +121,15 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
     }
 
     getAccountBalance = async (account: string): Promise<string> => {
-        const url: string = Config.CUDOS_NETWORK.API + '/bank/balances/' + account;
+        const url: string = `${Config.CUDOS_NETWORK.API}/bank/balances/${account}`;
         const response = await axios.get(url);
+
         let accountBalance: string;
-            if (response.status === 200 && response.data.result[0]) {
-                accountBalance = response.data.result[0].amount;
-                } else {
-                    accountBalance = '0';
-            }
+        if (response.status === 200 && response.data.result[0]) {
+            accountBalance = response.data.result[0].amount;
+        } else {
+            accountBalance = '0';
+        }
         return accountBalance;
     }
 
@@ -314,7 +316,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         const ledger = await this.checkWalletConnected();
         const fromNetwork = this.state.selectedFromNetwork;
         const maxButtonMultiplier = 1.05; // Fixing issue, when fee estimates are less for MAX amount than smaller number entered by hand.
-        let balance = await ledger.getBalance();
+        const balance = await ledger.getBalance();
         let simulatedCost = new BigNumber(0);
 
         if (!balance) { return }
@@ -360,7 +362,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         let validAmount = false;
         let amountError = S.INT_TRUE;
         let simulatedCost = new BigNumber(0);
-        
+
         this.setState({
             amount: bigAmount,
             displayAmount: amount,
@@ -372,14 +374,15 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             minBridgeFeeAmount = this.state.minBridgeFeeAmount;
         }
 
-        if (!bigAmount.isNaN() && 
-        !bigAmount.isLessThan(new BigNumber(1).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO)) && 
-        this.validCudosNumber(amount) && 
-        !bigAmount.isGreaterThan(BigNumber.minimum(this.state.walletBalance, this.state.contractBalance).minus(minBridgeFeeAmount).absoluteValue())) {
-            
+        if (!bigAmount.isNaN()
+            && !bigAmount.isLessThan(new BigNumber(1).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO))
+            && this.validCudosNumber(amount)
+            && !bigAmount.isGreaterThan(BigNumber.minimum(this.state.walletBalance, this.state.contractBalance).minus(minBridgeFeeAmount).absoluteValue())
+        ) {
+
             let maximumAmount = this.state.walletBalance.minus(minBridgeFeeAmount).minus(amount);
 
-            this.inputTimeouts.amount = setTimeout( async () => {    
+            this.inputTimeouts.amount = setTimeout(async () => {
                 if (this.isFromCosmos(fromNetwork)) {
                     simulatedCost = await this.simulatedMsgsCost(amount);
                     maximumAmount = maximumAmount.minus(simulatedCost);
@@ -390,24 +393,24 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                     amountError = S.INT_FALSE
                 }
 
-                this.setState({ 
-                    validAmount: validAmount,
-                    amountError: amountError,
-                    estimatedGasFees: simulatedCost
+                this.setState({
+                    validAmount,
+                    amountError,
+                    estimatedGasFees: simulatedCost,
                 });
             }, 200);
 
             return;
         }
 
-        this.setState({ 
-            validAmount: validAmount,
-            amountError: amountError,
-            estimatedGasFees: simulatedCost
+        this.setState({
+            validAmount,
+            amountError,
+            estimatedGasFees: simulatedCost,
         });
     }
 
-    onChangeDestinationAddress = (address) => {
+    onChangeDestinationAddress = (address: string) => {
         clearTimeout(this.inputTimeouts.destiantionAddress);
 
         this.setState({
@@ -454,8 +457,8 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             preFlightAmount: this.state.displayAmount,
             preFlightFromAddress: this.getAddress(this.state.selectedFromNetwork, 6),
             preFlightToAddress: this.getAddress(this.state.selectedToNetwork, 6),
-            preFlightFromNetwork: this.state.selectedFromNetwork ? 'CUDOS' : 'Ethereum',
-            preFlightToNetwork: this.state.selectedToNetwork ? 'CUDOS' : 'Ethereum',
+            preFlightFromNetwork: this.state.selectedFromNetwork ? ProjectUtils.CUDOS_NETWORK_TEXT : ProjectUtils.ETHEREUM_NETWORK_TEXT,
+            preFlightToNetwork: this.state.selectedToNetwork ? ProjectUtils.CUDOS_NETWORK_TEXT : ProjectUtils.ETHEREUM_NETWORK_TEXT,
         })
     }
 
@@ -628,6 +631,8 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         } catch (e) {
             this.showAlertError(e.toString());
         }
+
+        return '';
     }
 
     formatText(text: string, sliceIndex: number): string {
@@ -649,9 +654,9 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
     }
 
     validCudosNumber = (amount: string) => {
-        //Should be a whole number or a float with maximum 18 digits after the point
-        const checkResult = amount.replace(/^[0-9]+\.?[0-9]{0,18}$/gm, "OK");
-        return checkResult === "OK";
+        // Should be a whole number or a float with maximum 18 digits after the point
+        const checkResult = amount.replace(/^[0-9]+\.?[0-9]{0,18}$/gm, 'OK');
+        return checkResult === 'OK';
     }
 
     simulatedMsgsCost = async (amount: string): Promise<BigNumber> => {
@@ -673,8 +678,8 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         const simulatedMsg = [{
             typeUrl: Config.CUDOS_NETWORK.MESSAGE_TYPE_URL,
             value: {
-                sender: sender,
-                ethDest:destination,
+                sender,
+                ethDest: destination,
                 amount: {
                     amount: stringifiedAmount,
                     denom: CosmosNetworkH.CURRENCY_DENOM,
@@ -689,16 +694,16 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
 
         const approxCost = await ledger.EstimateFee(
             client,
-            GasPrice.fromString(Config.CUDOS_NETWORK.FEE+'acudos'),
-            account.address, 
-            simulatedMsg, 
-            'Fee Estimation Message'
-            );
+            GasPrice.fromString(`${Config.CUDOS_NETWORK.FEE}acudos`),
+            account.address,
+            simulatedMsg,
+            'Fee Estimation Message',
+        );
 
-        const estimatedCost = approxCost.amount[0]?approxCost.amount[0].amount:'0';
+        const estimatedCost = approxCost.amount[0]?approxCost.amount[0].amount : '0';
         simulatedCost = new BigNumber(estimatedCost).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO)
         return simulatedCost;
-      }
+    }
 
     getMinTransferAndBridgeFeeAmounts = async (): Promise<void> => {
         const response = await axios.get(Config.CUDOS_NETWORK.PARAMS_ENDPOINT);
@@ -730,14 +735,14 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                     </div>
                     <div className={'Header'} >Gravity Bridge</div>
                     <div className={'Wrapper'}>
-                        <span className={'TransferInfoBox'}>{this.state.selectedFromNetwork ? 'CUDOS' : 'Ethereum'}</span>
+                        <span className={'TransferInfoBox'}>{this.state.selectedFromNetwork ? ProjectUtils.CUDOS_NETWORK_TEXT : ProjectUtils.ETHEREUM_NETWORK_TEXT}</span>
                         <div className={'TransferWrapper'}>
                             <span className={'TransferLogoAlt'} style={ProjectUtils.makeBgImgStyle(transferLogoAlt)}></span>
                         </div>
-                        <span className={'TransferInfoBox'}>{this.state.selectedToNetwork ? 'CUDOS' : 'Ethereum'}</span>
+                        <span className={'TransferInfoBox'}>{this.state.selectedToNetwork ? ProjectUtils.CUDOS_NETWORK_TEXT : ProjectUtils.ETHEREUM_NETWORK_TEXT}</span>
                     </div>
                     <div className={'Subheader'}>
-                        <div>Transfer tokens between Ethereum and CUDOS. Connect a CUDOS and Ethereum account to get started</div>
+                        <div>Transfer tokens between {ProjectUtils.ETHEREUM_NETWORK_TEXT} and {ProjectUtils.CUDOS_NETWORK_TEXT}. Connect a {ProjectUtils.CUDOS_NETWORK_TEXT} and {ProjectUtils.ETHEREUM_NETWORK_TEXT} account to get started</div>
                     </div>
                 </div>
                 <div className={!this.state.summary ? 'PageContent' : 'SummaryContent'}>
@@ -768,8 +773,8 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                         transferAmount={this.state.preFlightAmount}
                         fromAddress={this.state.preFlightFromAddress}
                         toAddress={this.state.preFlightToAddress}
-                        fromNetwork={this.state.preFlightFromNetwork}
-                        toNetwork={this.state.preFlightToNetwork}
+                        selectedFromNetwork={this.state.selectedFromNetwork}
+                        selectedToNetwork={this.state.selectedToNetwork}
                     />
                     {!this.state.summary
                         ? <TransferForm
@@ -815,7 +820,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                     {this.state.summary
                         ? null
                         : <div className={'CreateAccount'}>
-                            <span>Need a CUDOS account? Create one <a rel='noreferrer' target='_blank' style={{ color: 'rgba(78, 148, 238, 1)' }} href={keplrLink}>here</a></span>
+                            <span>Need a {ProjectUtils.CUDOS_NETWORK_TEXT} account? Create one <a rel='noreferrer' target='_blank' style={{ color: 'rgba(78, 148, 238, 1)' }} href={keplrLink}>here</a></span>
                         </div>
                     }
                 </div>

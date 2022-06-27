@@ -13,8 +13,8 @@ const PreFlightModal = ({
     transferAmount,
     fromAddress,
     toAddress,
-    fromNetwork,
-    toNetwork,
+    selectedFromNetwork,
+    selectedToNetwork,
 }
 : {
     closeModal: Function
@@ -23,12 +23,15 @@ const PreFlightModal = ({
     transferAmount: string
     fromAddress: string
     toAddress: string
-    fromNetwork: string
-    toNetwork: string
+    selectedFromNetwork: number
+    selectedToNetwork: number
 }) => {
 
     const attentionLogo = '../../../../resources/common/img/favicon/attention.svg';
     const closeIcon = '../../../../resources/common/img/favicon/close-icon-24x24.svg';
+
+    const fromNetwork = selectedFromNetwork ? ProjectUtils.CUDOS_NETWORK_TEXT : ProjectUtils.ETHEREUM_NETWORK_TEXT;
+    const toNetwork = selectedToNetwork ? ProjectUtils.CUDOS_NETWORK_TEXT : ProjectUtils.ETHEREUM_NETWORK_TEXT;
 
     return (
         <ModalComponent closeModal={closeModal} isOpen={isOpen}>
@@ -49,9 +52,9 @@ const PreFlightModal = ({
                     <p>I agree and want to send {transferAmount} CUDOS</p>
                     <dl>
                         <dt>from:</dt>
-                            <dd>{fromAddress} @ {fromNetwork} network</dd>
+                        <dd>{fromAddress} @ {fromNetwork} network</dd>
                         <dt>to:</dt>
-                            <dd>{toAddress} @ {toNetwork} network</dd>
+                        <dd>{toAddress} @ {toNetwork} network</dd>
                     </dl>
                 </div>
                 <div className={'Flex DoubleSpacing BtnWrapper'}>

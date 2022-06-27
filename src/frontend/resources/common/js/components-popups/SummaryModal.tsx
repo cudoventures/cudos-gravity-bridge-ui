@@ -6,6 +6,7 @@ import Config from '../../../../../../builds/dev-generated/Config';
 
 import Button from '../components-inc/Button';
 import ProjectUtils from '../ProjectUtils';
+import CosmosNetworkH from '../models/ledgers/CosmosNetworkH';
 
 const SummaryModal = ({
     closeModal,
@@ -27,6 +28,9 @@ const SummaryModal = ({
         txHash: string,
     }) => {
 
+    const CUDOS_SUCCESS_MESSAGE = `Your bridge transaction was successfully submitted to ${ProjectUtils.CUDOS_NETWORK_TEXT}. It is awaiting to be included in a batch and can take up to 120 ${ProjectUtils.CUDOS_NETWORK_TEXT} blocks to be fully executed on ${ProjectUtils.ETHEREUM_NETWORK_TEXT}.`;
+    const ETHEREUM_SUCCESS_MESSAGE = `Your bridge transaction was successfully submitted to ${ProjectUtils.ETHEREUM_NETWORK_TEXT} and will be fully executed on ${ProjectUtils.CUDOS_NETWORK_TEXT} in roughly 6 minutes.`;
+
     const cudosLogoSmall = '../../../../resources/common/img/favicon/cudos-18x18.svg';
     const ethLogoSmall = '../../../../resources/common/img/favicon/eth-18x18.svg';
     const successIcon = '../../../../resources/common/img/favicon/successs-icon.svg';
@@ -34,16 +38,13 @@ const SummaryModal = ({
     const attentionIcon = '../../../../resources/common/img/favicon/attention-20x20.svg';
     const linkIcon = '../../../../resources/common/img/favicon/link-icon.svg';
 
-    const fromNetwork = selectedFromNetwork ? 'CUDOS' : 'Ethereum';
-    const ToNetwork = selectedToNetwork ? 'CUDOS' : 'Ethereum';
+    const fromNetwork = selectedFromNetwork ? ProjectUtils.CUDOS_NETWORK_TEXT : ProjectUtils.ETHEREUM_NETWORK_TEXT;
+    const toNetwork = selectedToNetwork ? ProjectUtils.CUDOS_NETWORK_TEXT : ProjectUtils.ETHEREUM_NETWORK_TEXT;
 
-    const CUDOS_SUCCESS_MESSAGE = 'Your bridge transaction was successfully submitted to Cudos. It is awaiting to be included in a batch and can take up to 120 CUDOS blocks to be fully executed on ethereum.';
-    const ETHEREUM_SUCCESS_MESSAGE = 'Your bridge transaction was successfully submitted to Ethereum and will be fully executed on Cudos in roughly 6 minutes.';
-
-    const ETHERSCAN_EXPLORER = 
-        Config.CUDOS_NETWORK.NETWORK_TYPE === "mainnet"?
-            Config.ETHEREUM.ETHERSCAN_MAINNET:
-            Config.ETHEREUM.ETHERSCAN_RINKEBY
+    const ETHERSCAN_EXPLORER =
+        Config.CUDOS_NETWORK.NETWORK_TYPE === 'mainnet'
+            ? Config.ETHEREUM.ETHERSCAN_MAINNET
+            : Config.ETHEREUM.ETHERSCAN_RINKEBY
     const CUDOS_EXPLORER = Config.CUDOS_NETWORK.BLOCK_EXPLORER;
 
     const onCloseModal = async () => {
@@ -75,7 +76,7 @@ const SummaryModal = ({
                                 </span>
                                 <span className={'FlexStart'}>
                                     <div className={selectedToNetwork ? 'CudosLogoSmall NoMarginLeft' : 'EthLogoSmall NoMarginLeft'} style={selectedToNetwork ? ProjectUtils.makeBgImgStyle(cudosLogoSmall) : ProjectUtils.makeBgImgStyle(ethLogoSmall)}></div>
-                                    <div className={'AlignCenter Weight500'}>{ToNetwork}</div>
+                                    <div className={'AlignCenter Weight500'}>{toNetwork}</div>
                                 </span>
                             </div>
                             <div className={'Row Spacing'}>
@@ -94,14 +95,14 @@ const SummaryModal = ({
                             </div>
                             <div className={'Row Spacing'}>
                                 <span className={'FlexStart GrayText Weight600 Cudos'}>{!displayAmount ? '0.0' : displayAmount}</span>
-                                <span className={'FlexStart GrayText Asset Weight600 FlexRight'}>CUDOS</span>
+                                <span className={'FlexStart GrayText Asset Weight600 FlexRight'}>{CosmosNetworkH.CURRENCY_DISPLAY_NAME}</span>
                             </div>
                             {/* Gas Fee temporarily disabled */}
                             {/* <div className={'Row DoubleSpacing TopBorder'}>
                                 <span className={'FlexStart'}>
                             Gas Fee
                                 </span>
-                                <span className={'FlexEnd Weight600'}>0.00012 CUDOS</span>
+                                <span className={'FlexEnd Weight600'}>0.00012 {CosmosNetworkH.CURRENCY_DISPLAY_NAME}</span>
                             </div> */}
                             <div style={{ marginTop: '85px' }} className={'Row DoubleSpacing TopBorder'}>
                                 <div>Transaction</div>
