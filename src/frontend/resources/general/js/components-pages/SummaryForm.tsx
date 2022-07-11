@@ -114,12 +114,12 @@ const SummaryForm = (props: ISummaryFormProps) => {
                     <div className={'Flex'}>
                         <div className={'SummaryAddress'}>
                             <div className={'Amount Flex'}>
-                                <input 
-                                    inputMode='decimal' 
-                                    type='text' 
-                                    value={props.displayAmount} 
-                                    onChange={(e) => props.onChangeAmount(e.target.value)} 
-                                    className={'SummaryInput'} 
+                                <input
+                                    inputMode='decimal'
+                                    type='text'
+                                    value={props.displayAmount}
+                                    onChange={(e) => props.onChangeAmount(e.target.value)}
+                                    className={'SummaryInput'}
                                     placeholder='0'>
                                 </input>
                                 <Button

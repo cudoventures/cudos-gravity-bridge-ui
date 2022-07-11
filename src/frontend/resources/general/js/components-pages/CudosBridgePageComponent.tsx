@@ -332,7 +332,9 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
 
         if (maximumAmount.gt(0) && this.isFromCosmos(fromNetwork)) {
             maximumAmount = maximumAmount.minus(this.state.minBridgeFeeAmount);
-            simulatedCost = await this.simulatedMsgsCost(maximumAmount.toString());
+            if (maximumAmount.lte(0)) { return }
+
+            simulatedCost = await this.simulatedMsgsCost(maximumAmount.toFixed());
             maximumAmount = maximumAmount.minus(simulatedCost.multipliedBy(maxButtonMultiplier));
         }
 
@@ -378,14 +380,14 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             && this.validCudosNumber(amount)
         ) {
             this.inputTimeouts.amount = setTimeout(async () => {
-                let minBridgeFeeAmount = new BigNumber(0);
-
                 if (this.isFromCosmos(fromNetwork)) {
-                    minBridgeFeeAmount = this.state.minBridgeFeeAmount;
-                    simulatedCost = await this.simulatedMsgsCost(amount);
-                }
+                    if (bigAmount.plus(this.state.minBridgeFeeAmount).isLessThanOrEqualTo(this.state.walletBalance)) {
+                        simulatedCost = await this.simulatedMsgsCost(bigAmount.toString());
+                        bigAmount = bigAmount.plus(simulatedCost);
+                    }
 
-                bigAmount = bigAmount.plus(minBridgeFeeAmount).plus(simulatedCost);
+                    bigAmount = bigAmount.plus(this.state.minBridgeFeeAmount);
+                }
 
                 if (
                     bigAmount.isLessThanOrEqualTo(this.state.walletBalance)
@@ -709,7 +711,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             simulatedMsg,
             'Fee Estimation Message',
         );
-        const estimatedCost = approxCost.amount[0]?approxCost.amount[0].amount : '0';
+        const estimatedCost = approxCost.amount[0] ? approxCost.amount[0].amount : '0';
         simulatedCost = new BigNumber(estimatedCost).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO)
         return simulatedCost;
     }
@@ -747,10 +749,10 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                     return Number(a.height) > Number(b.height) ? a : b;
                 }, { height: 0 }).height;
 
-                for (let i=0; i < txHashes.length; i++) {
+                for (let i = 0; i < txHashes.length; i++) {
                     const hash = txHashes[i];
 
-                    let res = await (await fetch(Config.CUDOS_NETWORK.API + GRAVITY_TX_BY_HASH_REST_ENDPOINT + hash)).json();
+                    const res = await (await fetch(Config.CUDOS_NETWORK.API + GRAVITY_TX_BY_HASH_REST_ENDPOINT + hash)).json();
                     const txEventNonce = res.tx.body.messages[0].event_nonce;
 
                     if (nonce === txEventNonce) {
@@ -791,7 +793,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                     <LoadingModal
                         isOpen={this.state.isLoading}
                         closeModal={() => this.setState({ isTransactionFail: false, isOpen: false })}
-                        additionalText={ this.state.loadingModalAdditionalText }
+                        additionalText={this.state.loadingModalAdditionalText}
                     />
                     <SummaryModal
                         getAddress={this.getAddress}
@@ -824,7 +826,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                         ? <TransferForm
                             selectedFromNetwork={this.state.selectedFromNetwork}
                             selectedToNetwork={this.state.selectedToNetwork}
-                            isFromConnected = {this.state.isFromConnected}
+                            isFromConnected={this.state.isFromConnected}
                             isToConnected={this.state.isToConnected}
                             onDisconnectFromNetwork={this.onDisconnectFromNetwork}
                             onDisconnectToNetwork={this.onDisconnectToNetwork}
@@ -840,7 +842,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                         : <SummaryForm
                             selectedFromNetwork={this.state.selectedFromNetwork}
                             selectedToNetwork={this.state.selectedToNetwork}
-                            isFromConnected = {this.state.isFromConnected}
+                            isFromConnected={this.state.isFromConnected}
                             isToConnected={this.state.isToConnected}
                             contractBalance={this.state.contractBalance}
                             walletBalance={this.state.walletBalance}
@@ -857,8 +859,8 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                             isTransferring={this.state.isTransferring}
                             minTransferAmount={this.state.minTransferAmount}
                             minBridgeFeeAmount={this.state.minBridgeFeeAmount}
-                            estimatedGasFees = {this.state.estimatedGasFees}
-                            validAmount = {this.state.validAmount}
+                            estimatedGasFees={this.state.estimatedGasFees}
+                            validAmount={this.state.validAmount}
                         />
                     }
                     {this.state.summary
