@@ -403,7 +403,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                     amountError,
                     estimatedGasFees: simulatedCost,
                 });
-            }, 200);
+            }, 500);
 
             return;
         }
