@@ -118,20 +118,17 @@
 }
 
 .ModalContent .SummaryForm .AttentionIcon {
-    width: 40px;
-    height: 20px;
     margin-right: 7px;
-    padding-right: 7px;
-    align-self: center;
 }
 
-.AttentionIcon {
-    position: relative;
-    display: inline-block;
-  }
-  
-  /* Tooltip text */
-  .AttentionIcon .tooltiptext {
+.ModalContent .SummaryForm .AttentionIcon {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 auto;
+}
+
+/* Tooltip text */
+.AttentionIcon .tooltiptext {
     visibility: hidden;
     width: 120px;
     background-color: #555;
@@ -139,21 +136,21 @@
     text-align: center;
     padding: 5px 0;
     border-radius: 6px;
-  
+
     /* Position the tooltip text */
     position: absolute;
     z-index: 1;
     bottom: 125%;
     left: 50%;
     margin-left: -60px;
-  
+
     /* Fade in tooltip */
     opacity: 0;
     transition: opacity 0.3s;
-  }
-  
-  /* Tooltip arrow */
-  .AttentionIcon .tooltiptext::after {
+}
+
+/* Tooltip arrow */
+.AttentionIcon .tooltiptext::after {
     content: "";
     position: absolute;
     top: 100%;
@@ -162,13 +159,13 @@
     border-width: 5px;
     border-style: solid;
     border-color: #555 transparent transparent transparent;
-  }
-  
-  /* Show the tooltip text when you mouse over the tooltip container */
-  .AttentionIcon:hover .tooltiptext {
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.AttentionIcon:hover .tooltiptext {
     visibility: visible;
     opacity: 1;
-  }
+}
 
 .ModalContent .SummaryForm .LinkIcon {
     width: 18px;
@@ -225,5 +222,3 @@
 .ModalContent .SummaryForm .Weight600 {
     font-weight: 600;
 }
-
-

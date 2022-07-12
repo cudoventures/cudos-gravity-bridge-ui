@@ -7,6 +7,7 @@ import Config from '../../../../../../builds/dev-generated/Config';
 import Button from '../components-inc/Button';
 import ProjectUtils from '../ProjectUtils';
 import CosmosNetworkH from '../models/ledgers/CosmosNetworkH';
+import SvgAttention from '../../../../resources/common/img/favicon/attention.svg';
 
 const SummaryModal = ({
     closeModal,
@@ -19,7 +20,8 @@ const SummaryModal = ({
     txHash,
     destTxHash,
 }
-    : { closeModal: Function,
+    : {
+        closeModal: Function,
         isOpen: boolean,
         getAddress: Function,
         selectedFromNetwork: number,
@@ -37,16 +39,14 @@ const SummaryModal = ({
     const ethLogoSmall = '../../../../resources/common/img/favicon/eth-18x18.svg';
     const successIcon = '../../../../resources/common/img/favicon/successs-icon.svg';
     const closeIcon = '../../../../resources/common/img/favicon/close-icon-24x24.svg';
-    const attentionIcon = '../../../../resources/common/img/favicon/attention-20x20.svg';
     const linkIcon = '../../../../resources/common/img/favicon/link-icon.svg';
 
     const fromNetwork = selectedFromNetwork ? ProjectUtils.CUDOS_NETWORK_TEXT : ProjectUtils.ETHEREUM_NETWORK_TEXT;
     const toNetwork = selectedToNetwork ? ProjectUtils.CUDOS_NETWORK_TEXT : ProjectUtils.ETHEREUM_NETWORK_TEXT;
 
-    const ETHERSCAN_EXPLORER =
-        Config.CUDOS_NETWORK.NETWORK_TYPE === 'mainnet'
-            ? Config.ETHEREUM.ETHERSCAN_MAINNET
-            : Config.ETHEREUM.ETHERSCAN_RINKEBY
+    const ETHERSCAN_EXPLORER = Config.CUDOS_NETWORK.NETWORK_TYPE === 'mainnet'
+        ? Config.ETHEREUM.ETHERSCAN_MAINNET
+        : Config.ETHEREUM.ETHERSCAN_RINKEBY
     const CUDOS_EXPLORER = Config.CUDOS_NETWORK.BLOCK_EXPLORER;
 
     const onCloseModal = async () => {
@@ -110,23 +110,23 @@ const SummaryModal = ({
                                 <div>Transaction</div>
                             </div>
                             <div className={'Row Spacing LinkWrapper'}>
-                                <div className={'LinkContent'}><a href= {`${selectedFromNetwork ? CUDOS_EXPLORER : ETHERSCAN_EXPLORER}/${txHash}`} rel='noreferrer' target='_blank'>
+                                <div className={'LinkContent'}><a href={`${selectedFromNetwork ? CUDOS_EXPLORER : ETHERSCAN_EXPLORER}/${txHash}`} rel='noreferrer' target='_blank'>
                                     {selectedFromNetwork ? 'Cudos' : 'Ethereum'} Bridge transaction link</a>
-                                <div className={'LinkIcon'} style={ProjectUtils.makeBgImgStyle(linkIcon)} />
+                                    <div className={'LinkIcon'} style={ProjectUtils.makeBgImgStyle(linkIcon)} />
                                 </div>
                             </div>
-                            { selectedFromNetwork ? ''
+                            {selectedFromNetwork ? ''
                                 : <div className={'Row Spacing LinkWrapper'}>
-                                    <div className={'LinkContent'}><a href= {`${CUDOS_EXPLORER}/${txHash}`} rel='noreferrer' target='_blank'>
+                                    <div className={'LinkContent'}><a href={`${CUDOS_EXPLORER}/${destTxHash}`} rel='noreferrer' target='_blank'>
                                         Cudos Bridge transaction link</a>
-                                    <div className={'LinkIcon'} style={ProjectUtils.makeBgImgStyle(linkIcon)} />
+                                        <div className={'LinkIcon'} style={ProjectUtils.makeBgImgStyle(linkIcon)} />
                                     </div>
                                 </div>
                             }
                             <div className={'Row DoubleSpacing'}>
-                                <div className={'TransactionMesasge'}>
-                                    <div className={'AttentionIcon'} style={ProjectUtils.makeBgImgStyle(attentionIcon)}/>
-                                    <div>{ selectedFromNetwork ? CUDOS_SUCCESS_MESSAGE : ETHEREUM_SUCCESS_MESSAGE}</div>
+                                <div className={'TransactionMesasge FlexRow'}>
+                                    <div className={'AttentionIcon SVG Size'} dangerouslySetInnerHTML={{ __html: SvgAttention }} />
+                                    <div>{selectedFromNetwork ? CUDOS_SUCCESS_MESSAGE : ETHEREUM_SUCCESS_MESSAGE}</div>
                                 </div>
                             </div>
                             <div className={'Flex DoubleSpacing BtnWrapper'}>
