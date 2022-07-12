@@ -9,7 +9,7 @@ class ServerHelper {
         this.status = ServerHelper.STATUS_STOPPED;
     }
 
-    restart() {
+    async restart() {
         if (this.status === ServerHelper.STATUS_STARTING || this.status === ServerHelper.STATUS_STOPPING) {
             return;
         }
@@ -19,14 +19,8 @@ class ServerHelper {
             return;
         }
 
-        this.server.send('SERVER_MSG::EXIT');
-        this.server.on('exit', () => {
-            this.status = ServerHelper.STATUS_STOPPED;
-            this.start();
-        });
-        this.server = null;
-
-        this.status = ServerHelper.STATUS_STOPPING;
+        await this.stop();
+        this.start();
     }
 
     start() {
@@ -50,6 +44,33 @@ class ServerHelper {
             this.status = ServerHelper.STATUS_STOPPED;
         });
         this.status = ServerHelper.STATUS_STARTING;
+    }
+
+    stop() {
+        return new Promise((resolve, reject) => {
+            const run = async () => {
+                if (this.status === ServerHelper.STATUS_STOPPED || this.status === ServerHelper.STATUS_STOPPING) {
+                    resolve();
+                    return;
+                }
+
+                while (this.status === ServerHelper.STATUS_STARTING) {
+                    await new Promise((resolveInner, rejectInner) => { setTimeout(resolveInner, 100) });
+                }
+
+                if (this.status === ServerHelper.STATUS_STARTED) {
+                    this.server.send('SERVER_MSG::EXIT');
+                    this.server.on('exit', () => {
+                        this.status = ServerHelper.STATUS_STOPPED;
+                        resolve();
+                    });
+                    this.server = null;
+                    this.status = ServerHelper.STATUS_STOPPING;
+                }
+            }
+
+            run();
+        });
     }
 
     onStdOut(data) {

@@ -49,6 +49,15 @@ class DevTarget {
 
         if (serverHelper !== null) {
             serverHelper.start();
+
+            process.on('SIGINT', async () => {
+                await serverHelper.stop();
+                process.exit(0);
+            })
+            process.on('SIGTERM', async () => {
+                await serverHelper.stop();
+                process.exit(0);
+            })
         }
     }
 
