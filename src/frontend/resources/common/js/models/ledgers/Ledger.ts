@@ -1,6 +1,4 @@
-import { Coin, GasPrice } from '@cosmjs/launchpad';
-import { EncodeObject } from '@cosmjs/proto-signing';
-import { SigningStargateClient } from '@cosmjs/stargate';
+import { Coin, GasPrice, EncodeObject, StargateClient, SigningStargateClient, OfflineSigner, AccountData, StdFee } from 'cudosjs';
 import BigNumber from 'bignumber.js';
 
 export default interface Ledger {
@@ -9,14 +7,14 @@ export default interface Ledger {
     walletError: string,
     txHash: string,
     txNonce: string,
+    queryClient:StargateClient,
     connect: () => Promise<void>,
     disconnect: () => Promise<void>,
     send: (amount: BigNumber, destination: string) => Promise<void>,
-    EstimateFee: (client: SigningStargateClient, gasPrice: GasPrice, signerAddress: string, messages: readonly EncodeObject[], memo: string) => Promise<{
-        amount: Coin[];
-        gas: string;
-    }>,
-    GetKeplrClientAndAccount: () => Promise<any[]>,
+    EstimateFee: (client: SigningStargateClient, sender: string, messages: EncodeObject[], gasPrice: GasPrice,
+        memo?:string, gasMultiplier?: number) => Promise<StdFee>,
+    GetKeplrSignerAndAccount: () => Promise<[OfflineSigner, AccountData]>,
+    GetKeplrSigningClient: (offlineSigner:OfflineSigner) => Promise < SigningStargateClient >,
     isAddressValid: (address: string) => boolean,
     getBalance(): Promise<BigNumber>,
 }

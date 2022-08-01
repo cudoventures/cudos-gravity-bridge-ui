@@ -2,14 +2,13 @@ import Ledger from './Ledger';
 import { makeObservable, observable } from 'mobx';
 import S from '../../utilities/Main';
 import Config from '../../../../../../../builds/dev-generated/Config';
-import CosmosNetworkH from './CosmosNetworkH';
-import { MsgSendToEth, MsgRequestBatch } from '../../cosmos/codec/gravity/gravity/v1/msgs';
-import { assertIsBroadcastTxSuccess, SigningStargateClient, defaultRegistryTypes, assertIsDeliverTxSuccess } from '@cosmjs/stargate';
-import { EncodeObject, Registry } from '@cosmjs/proto-signing';
+import { AccountData, Coin, coin, OfflineSigner, StargateClient, CudosNetworkConsts, ClientSimulateFn, DeliverTxResponse, StdFee } from 'cudosjs';
+import { assertIsBroadcastTxSuccess, SigningStargateClient, defaultRegistryTypes, assertIsDeliverTxSuccess, checkValidAddress, estimateFee, generateMsg } from 'cudosjs';
+import { EncodeObject, Registry } from 'cudosjs';
 import BigNumber from 'bignumber.js';
-import { GasPrice } from '@cosmjs/launchpad';
-import { Uint53 } from "@cosmjs/math";
-import { coins } from "@cosmjs/amino";
+import { GasPrice } from 'cudosjs';
+import { Uint53 } from 'cudosjs';
+import { coins } from 'cudosjs';
 
 export default class KeplrLedger implements Ledger {
     @observable connected: number;
@@ -19,6 +18,7 @@ export default class KeplrLedger implements Ledger {
     @observable bridgeFee: BigNumber;
     @observable chainID: string;
     @observable rpcEndpoint: string;
+    queryClient: StargateClient
 
     static NETWORK_NAME = 'Cudos';
 
@@ -47,14 +47,14 @@ export default class KeplrLedger implements Ledger {
                 // Staking coin information
                 stakeCurrency: {
                     // Coin denomination to be displayed to the user.
-                    coinDenom: CosmosNetworkH.CURRENCY_DISPLAY_NAME,
+                    coinDenom: CudosNetworkConsts.CURRENCY_DISPLAY_NAME,
                     // Actual denom (i.e. uatom, uscrt) used by the blockchain.
-                    coinMinimalDenom: CosmosNetworkH.CURRENCY_DENOM,
+                    coinMinimalDenom: CudosNetworkConsts.CURRENCY_DENOM,
                     // # of decimal points to convert minimal denomination to user-facing denomination.
-                    coinDecimals: CosmosNetworkH.CURRENCY_DECIMALS,
+                    coinDecimals: CudosNetworkConsts.CURRENCY_DECIMALS,
                     // (Optional) Keplr can show the fiat value of the coin if a coingecko id is provided.
                     // You can get id from https://api.coingecko.com/api/v3/coins/list if it is listed.
-                    coinGeckoId: CosmosNetworkH.CURRENCY_COINGECKO_ID,
+                    coinGeckoId: CudosNetworkConsts.CURRENCY_COINGECKO_ID,
                 },
                 // (Optional) If you have a wallet webpage used to stake the coin then provide the url to the website in `walletUrlForStaking`.
                 // The 'stake' button in Keplr extension will link to the webpage.
@@ -63,36 +63,36 @@ export default class KeplrLedger implements Ledger {
                 bip44: {
                     // You can only set the coin type of BIP44.
                     // 'Purpose' is fixed to 44.
-                    coinType: CosmosNetworkH.LEDGER_COIN_TYPE,
+                    coinType: CudosNetworkConsts.LEDGER_COIN_TYPE,
                 },
                 bech32Config: {
-                    bech32PrefixAccAddr: CosmosNetworkH.BECH32_PREFIX_ACC_ADDR,
-                    bech32PrefixAccPub: CosmosNetworkH.BECH32_PREFIX_ACC_PUB,
-                    bech32PrefixValAddr: CosmosNetworkH.BECH32_PREFIX_VAL_ADDR,
-                    bech32PrefixValPub: CosmosNetworkH.BECH32_PREFIX_VAL_PUB,
-                    bech32PrefixConsAddr: CosmosNetworkH.BECH32_PREFIX_CONS_ADDR,
-                    bech32PrefixConsPub: CosmosNetworkH.BECH32_PREFIX_CONS_PUB,
+                    bech32PrefixAccAddr: CudosNetworkConsts.BECH32_PREFIX_ACC_ADDR,
+                    bech32PrefixAccPub: CudosNetworkConsts.BECH32_PREFIX_ACC_PUB,
+                    bech32PrefixValAddr: CudosNetworkConsts.BECH32_PREFIX_VAL_ADDR,
+                    bech32PrefixValPub: CudosNetworkConsts.BECH32_PREFIX_VAL_PUB,
+                    bech32PrefixConsAddr: CudosNetworkConsts.BECH32_PREFIX_CONS_ADDR,
+                    bech32PrefixConsPub: CudosNetworkConsts.BECH32_PREFIX_CONS_PUB,
                 },
                 // List of all coin/tokens used in this chain.
                 currencies: [{
                     // Coin denomination to be displayed to the user.
-                    coinDenom: CosmosNetworkH.CURRENCY_DISPLAY_NAME,
+                    coinDenom: CudosNetworkConsts.CURRENCY_DISPLAY_NAME,
                     // Actual denom (i.e. uatom, uscrt) used by the blockchain.
-                    coinMinimalDenom: CosmosNetworkH.CURRENCY_DENOM,
+                    coinMinimalDenom: CudosNetworkConsts.CURRENCY_DENOM,
                     // # of decimal points to convert minimal denomination to user-facing denomination.
-                    coinDecimals: CosmosNetworkH.CURRENCY_DECIMALS,
+                    coinDecimals: CudosNetworkConsts.CURRENCY_DECIMALS,
                     // (Optional) Keplr can show the fiat value of the coin if a coingecko id is provided.
                     // You can get id from https://api.coingecko.com/api/v3/coins/list if it is listed.
-                    coinGeckoId: CosmosNetworkH.CURRENCY_COINGECKO_ID,
+                    coinGeckoId: CudosNetworkConsts.CURRENCY_COINGECKO_ID,
                 }],
                 // List of coin/tokens used as a fee token in this chain.
                 feeCurrencies: [{
                     // Coin denomination to be displayed to the user.
-                    coinDenom: CosmosNetworkH.CURRENCY_DISPLAY_NAME,
+                    coinDenom: CudosNetworkConsts.CURRENCY_DISPLAY_NAME,
                     // Actual denom (i.e. uatom, uscrt) used by the blockchain.
-                    coinMinimalDenom: CosmosNetworkH.CURRENCY_DENOM,
+                    coinMinimalDenom: CudosNetworkConsts.CURRENCY_DENOM,
                     // # of decimal points to convert minimal denomination to user-facing denomination.
-                    coinDecimals: CosmosNetworkH.CURRENCY_DECIMALS,
+                    coinDecimals: CudosNetworkConsts.CURRENCY_DECIMALS,
                     // (Optional) Keplr can show the fiat value of the coin if a coingecko id is provided.
                     // You can get id from https://api.coingecko.com/api/v3/coins/list if it is listed.
                     // coinGeckoId: Meteor.settings.public.coingeckoId,
@@ -102,7 +102,7 @@ export default class KeplrLedger implements Ledger {
                 // Ideally, it is recommended to be the same with BIP44 path's coin type.
                 // However, some early chains may choose to use the Cosmos Hub BIP44 path of '118'.
                 // So, this is separated to support such chains.
-                coinType: CosmosNetworkH.LEDGER_COIN_TYPE,
+                coinType: CudosNetworkConsts.LEDGER_COIN_TYPE,
                 // (Optional) This is used to set the fee of the transaction.
                 // If this field is not provided, Keplr extension will set the default gas price as (low: 0.01, average: 0.025, high: 0.04).
                 // Currently, Keplr doesn't support dynamic calculation of the gas prices based on on-chain data.
@@ -127,12 +127,15 @@ export default class KeplrLedger implements Ledger {
             window.keplr.defaultOptions = {
                 sign: {
                     preferNoSetFee: true,
-                }
-              };
-              
-            const offlineSigner = window.getOfflineSigner(Config.CUDOS_NETWORK.CHAIN_ID);
-            this.account = (await offlineSigner.getAccounts())[0].address;
+                },
+            };
 
+            const [_, account] = await this.GetKeplrSignerAndAccount()
+            this.account = account.address;
+
+            // Instantiating the queryClient just once - since it's not tied to a particular account.
+            // This is more performant
+            this.queryClient = await StargateClient.connect(Config.CUDOS_NETWORK.RPC)
             this.connected = S.INT_TRUE;
         } catch (error) {
             if (!window.keplr) {
@@ -150,68 +153,41 @@ export default class KeplrLedger implements Ledger {
         });
     }
 
-    calculateFee = (gasLimit: number, { denom, amount: gasPriceAmount }) => {
-        const amount = Math.ceil(gasPriceAmount.multiply(new Uint53(gasLimit)).toFloatApproximation());
-        return {
-            amount: coins(amount.toString(), denom),
-            gas: gasLimit.toString(),
-        };
-      };
-      
-    EstimateFee = async (client: SigningStargateClient, gasPrice: GasPrice, signerAddress: string, messages: readonly EncodeObject[], memo = "") => {
-        const multiplier = 1.3;
-        const gasEstimation = await client.simulate(signerAddress, messages, memo);
-        return this.calculateFee(Math.round(gasEstimation * multiplier), gasPrice);
-      };
-
-    GetKeplrClientAndAccount = async () => {
-        const offlineSigner = window.getOfflineSigner(this.chainID);
-        const myRegistry = new Registry([
-            ...defaultRegistryTypes,
-            [CosmosNetworkH.MESSAGE_TYPE_URL, MsgSendToEth],
-        ]);
-        const client = await SigningStargateClient.connectWithSigner(this.rpcEndpoint, offlineSigner, {
-            registry: myRegistry,
-        });
+    GetKeplrSignerAndAccount = async (): Promise<[OfflineSigner, AccountData]> => {
+        const offlineSigner = await window.getOfflineSigner(this.chainID);
         const account = (await offlineSigner.getAccounts())[0];
-        return [client, account];
+        return [offlineSigner, account]
     }
 
-    async send(amount: BigNumber, destiantionAddress: string): Promise<void> {
-        const stringifiedAmount = amount.multipliedBy(CosmosNetworkH.CURRENCY_1_CUDO).toString(10);
+    GetKeplrSigningClient = async (offlineSigner:OfflineSigner): Promise < SigningStargateClient > => {
+        const client = await SigningStargateClient.connectWithSigner(this.rpcEndpoint, offlineSigner);
+        return client
+    }
+
+    async send(amount: BigNumber, destinationAddress: string): Promise<void> {
         await window.keplr.enable(this.chainID);
-        const [client, account] = await this.GetKeplrClientAndAccount();
+        const [offlineSigner, account] = await this.GetKeplrSignerAndAccount()
+        const client = await this.GetKeplrSigningClient(offlineSigner);
 
-        const msgSend = [{
-            typeUrl: CosmosNetworkH.MESSAGE_TYPE_URL,
-            value: {
-                sender: account.address,
-                ethDest: destiantionAddress,
-                amount: {
-                    amount: stringifiedAmount,
-                    denom: CosmosNetworkH.CURRENCY_DENOM,
-                },
-                bridgeFee: {
-                    amount: this.bridgeFee.toString(10),
-                    denom: CosmosNetworkH.CURRENCY_DENOM,
-                },
-            },
-        }];
-
+        this.walletError = null;
         try {
-            this.walletError = null;
-            const msgFee = await this.EstimateFee(
-                client,
-                GasPrice.fromString(`${Config.CUDOS_NETWORK.GAS_PRICE}acudos`),
-                account.address,
-                msgSend,
-                'Fee Estimation Message',
-            );
 
-            const result = await client.signAndBroadcast(
+            const coinAmount:Coin = coin(
+                amount.multipliedBy(CudosNetworkConsts.CURRENCY_1_CUDO).toString(10),
+                CudosNetworkConsts.CURRENCY_DENOM,
+            )
+            const bridgeFeeAmount:Coin = coin(
+                this.bridgeFee.toString(10),
+                CudosNetworkConsts.CURRENCY_DENOM,
+            )
+            const gasPrice:GasPrice = GasPrice.fromString(`${Config.CUDOS_NETWORK.GAS_PRICE}acudos`)
+
+            const result = await client.gravitySendToEth(
                 account.address,
-                msgSend,
-                msgFee,
+                destinationAddress,
+                coinAmount,
+                bridgeFeeAmount,
+                gasPrice,
                 'Sent with CUDOS Gravity Bridge',
             );
 
@@ -222,23 +198,26 @@ export default class KeplrLedger implements Ledger {
         }
     }
 
+    async EstimateFee(client: SigningStargateClient, sender: string, messages: EncodeObject[], gasPrice: GasPrice,
+        memo?:string, gasMultiplier?: number):Promise<StdFee> {
+        const fee = await estimateFee(client, sender, messages, gasPrice, gasMultiplier, memo)
+        return fee
+    }
+
     async getBalance(): Promise<BigNumber> {
         this.walletError = null;
         try {
-            const offlineSigner = window.getOfflineSigner(Config.CUDOS_NETWORK.CHAIN_ID);
-            const account = (await offlineSigner.getAccounts())[0];
+            const [_, account] = await this.GetKeplrSignerAndAccount()
+            const balance: Coin = await this.queryClient.getBalance(account.address, CudosNetworkConsts.CURRENCY_DENOM)
 
-            const url = `${Config.CUDOS_NETWORK.API}/cosmos/bank/v1beta1/balances/${account.address}/by_denom?denom=${CosmosNetworkH.CURRENCY_DENOM}`;
-            const amount = (await (await fetch(url)).json()).balance.amount;
-
-            return new BigNumber(amount).div(CosmosNetworkH.CURRENCY_1_CUDO);
+            return new BigNumber(balance.amount).div(CudosNetworkConsts.CURRENCY_1_CUDO);
         } catch (e) {
             this.walletError = 'Failed to get balance!'
         }
     }
 
     setBridgeFee(bridgeFee: BigNumber) {
-        if (bridgeFee.lt((new BigNumber(1)).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO))) {
+        if (bridgeFee.lt((new BigNumber(1)).dividedBy(CudosNetworkConsts.CURRENCY_1_CUDO))) {
             return;
         }
 
@@ -246,6 +225,12 @@ export default class KeplrLedger implements Ledger {
     }
 
     isAddressValid(address: string): boolean {
-        return address.startsWith(CosmosNetworkH.BECH32_PREFIX_ACC_ADDR) && address.length === CosmosNetworkH.BECH32_ACC_ADDR_LENGTH;
+        try {
+            checkValidAddress(address)
+            return true
+        } catch {
+            this.walletError = 'Invalid Cosmos Address'
+            return false
+        }
     }
 }
