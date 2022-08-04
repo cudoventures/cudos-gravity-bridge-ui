@@ -27,13 +27,12 @@ const envVariables = [
     'RPC',
     'API',
     'GAS_PRICE',
-    'GAS',
     'ERC20_CONTRACT_ADDRESS',
     'BRIDGE_CONTRACT_ADDRESS',
     'ETHEREUM_GAS',
     'STAKING',
     'BLOCK_EXPLORER',
-    'NETWORK_TYPE'
+    'NETWORK_TYPE',
 ];
 
 if (process.env.NODE_ENV === 'production') {
@@ -207,7 +206,6 @@ const Config = {
         RPC: process.env.RPC,
         API: process.env.API,
         GAS_PRICE: process.env.GAS_PRICE,
-        GAS: process.env.GAS,
         STAKING: process.env.STAKING,
         BLOCK_EXPLORER: process.env.BLOCK_EXPLORER,
     },
@@ -219,7 +217,7 @@ const Config = {
         ETHEREUM_GAS: process.env.ETHEREUM_GAS,
         ETHEREUM_RPC: process.env.ETHEREUM_RPC,
         ETHERSCAN_RINKEBY: 'https://rinkeby.etherscan.io/tx',
-        ETHERSCAN_MAINNET: 'https://etherscan.io/tx'
+        ETHERSCAN_MAINNET: 'https://etherscan.io/tx',
     },
 };
 
