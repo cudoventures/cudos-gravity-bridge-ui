@@ -26,7 +26,7 @@ import MetamaskLedger from '../../../common/js/models/ledgers/MetamaskLedger';
 import Web3 from 'web3';
 import ERC20TokenAbi from '../../../common/js/solidity/contract_interfaces/ERC20_token.json';
 import { GasPrice } from 'cudosjs';
-import { SigningStargateClient, StargateClient, Coin, coin } from 'cudosjs'
+import { StargateClient, coin } from 'cudosjs'
 import { Long } from "long";
 
 interface Props extends ContextPageComponentProps {
@@ -768,10 +768,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                     <div className={'Wrapper'}>
                         <div className={'CudosMainLogo'} style={ProjectUtils.makeBgImgStyle(cudosMainLogo)}></div>
                     </div>
-                    <div className={'Wrapper'}>
-                        <div className={'CudosFont'} style={ProjectUtils.makeBgImgStyle(cudosFont)}></div>
-                    </div>
-                    <div className={'Header'} >Gravity Bridge</div>
+                    <div className={'Header'} >Cudos Bridge</div>
                     <div className={'Wrapper'}>
                         <span className={'TransferInfoBox'}>{this.state.selectedFromNetwork ? ProjectUtils.CUDOS_NETWORK_TEXT : ProjectUtils.ETHEREUM_NETWORK_TEXT}</span>
                         <div className={'TransferWrapper'}>

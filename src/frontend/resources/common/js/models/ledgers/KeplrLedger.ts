@@ -2,13 +2,11 @@ import Ledger from './Ledger';
 import { makeObservable, observable } from 'mobx';
 import S from '../../utilities/Main';
 import Config from '../../../../../../../builds/dev-generated/Config';
-import { AccountData, Coin, coin, OfflineSigner, StargateClient, CudosNetworkConsts, ClientSimulateFn, DeliverTxResponse, StdFee } from 'cudosjs';
-import { assertIsBroadcastTxSuccess, SigningStargateClient, defaultRegistryTypes, assertIsDeliverTxSuccess, checkValidAddress, estimateFee, generateMsg } from 'cudosjs';
-import { EncodeObject, Registry } from 'cudosjs';
+import { AccountData, Coin, coin, OfflineSigner, StargateClient, CudosNetworkConsts, StdFee } from 'cudosjs';
+import { SigningStargateClient, assertIsDeliverTxSuccess, checkValidAddress, estimateFee } from 'cudosjs';
+import { EncodeObject } from 'cudosjs';
 import BigNumber from 'bignumber.js';
 import { GasPrice } from 'cudosjs';
-import { Uint53 } from 'cudosjs';
-import { coins } from 'cudosjs';
 
 export default class KeplrLedger implements Ledger {
     @observable connected: number;
@@ -188,7 +186,7 @@ export default class KeplrLedger implements Ledger {
                 coinAmount,
                 bridgeFeeAmount,
                 gasPrice,
-                'Sent with CUDOS Gravity Bridge',
+                'Sent with CUDOS Bridge',
             );
 
             this.txHash = result.transactionHash;
