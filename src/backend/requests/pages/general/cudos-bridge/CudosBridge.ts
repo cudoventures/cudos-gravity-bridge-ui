@@ -16,8 +16,8 @@ export default class CudosBridge extends CudosBridgeH {
         context.payload.ctx.type = 'html';
         context.payload.ctx.body = TEMPLATE.stream({
             META: {
-                TITLE: 'Cudos Bridge',
-                DESC: '',
+                TITLE: 'CUDOS Bridge | Migrate tokens between Blockchains',
+                DESC: 'A tool for migrating your tokens between the Ethereum and the CUDOS blockchain. Allows ERC-20 holders to migrate to the native CUDOS token & stake.',
                 KEYWORDS: SV.KEYWORDS,
                 ROBOTS: 'noindex, nofollow',
                 PAGE_URL: `${Config.URL.GENERAL}${CudosBridge.URL}`,
