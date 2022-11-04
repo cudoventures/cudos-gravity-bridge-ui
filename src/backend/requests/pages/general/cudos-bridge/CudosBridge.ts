@@ -19,7 +19,7 @@ export default class CudosBridge extends CudosBridgeH {
                 TITLE: 'CUDOS Bridge | Migrate tokens between Blockchains',
                 DESC: 'A tool for migrating your tokens between the Ethereum and the CUDOS blockchain. Allows ERC-20 holders to migrate to the native CUDOS token & stake.',
                 KEYWORDS: SV.KEYWORDS,
-                ROBOTS: 'noindex, nofollow',
+                ROBOTS: 'all',
                 PAGE_URL: `${Config.URL.GENERAL}${CudosBridge.URL}`,
             },
             CSS: {
