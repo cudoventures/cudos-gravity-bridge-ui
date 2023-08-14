@@ -14,13 +14,13 @@ interface ISummaryFormProps {
     walletBalance: BigNumber
     displayAmount: string
     onChangeAmount: any
-    onClickMaxAmount: void
+    onClickMaxAmount: () => Promise < void >
     onChnageTransactionDirection: any
     onClickSend: Function
     selectedToNetwork: number
     isToConnected: boolean
     getAddress: any
-    isOpen: boolean
+    // isOpen: boolean
     isTransferring: boolean,
     minTransferAmount: BigNumber,
     minBridgeFeeAmount: BigNumber,

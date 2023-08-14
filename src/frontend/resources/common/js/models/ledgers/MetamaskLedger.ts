@@ -1,33 +1,38 @@
-import S from '../../utilities/Main';
 import Ledger from './Ledger';
-import { makeObservable, observable } from 'mobx';
+import { action, makeObservable, observable } from 'mobx';
 import Web3 from 'web3';
 import Web3Utils from 'web3-utils';
 import ERC20TokenAbi from '../../solidity/contract_interfaces/ERC20_token.json';
 import gravityContractAbi from '../../solidity/contract_interfaces/gravity.json';
 import Config from '../../../../../../../builds/dev-generated/Config';
+import { Ledger as CudosJsLedger, toHex, CudosNetworkConsts, fromBech32, StdSignature } from 'cudosjs';
 import BigNumber from 'bignumber.js';
 
-import { Bech32, toBase64, toHex, CudosNetworkConsts } from 'cudosjs';
-
-export default class MetamaskLedger implements Ledger {
+export default class MetamaskLedger extends CudosJsLedger implements Ledger {
     static NETWORK_NAME = 'Ethereum';
-    @observable connected: number;
-    @observable account: string;
-    @observable walletError: string;
-    @observable txHash: string;
-    @observable txNonce: string;
+
+    walletError: string;
+    txHash: string;
+    txNonce: string;
     erc20Instance: any;
     gas: string;
 
     constructor() {
-        this.connected = S.INT_FALSE;
-        this.account = null;
+        super();
+        this.connected = false;
+        this.accountAddress = null;
         this.gas = Config.ETHEREUM.ETHEREUM_GAS;
         this.walletError = null;
         this.txHash = null;
 
-        makeObservable(this);
+        makeObservable(this, {
+            'connected': observable,
+            'accountAddress': observable,
+            'connect': action,
+            'walletError': observable,
+            'txHash': observable,
+            'txNonce': observable,
+        });
     }
 
     async connect(): Promise<void> {
@@ -47,8 +52,8 @@ export default class MetamaskLedger implements Ledger {
             }
             localStorage.setItem('manualAccountChange', 'false')
             window.web3 = new Web3(window.ethereum);
-            this.account = window.ethereum.selectedAddress;
-            this.connected = S.INT_TRUE;
+            this.accountAddress = window.ethereum.selectedAddress;
+            this.connected = true;
         } catch (e) {
             if (!window.ethereum) {
                 this.walletError = 'Metamask wallet not found! Please install to continue!';
@@ -64,18 +69,19 @@ export default class MetamaskLedger implements Ledger {
         });
     }
 
-    async send(amount: BigNumber, destiantionAddress: string) {
+    async send(amount: BigNumber, destiantionAddress: string): Promise<void> {
         this.walletError = null;
         return new Promise < void >((resolve, reject) => {
             const run = async () => {
                 const account = (await window.web3.eth.requestAccounts())[0];
 
-                const addressByteArray = Bech32.decode(destiantionAddress).data;
+                // const addressByteArray = Bech32.decode(destiantionAddress).data;
+                const addressByteArray = fromBech32(destiantionAddress).data;
                 const addressBytes32Array = new Uint8Array(32);
                 addressByteArray.forEach((byte, i) => { addressBytes32Array[32 - addressByteArray.length + i] = byte });
 
                 const gravityContract = new window.web3.eth.Contract(gravityContractAbi, Config.ORCHESTRATOR.BRIDGE_CONTRACT_ADDRESS, {
-                    from: account
+                    from: account,
                 });
                 const erc20Instance = new window.web3.eth.Contract(ERC20TokenAbi, Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS);
 
@@ -121,9 +127,35 @@ export default class MetamaskLedger implements Ledger {
         } catch (e) {
             this.walletError = 'Failed to fetch balance';
         }
+
+        return new BigNumber(0);
+    }
+
+    isConnected(): boolean {
+        return this.connected;
+    }
+
+    isLedgerExtensionPresent(): boolean {
+        throw Error('Not needed for metamask wallet');
+    }
+
+    signArbitrary(chainId: string, address: string, data: string | Uint8Array): Promise<StdSignature> {
+        throw Error('Not needed for metamask wallet');
     }
 
     isAddressValid(address): boolean {
         return Web3Utils.isAddress(address);
+    }
+
+    getWalletError(): string {
+        return this.walletError;
+    }
+
+    getTxHash(): string {
+        return this.txHash;
+    }
+
+    getAccountAddress(): string {
+        return this.accountAddress;
     }
 }

@@ -1,5 +1,3 @@
-/* global TR */
-
 import React, { RefObject } from 'react';
 
 import ContextPageComponent, { ContextPageComponentProps } from './common/ContextPageComponent';
@@ -20,14 +18,12 @@ import S from '../../../common/js/utilities/Main';
 import NetworkStore from '../../../common/js/stores/NetworkStore';
 import KeplrLedger from '../../../common/js/models/ledgers/KeplrLedger';
 import ProjectUtils from '../../../common/js/ProjectUtils';
-import Ledger from '../../../common/js/models/ledgers/Ledger';
-import { CudosNetworkConsts, generateMsg } from "cudosjs"
+import { CudosNetworkConsts, generateMsg, GasPrice, StargateClient, coin, Ledger as CudosJsLedger } from 'cudosjs'
 import MetamaskLedger from '../../../common/js/models/ledgers/MetamaskLedger';
 import Web3 from 'web3';
 import ERC20TokenAbi from '../../../common/js/solidity/contract_interfaces/ERC20_token.json';
-import { GasPrice } from 'cudosjs';
-import { StargateClient, coin } from 'cudosjs'
-import { Long } from "long";
+
+import { Long } from 'long';
 
 interface Props extends ContextPageComponentProps {
     networkStore: NetworkStore;
@@ -128,8 +124,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
     getAccountBalance = async (account: string): Promise<string> => {
         let accountBalance: string;
 
-        const rpc: string = Config.CUDOS_NETWORK.RPC
-        const queryClient: StargateClient = this.props.networkStore.networkHolders[1].ledger.queryClient
+        const queryClient: StargateClient = await (this.props.networkStore.networkHolders[1].ledger as KeplrLedger).getKeplrClient();
 
         try {
             accountBalance = (await queryClient.getBalance(account, 'acudos')).amount
@@ -157,7 +152,6 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
 
     async getContractBalance(): Promise<BigNumber> {
         try {
-
             const contractWallet = Config.ORCHESTRATOR.BRIDGE_CONTRACT_ADDRESS;
             const web3 = new Web3(Config.ETHEREUM.ETHEREUM_RPC);
             const erc20Contract = new web3.eth.Contract(ERC20TokenAbi, Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS);
@@ -220,27 +214,25 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
     onSelectFromNetwork = async (): Promise<void> => {
         let balance = new BigNumber(0);
         let ledger = null;
-        const toNetwork = null;
         let fromNetwork = null;
         let contractBalance = new BigNumber(0);
         let connectionError = false;
-        const account = null;
 
         try {
             fromNetwork = this.state.selectedFromNetwork;
             ledger = await this.connectWallet(fromNetwork);
-            if (await ledger.walletError) {
+            if (await ledger.getWalletError()) {
                 this.setState({
                     isTransactionFail: true,
-                    errorMessage: ledger.walletError,
+                    errorMessage: ledger.getWalletError(),
                 })
                 connectionError = true
                 balance = new BigNumber(0);
                 contractBalance = new BigNumber(0);
             }
-            balance = await ledger.getBalance();
-            if (!balance) {
-                balance = new BigNumber(0);
+            try {
+                balance = await ledger.getBalance();
+            } catch (ex) {
             }
             if (this.isFromCosmos(fromNetwork) === true) {
                 contractBalance = await this.getContractBalance();
@@ -273,16 +265,16 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         let ledger = null;
         let toNetwork = null;
         const fromNetwork = null;
-        let contractBalance = new BigNumber(0);
+        let contractBalance;
         let connectionError = false;
 
         try {
             toNetwork = this.state.selectedToNetwork;
             ledger = await this.connectWallet(toNetwork);
-            if (await ledger.walletError) {
+            if (await ledger.getWalletError()) {
                 this.setState({
                     isTransactionFail: true,
-                    errorMessage: ledger.walletError,
+                    errorMessage: ledger.getWalletError(),
                 })
                 connectionError = true
                 balance = new BigNumber(0);
@@ -467,22 +459,21 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
     executeTransaction = async () => {
         this.setState({ preFlight: false })
         try {
-
             this.props.appStore.disableActions();
             this.setState({ isTransferring: true, isLoading: true, loadingModalAdditionalText: '' })
             const ledger = await this.checkWalletConnected();
             await ledger.send(this.state.amount, this.getAddress(this.state.selectedToNetwork, 0));
-            const txHash = ledger.txHash
+            const txHash = ledger.getTxHash()
 
             let destTxHash = '';
             if (!this.isFromCosmos(this.state.selectedFromNetwork)) {
                 this.setState({ loadingModalAdditionalText: `Transaction confirmed on ${ProjectUtils.ETHEREUM_NETWORK_TEXT} with HASH: ${txHash}. Awaiting TX confirmation on ${ProjectUtils.CUDOS_NETWORK_TEXT} - it may take a few minutes.` })
-                destTxHash = await this.getCosmosGravityTxByNonce(ledger.txNonce);
+                destTxHash = await this.getCosmosGravityTxByNonce((ledger as MetamaskLedger).txNonce);
             }
             this.setState({ isOpen: true, isLoading: false, loadingModalAdditionalText: '', txHash, destTxHash });
         } catch (e) {
             const ledger = await this.checkWalletConnected();
-            this.setState({ isTransactionFail: true, isLoading: false, errorMessage: ledger.walletError });
+            this.setState({ isTransactionFail: true, isLoading: false, errorMessage: ledger.getWalletError() });
         } finally {
             this.setState({
                 amount: new BigNumber(0),
@@ -554,7 +545,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         return ledger;
     }
 
-    connectWallet = async (networkId: number): Promise<Ledger> => {
+    connectWallet = async (networkId: number): Promise<CudosJsLedger> => {
         const networkHolders = this.props.networkStore.networkHolders;
 
         const ledger = networkHolders[networkId].ledger;
@@ -634,9 +625,9 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         try {
             const ledger = this.props.networkStore.networkHolders[networkId].ledger
             if (sliceIndex === 0) {
-                return ledger.account;
+                return ledger.getAccountAddress();
             }
-            return this.formatText(ledger.account, sliceIndex);
+            return this.formatText(ledger.getAccountAddress(), sliceIndex);
         } catch (e) {
             this.showAlertError(e.toString());
         }
@@ -672,8 +663,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         let simulatedCost = new BigNumber(0);
         const stringifiedAmount = new BigNumber(amount).multipliedBy(CudosNetworkConsts.CURRENCY_1_CUDO).toString(10);
         const ledger = this.props.networkStore.networkHolders[this.state.selectedFromNetwork].ledger;
-        const [offlineSigner, account] = await ledger.GetKeplrSignerAndAccount()
-        const client = await ledger.GetKeplrSigningClient(offlineSigner)
+        const client = await (ledger as KeplrLedger).getKeplrSigningClient();
 
         let destination: string;
         let sender: string;
@@ -694,9 +684,9 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             bridgeFee: coin(this.state.minBridgeFeeAmount.multipliedBy(CudosNetworkConsts.CURRENCY_1_CUDO).toString(10), CudosNetworkConsts.CURRENCY_DENOM),
         })
 
-        const approxCost = await ledger.EstimateFee(
+        const approxCost = await (ledger as KeplrLedger).estimateFee(
             client,
-            account.address,
+            ledger.getAccountAddress(),
             [simulatedMsg],
             gasPrice,
             'Fee Estimation Message',
@@ -707,7 +697,8 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
     }
 
     getMinTransferAndBridgeFeeAmounts = async (): Promise<void> => {
-        const response = await this.props.networkStore.networkHolders[1].ledger.queryClient.gravityModule.getParams()
+        const queryClient = await (this.props.networkStore.networkHolders[1].ledger as KeplrLedger).getKeplrClient();
+        const response = await queryClient.gravityModule.getParams()
         const minTransferAmount = response.params.minimumTransferToEth;
         const minBridgeFeeAmount = response.params.minimumFeeTransferToEth;
 
@@ -726,13 +717,13 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
 
     getCosmosGravityTxByNonce = async (nonce: string): Promise<string> => {
         let result = '';
-        const qClient = this.props.networkStore.networkHolders[1].ledger.queryClient
+        const qClient = await (this.props.networkStore.networkHolders[1].ledger as KeplrLedger).getKeplrClient();
         const heightRes = await qClient.getHeight();
         let height = Number(heightRes);
         while (result === '') {
-            const txData = await qClient.searchTx({
-                tags: [{ key: "message.action", value: "/gravity.v1.MsgSendToCosmosClaim" }],
-            })
+            const txData = await qClient.searchTx(
+                [{ key: 'message.action', value: '/gravity.v1.MsgSendToCosmosClaim' }],
+            );
 
             const filteredTxs = txData.filter((tx) => Number(tx.height) > height);
             if (filteredTxs.length > 0) {
@@ -796,7 +787,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                         closeModal={() => this.setState({ isOpen: false, displayAmount: S.Strings.EMPTY })}
                         isOpen={this.state.isOpen}
                         onGetBalance={this.onGetBalance}
-                        checkWalletConnected={this.checkWalletConnected}
+                        // checkWalletConnected={this.checkWalletConnected}
                     />
                     <FailureModal
                         isOpen={this.state.isTransactionFail}
@@ -827,7 +818,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                             getAddress={this.getAddress}
                             goToTransactionSummary={this.goToTransactionSummary}
                             onChangeAccount={this.onChangeAccount}
-                            checkWalletConnected={this.checkWalletConnected}
+                            // checkWalletConnected={this.checkWalletConnected}
                             connectWallet={this.connectWallet}
                         />
                         : <SummaryForm
@@ -838,10 +829,10 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                             contractBalance={this.state.contractBalance}
                             walletBalance={this.state.walletBalance}
                             displayAmount={this.state.displayAmount}
-                            onDisconnectFromNetwork={this.onDisconnectFromNetwork}
-                            onDisconnectToNetwork={this.onDisconnectToNetwork}
-                            onSelectFromNetwork={this.onSelectFromNetwork}
-                            onSelectToNetwork={this.onSelectToNetwork}
+                            // onDisconnectFromNetwork={this.onDisconnectFromNetwork}
+                            // onDisconnectToNetwork={this.onDisconnectToNetwork}
+                            // onSelectFromNetwork={this.onSelectFromNetwork}
+                            // onSelectToNetwork={this.onSelectToNetwork}
                             onChnageTransactionDirection={this.onChnageTransactionDirection}
                             getAddress={this.getAddress}
                             onChangeAmount={this.onChangeAmount}
