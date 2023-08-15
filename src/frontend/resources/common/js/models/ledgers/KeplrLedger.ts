@@ -3,6 +3,7 @@ import { action, makeObservable, observable } from 'mobx';
 import Config from '../../../../../../../builds/dev-generated/Config';
 import { Coin, coin, StargateClient, CudosNetworkConsts, StdFee, SigningStargateClient, assertIsDeliverTxSuccess, checkValidAddress, estimateFee, EncodeObject, GasPrice, KeplrWallet } from 'cudosjs';
 import BigNumber from 'bignumber.js';
+import Long from 'long';
 
 export default class KeplrLedger extends KeplrWallet implements Ledger {
 
@@ -77,63 +78,25 @@ export default class KeplrLedger extends KeplrWallet implements Ledger {
             throw new Error(this.walletError = 'Failed to send transaction!');
         }
     }
-  
+
     async cancelSend(transactionId: Long): Promise<void> {
-        const proposalTypePath = '/gravity.v1.MsgCancelSendToEth'
+        await window.keplr.enable(this.keplrWalletConfig.CHAIN_ID);
+        const client = await this.getKeplrSigningClient();
 
-        const chainId = Config.CUDOS_NETWORK.CHAIN_ID;
-        await window.keplr.enable(chainId);
-        const offlineSigner = window.getOfflineSigner(chainId);
-
-        const account = (await offlineSigner.getAccounts())[0];
-
-        const msgSend = [{
-            typeUrl: proposalTypePath,
-            value: {
-                transactionId: Long.fromNumber(1),
-                sender: account.address,
-            },
-        }];
-
-        const msgFee = {
-            amount: [{
-                denom: CosmosNetworkH.CURRENCY_DENOM,
-                amount: Config.CUDOS_NETWORK.FEE,
-            }],
-            gas: Config.CUDOS_NETWORK.GAS,
-        }
-
+        this.walletError = null;
+        const gasPrice: GasPrice = GasPrice.fromString(`${Config.CUDOS_NETWORK.GAS_PRICE}acudos`);
         try {
-            this.walletError = null;
-            const myRegistry = new Registry([
-                ...defaultRegistryTypes,
-                [proposalTypePath, MsgCancelSendToEth],
-            ])
-
-            const rpcEndpoint = Config.CUDOS_NETWORK.RPC;
-            const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, offlineSigner, {
-                registry: myRegistry,
-            });
-
-            const result = await client.signAndBroadcast(
-                account.address,
-                msgSend,
-                msgFee,
-            );
-
-            this.txHash = result.transactionHash
-
-            assertIsBroadcastTxSuccess(result);
+            const result = await client.gravityCancelSendToEth(transactionId, this.accountAddress, gasPrice);
+            this.txHash = result.transactionHash;
+            assertIsDeliverTxSuccess(result);
         } catch (e) {
             console.log(e);
             throw new Error(this.walletError = 'Failed to send transaction!');
         }
     }
 
-    async estimateFee(client: SigningStargateClient, sender: string, messages: EncodeObject[], gasPrice: GasPrice,
-        memo?:string, gasMultiplier?: number):Promise<StdFee> {
-        const fee = await estimateFee(client, sender, messages, gasPrice, gasMultiplier, memo)
-        return fee
+    async estimateFee(client: SigningStargateClient, sender: string, messages: EncodeObject[], gasPrice: GasPrice, memo?:string, gasMultiplier?: number): Promise < StdFee > {
+        return estimateFee(client, sender, messages, gasPrice, gasMultiplier, memo)
     }
 
     async getBalance(): Promise<BigNumber> {
