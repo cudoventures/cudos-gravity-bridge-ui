@@ -7,10 +7,12 @@ import '../../css/components-popups/loading-modal.css';
 const LoadingModal = ({
     closeModal,
     isOpen,
+    additionalText,
 }
 : {
     closeModal: Function
     isOpen: boolean
+    additionalText: string
 }) => {
 
     const cudosMainLogo = '../../../../resources/common/img/favicon/cudos-80x80.svg';
@@ -31,6 +33,9 @@ const LoadingModal = ({
                         <span>.</span>
                         <span>.</span>
                         <span>.</span>
+                    </div>
+                    <div className={'AdditionalText'}>
+                        {additionalText}
                     </div>
                 </div>
             </div>

@@ -17,4 +17,5 @@ export default class CosmosNetworkH {
     static BECH32_PREFIX_CONS_PUB = 'cudosvalconspub';
     static BECH32_ACC_ADDR_LENGTH = 44;
 
+    static MESSAGE_TYPE_URL = '/gravity.v1.MsgSendToEth';
 }

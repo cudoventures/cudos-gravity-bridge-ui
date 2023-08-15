@@ -41,8 +41,8 @@ const TransferForm = ({
     const cudosLogo = '../../../../resources/common/img/favicon/cudos-22x22.svg'
     const ethLogo = '../../../../resources/common/img/favicon/eth-16x25.svg'
     const transferLogo = '../../../../resources/common/img/favicon/transfer-logo.svg'
-    const fromNetwork = selectedFromNetwork ? 'CUDOS' : 'Ethereum'
-    const toNetwork = selectedToNetwork ? 'CUDOS' : 'Ethereum'
+    const fromNetwork = selectedFromNetwork ? ProjectUtils.CUDOS_NETWORK_TEXT : ProjectUtils.ETHEREUM_NETWORK_TEXT;
+    const toNetwork = selectedToNetwork ? ProjectUtils.CUDOS_NETWORK_TEXT : ProjectUtils.ETHEREUM_NETWORK_TEXT;
 
     const [animate, setAnimate] = useState<boolean>(false);
 
@@ -55,7 +55,6 @@ const TransferForm = ({
         window.addEventListener('keplr_keystorechange', async () => {
             await connectWallet(KEPLR_WALLET);
             await onChangeAccount(KEPLR_WALLET)
-            console.log('reconnect Keplr...');
         });
     }, []);
 
@@ -66,7 +65,6 @@ const TransferForm = ({
                 localStorage.setItem('manualAccountChange', 'true')
                 await connectWallet(METAMASK_WALLET);
                 await onChangeAccount(METAMASK_WALLET);
-                console.log('reconnect Metamask...');
             });
         }
     }, []);

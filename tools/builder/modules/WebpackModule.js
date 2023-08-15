@@ -174,7 +174,7 @@ class WebpackModule {
                         ],
                     }, {
                         test: /\.js$|\.jsx$|\.ts$|\.tsx$/,
-                        exclude: [/node_modules/, path.join(__dirname, '../../../babel.config.js')],
+                        exclude: [/node_modules\/(!cudosjs).*/, path.join(__dirname, '../../../babel.config.js')],
                         use: {
                             loader: 'babel-loader',
                             options: {
@@ -183,12 +183,12 @@ class WebpackModule {
                                         '@babel/env',
                                         {
                                             targets: {
-                                                chrome: '60',
-                                                safari: '10',
-                                                edge: '12',
+                                                chrome: 90,
+                                                safari: 13,
+                                                edge: 90,
                                             },
                                             useBuiltIns: 'entry',
-                                            corejs: { version: 2, proposals: false },
+                                            corejs: { version: 3, proposals: false },
                                         },
                                     ],
                                     '@babel/preset-react',
@@ -198,6 +198,7 @@ class WebpackModule {
                                     ['@babel/plugin-proposal-decorators', { 'legacy': true }],
                                     ['@babel/plugin-proposal-class-properties', { 'loose': false }],
                                     '@babel/proposal-object-rest-spread',
+                                    '@babel/plugin-syntax-dynamic-import',
                                     // '@babel/plugin-transform-regenerator',
                                 ],
                                 cacheDirectory: Config.Path.Builds.Temp.CACHE,

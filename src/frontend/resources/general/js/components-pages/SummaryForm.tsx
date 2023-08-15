@@ -5,6 +5,7 @@ import Button from '../../../common/js/components-inc/Button';
 import ProjectUtils from '../../../common/js/ProjectUtils';
 import S from '../../../common/js/utilities/Main';
 import BigNumber from 'bignumber.js';
+import CosmosNetworkH from '../../../common/js/models/ledgers/CosmosNetworkH';
 
 interface ISummaryFormProps {
     selectedFromNetwork: number
@@ -13,15 +14,18 @@ interface ISummaryFormProps {
     walletBalance: BigNumber
     displayAmount: string
     onChangeAmount: any
-    onClickMaxAmount: void
+    onClickMaxAmount: () => Promise < void >
     onChnageTransactionDirection: any
     onClickSend: Function
     selectedToNetwork: number
     isToConnected: boolean
     getAddress: any
-    isOpen: boolean
+    // isOpen: boolean
     isTransferring: boolean,
-    minTransferAmount: string,
+    minTransferAmount: BigNumber,
+    minBridgeFeeAmount: BigNumber,
+    estimatedGasFees: BigNumber;
+    validAmount: Boolean;
 }
 
 const SummaryForm = (props: ISummaryFormProps) => {
@@ -33,8 +37,8 @@ const SummaryForm = (props: ISummaryFormProps) => {
     const ethLogo = '../../../../resources/common/img/favicon/eth-16x25.svg';
     const attentionIcon = '../../../../resources/common/img/favicon/attention.svg';
 
-    const fromNetwork = props.selectedFromNetwork ? 'CUDOS' : 'Ethereum';
-    const ToNetwork = props.selectedToNetwork ? 'CUDOS' : 'Ethereum';
+    const fromNetwork = props.selectedFromNetwork ? ProjectUtils.CUDOS_NETWORK_TEXT : ProjectUtils.ETHEREUM_NETWORK_TEXT;
+    const toNetwork = props.selectedToNetwork ? ProjectUtils.CUDOS_NETWORK_TEXT : ProjectUtils.ETHEREUM_NETWORK_TEXT;
 
     const [animate, setAnimate] = useState<boolean>(false);
 
@@ -53,11 +57,10 @@ const SummaryForm = (props: ISummaryFormProps) => {
         }
         return new BigNumber(result).toFixed(2);
     }
-    
+
     useEffect(() => {
         api()
     }, [])
-
     return (
         <div className={'SummaryForm'}>
             <div className={'Row'}>
@@ -98,7 +101,7 @@ const SummaryForm = (props: ISummaryFormProps) => {
                             <div className={'SummaryAddress'}>
                                 <div className={'CudosLogoSmall'} style={ProjectUtils.makeBgImgStyle(cudosLogoSmall)}></div>
                                 <div className={'Cudos'}>
-                                    CUDOS
+                                    {CosmosNetworkH.CURRENCY_DISPLAY_NAME}
                                 </div>
                             </div>
                         </div>
@@ -111,7 +114,14 @@ const SummaryForm = (props: ISummaryFormProps) => {
                     <div className={'Flex'}>
                         <div className={'SummaryAddress'}>
                             <div className={'Amount Flex'}>
-                                <input inputMode='decimal' type='text' value={props.displayAmount} onChange={(e) => props.onChangeAmount(e.target.value)} className={'SummaryInput'} placeholder='0'></input>
+                                <input
+                                    inputMode='decimal'
+                                    type='text'
+                                    value={props.displayAmount}
+                                    onChange={(e) => props.onChangeAmount(e.target.value)}
+                                    className={'SummaryInput'}
+                                    placeholder='0'>
+                                </input>
                                 <Button
                                     color={Button.COLOR_SCHEME_4}
                                     className={'MaxBtn'}
@@ -119,25 +129,25 @@ const SummaryForm = (props: ISummaryFormProps) => {
                                     disabled={props.selectedToNetwork === S.NOT_EXISTS || props.walletBalance.toFixed() === '0' || props.isTransferring}
                                 >
                                     MAX
+                                    {props.selectedFromNetwork
+                                        ? <div className={'AttentionIcon'} style={ProjectUtils.makeBgImgStyle(attentionIcon)}>
+                                            <span className="tooltiptext">Your MAX balance minus approximate fees</span>
+                                        </div>
+                                        : null}
                                 </Button>
                             </div>
                         </div>
                     </div>
                     <div className={'Row Spacing'}>
-                        <span className={'FlexStart GrayText'}>Contract Balance:</span>
-                        <span className={'FlexEnd SummaryBalance'}>{props.contractBalance.toFixed(2)} CUDOS</span>
+                        <span className={'FlexStart GrayText'}>
+                            Max Allowed Amount
+                        </span>
+                        <span className={'FlexEnd SummaryBalance'}>{props.contractBalance.toFixed(2)} {CosmosNetworkH.CURRENCY_DISPLAY_NAME}</span>
                     </div>
                     <div className={'Row Spacing'}>
                         <span className={'FlexStart GrayText'}>Wallet Balance:</span>
-                        <span className={'FlexEnd SummaryBalance'}>{props.walletBalance.toFixed(4)} CUDOS</span>
+                        <span className={'FlexEnd SummaryBalance'}>{props.walletBalance.toFixed(4)} {CosmosNetworkH.CURRENCY_DISPLAY_NAME}</span>
                     </div>
-
-                    {ToNetwork === "Ethereum" ?
-                        <div className={'Row Spacing'}>
-                            <span className={'FlexStart RedText'}>Minimum amount:</span>
-                            <span className={'FlexEnd SummaryBalance'}>{props.minTransferAmount} CUDOS</span>
-                        </div> : null
-                    }
 
                 </div>
                 <div className={'Column PaddingRightColumn'}>
@@ -154,7 +164,7 @@ const SummaryForm = (props: ISummaryFormProps) => {
                             </span>
                             <span className={'FlexStart'}>
                                 <div className={props.selectedToNetwork ? 'CudosLogoSmall NoMarginLeft' : 'EthLogoSmall NoMarginLeft'} style={props.selectedToNetwork ? ProjectUtils.makeBgImgStyle(cudosLogoSmall) : ProjectUtils.makeBgImgStyle(ethLogoSmall)}></div>
-                                <div className={'AlignCenter'}>{ToNetwork}</div>
+                                <div className={'AlignCenter'}>{toNetwork}</div>
                             </span>
                         </div>
                         <div className={'Row Spacing'}>
@@ -173,25 +183,38 @@ const SummaryForm = (props: ISummaryFormProps) => {
                         <span className={'FlexStart Asset'}>Asset</span>
                     </div>
                     <div className={'Row Spacing'}>
-                        <span className={'FlexStart GrayText'}>{!props.displayAmount ? '0.00' : formatNumber(props.displayAmount)}</span>
-                        <span className={'FlexStart GrayText Asset'}>CUDOS</span>
+                        <span className={'FlexStart GrayText'}>{!props.validAmount ? <span style={{ color: '#a15d5d' }}>Please enter valid amount</span> : formatNumber(props.displayAmount)}</span>
+                        <span className={'FlexStart GrayText Asset'}>{CosmosNetworkH.CURRENCY_DISPLAY_NAME}</span>
                     </div>
-                    <div className={'Row DoubleSpacing TopBorder'}>
-                        {/* Gas Fee temporarily disabled */}
-                        {/* <span className={'FlexStart'}>
-                            Estimated Gas Fee
-                            <div className={'AttentionIcon'} style={ProjectUtils.makeBgImgStyle(attentionIcon)}></div>
-                        </span>
-                        <span className={'FlexEnd'}>0.00012 CUDOS</span> */}
-                    </div>
+                    {props.selectedFromNetwork
+                        ? <div>
+                            <div className={'Row DoubleSpacing TopBorder'}>
+                                <span className={'FlexStart'}>
+                                    Bridge Fee
+                                    <div className={'AttentionIcon'} style={ProjectUtils.makeBgImgStyle(attentionIcon)}>
+                                        <span className="tooltiptext">The amount due for the transfer service</span>
+                                    </div>
+                                    <span className={'FlexEnd'}>{props.minBridgeFeeAmount.toFixed(2)} {CosmosNetworkH.CURRENCY_DISPLAY_NAME}</span>
+                                </span>
+                            </div>
+                            <div className={'Row DoubleSpacing TopBorder'}>
+                                <span className={'FlexStart'}>
+                                    Estimated Gas Fee
+                                    <div className={'AttentionIcon'} style={ProjectUtils.makeBgImgStyle(attentionIcon)}>
+                                        <span className="tooltiptext">(Estimated GAS * 1.3 multiplier) * GAS price</span>
+                                    </div>
+                                </span>
+                                <span className={'FlexEnd'}>{props.estimatedGasFees.toFixed(4)} {CosmosNetworkH.CURRENCY_DISPLAY_NAME}</span>
+                            </div>
+                        </div>
+                        : null}
                     <div>
                         <div style={{ marginTop: '25px' }} className={'FormRow Wrapper'} >
                             <Button
                                 disabled={
-                                    ToNetwork === "Ethereum" ?
-                                        (!props.isFromConnected || !props.isToConnected || props.displayAmount === S.Strings.EMPTY || props.isTransferring || +props.displayAmount < +props.minTransferAmount || isNaN(+props.displayAmount))
-                                        :
-                                        (!props.isFromConnected || !props.isToConnected || props.displayAmount === S.Strings.EMPTY || props.isTransferring || isNaN(+props.displayAmount))
+                                    props.selectedToNetwork
+                                        ? (!props.validAmount || !props.isFromConnected || !props.isToConnected || props.displayAmount === S.Strings.EMPTY || props.isTransferring || isNaN(+props.displayAmount))
+                                        : (!props.validAmount || !props.isFromConnected || !props.isToConnected || props.displayAmount === S.Strings.EMPTY || props.isTransferring || props.minTransferAmount.gte(props.displayAmount) || isNaN(+props.displayAmount))
                                 }
                                 className={'TransferBtn Flex DoubleSpacing'}
                                 type={Button.TYPE_ROUNDED}

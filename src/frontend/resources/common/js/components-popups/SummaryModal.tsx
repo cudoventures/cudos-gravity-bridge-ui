@@ -2,9 +2,12 @@ import React from 'react';
 import ModalComponent from './ModalComponent';
 
 import '../../css/components-popups/summary-modal.css';
+import Config from '../../../../../../builds/dev-generated/Config';
 
 import Button from '../components-inc/Button';
 import ProjectUtils from '../ProjectUtils';
+import CosmosNetworkH from '../models/ledgers/CosmosNetworkH';
+import SvgAttention from '../../../../resources/common/img/favicon/attention.svg';
 
 const SummaryModal = ({
     closeModal,
@@ -15,8 +18,10 @@ const SummaryModal = ({
     displayAmount,
     onGetBalance,
     txHash,
+    destTxHash,
 }
-    : { closeModal: Function,
+    : {
+        closeModal: Function,
         isOpen: boolean,
         getAddress: Function,
         selectedFromNetwork: number,
@@ -24,21 +29,25 @@ const SummaryModal = ({
         displayAmount: string,
         onGetBalance: Function,
         txHash: string,
+        destTxHash: string,
     }) => {
+
+    const CUDOS_SUCCESS_MESSAGE = `Your bridge transaction was successfully submitted to ${ProjectUtils.CUDOS_NETWORK_TEXT}. It is awaiting to be included in a batch and can take up to 120 ${ProjectUtils.CUDOS_NETWORK_TEXT} blocks to be fully executed on ${ProjectUtils.ETHEREUM_NETWORK_TEXT}.`;
+    const ETHEREUM_SUCCESS_MESSAGE = `Your bridge transaction was successfully submitted to ${ProjectUtils.ETHEREUM_NETWORK_TEXT} and ${ProjectUtils.CUDOS_NETWORK_TEXT}.`;
 
     const cudosLogoSmall = '../../../../resources/common/img/favicon/cudos-18x18.svg';
     const ethLogoSmall = '../../../../resources/common/img/favicon/eth-18x18.svg';
     const successIcon = '../../../../resources/common/img/favicon/successs-icon.svg';
     const closeIcon = '../../../../resources/common/img/favicon/close-icon-24x24.svg';
-    const attentionIcon = '../../../../resources/common/img/favicon/attention-20x20.svg';
     const linkIcon = '../../../../resources/common/img/favicon/link-icon.svg';
 
-    const fromNetwork = selectedFromNetwork ? 'CUDOS' : 'Ethereum';
-    const ToNetwork = selectedToNetwork ? 'CUDOS' : 'Ethereum';
+    const fromNetwork = selectedFromNetwork ? ProjectUtils.CUDOS_NETWORK_TEXT : ProjectUtils.ETHEREUM_NETWORK_TEXT;
+    const toNetwork = selectedToNetwork ? ProjectUtils.CUDOS_NETWORK_TEXT : ProjectUtils.ETHEREUM_NETWORK_TEXT;
 
-    const ETHERSCAN_RINKEBY = 'https://rinkeby.etherscan.io/tx';
-    const ETHERSCAN_MAINNET = 'https://etherscan.io/tx';
-    const CUDOS_EXPLOREER = 'https://explorer.cudos.org/transactions';
+    const ETHERSCAN_EXPLORER = Config.CUDOS_NETWORK.NETWORK_TYPE === 'mainnet'
+        ? Config.ETHEREUM.ETHERSCAN_MAINNET
+        : Config.ETHEREUM.ETHERSCAN_RINKEBY
+    const CUDOS_EXPLORER = Config.CUDOS_NETWORK.BLOCK_EXPLORER;
 
     const onCloseModal = async () => {
         onGetBalance();
@@ -69,7 +78,7 @@ const SummaryModal = ({
                                 </span>
                                 <span className={'FlexStart'}>
                                     <div className={selectedToNetwork ? 'CudosLogoSmall NoMarginLeft' : 'EthLogoSmall NoMarginLeft'} style={selectedToNetwork ? ProjectUtils.makeBgImgStyle(cudosLogoSmall) : ProjectUtils.makeBgImgStyle(ethLogoSmall)}></div>
-                                    <div className={'AlignCenter Weight500'}>{ToNetwork}</div>
+                                    <div className={'AlignCenter Weight500'}>{toNetwork}</div>
                                 </span>
                             </div>
                             <div className={'Row Spacing'}>
@@ -88,28 +97,36 @@ const SummaryModal = ({
                             </div>
                             <div className={'Row Spacing'}>
                                 <span className={'FlexStart GrayText Weight600 Cudos'}>{!displayAmount ? '0.0' : displayAmount}</span>
-                                <span className={'FlexStart GrayText Asset Weight600 FlexRight'}>CUDOS</span>
+                                <span className={'FlexStart GrayText Asset Weight600 FlexRight'}>{CosmosNetworkH.CURRENCY_DISPLAY_NAME}</span>
                             </div>
                             {/* Gas Fee temporarily disabled */}
                             {/* <div className={'Row DoubleSpacing TopBorder'}>
                                 <span className={'FlexStart'}>
                             Gas Fee
                                 </span>
-                                <span className={'FlexEnd Weight600'}>0.00012 CUDOS</span>
+                                <span className={'FlexEnd Weight600'}>0.00012 {CosmosNetworkH.CURRENCY_DISPLAY_NAME}</span>
                             </div> */}
                             <div style={{ marginTop: '85px' }} className={'Row DoubleSpacing TopBorder'}>
                                 <div>Transaction</div>
                             </div>
                             <div className={'Row Spacing LinkWrapper'}>
-                                <div className={'LinkContent'}><a href= {`${selectedFromNetwork ? CUDOS_EXPLOREER : ETHERSCAN_RINKEBY}/${txHash}`} rel='noreferrer' target='_blank'>
-                                    Bridge transaction link</a>
-                                <div className={'LinkIcon'} style={ProjectUtils.makeBgImgStyle(linkIcon)} />
+                                <div className={'LinkContent'}><a href={`${selectedFromNetwork ? CUDOS_EXPLORER : ETHERSCAN_EXPLORER}/${txHash}`} rel='noreferrer' target='_blank'>
+                                    {selectedFromNetwork ? 'Cudos' : 'Ethereum'} Bridge transaction link</a>
+                                    <div className={'LinkIcon'} style={ProjectUtils.makeBgImgStyle(linkIcon)} />
                                 </div>
                             </div>
+                            {selectedFromNetwork ? ''
+                                : <div className={'Row Spacing LinkWrapper'}>
+                                    <div className={'LinkContent'}><a href={`${CUDOS_EXPLORER}/${destTxHash}`} rel='noreferrer' target='_blank'>
+                                        Cudos Bridge transaction link</a>
+                                        <div className={'LinkIcon'} style={ProjectUtils.makeBgImgStyle(linkIcon)} />
+                                    </div>
+                                </div>
+                            }
                             <div className={'Row DoubleSpacing'}>
-                                <div className={'TransactionMesasge'}>
-                                    <div className={'AttentionIcon'} style={ProjectUtils.makeBgImgStyle(attentionIcon)}/>
-                                    Your transaction was sent successfully and will be executed in the next max 5-6 minutes.
+                                <div className={'TransactionMesasge FlexRow'}>
+                                    <div className={'AttentionIcon SVG Size'} dangerouslySetInnerHTML={{ __html: SvgAttention }} />
+                                    <div>{selectedFromNetwork ? CUDOS_SUCCESS_MESSAGE : ETHEREUM_SUCCESS_MESSAGE}</div>
                                 </div>
                             </div>
                             <div className={'Flex DoubleSpacing BtnWrapper'}>

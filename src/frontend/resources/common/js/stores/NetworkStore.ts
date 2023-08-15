@@ -4,11 +4,15 @@ import MetamaskLedger from '../../../common/js/models/ledgers/MetamaskLedger';
 import KeplrLedger from '../../../common/js/models/ledgers/KeplrLedger';
 import Ledger from '../../../common/js/models/ledgers/Ledger';
 
+import { Ledger as CudosJsLedger } from 'cudosjs';
+
+type GravityBridgeUiLedger = Ledger & CudosJsLedger;
+
 class NetworkHandler {
     name: string;
-    ledger: Ledger;
+    ledger: GravityBridgeUiLedger;
 
-    constructor(name: string, ledger: Ledger) {
+    constructor(name: string, ledger: GravityBridgeUiLedger) {
         this.name = name;
         this.ledger = ledger;
     }

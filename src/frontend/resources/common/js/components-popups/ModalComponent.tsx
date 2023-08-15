@@ -16,12 +16,11 @@ const ModalComponent = (
     return (
         <div>
             <Modal
-                disableBackdropClick
                 disableScrollLock
                 aria-labelledby="transition-modal-title"
                 aria-describedby="transition-modal-description"
                 open={isOpen}
-                onClose={() => closeModal()}
+                onClose={(e, reason) => { if (reason !== 'backdropClick') { closeModal() } }}
                 closeAfterTransition
                 BackdropComponent={Backdrop}
                 BackdropProps={{
