@@ -6,6 +6,8 @@ const S = {
     WRONG_FILE_EXTENTION: -2147483640,
     INT_TRUE: 1,
     INT_FALSE: 0,
+    MOMENT_FORMAT_DATE_AND_TIME: 'DD.MM.yyyy, HH:mm',
+    MOMENT_FORMAT_DATE: 'DD.MM.yyyy',
     CSS: {
         addClass: (node: HTMLElement, className: string) => {
             if (S.CSS.hasClass(node, className) === false) {

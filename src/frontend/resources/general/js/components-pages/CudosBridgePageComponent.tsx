@@ -21,11 +21,15 @@ import SummaryModal from '../../../common/js/components-popups/SummaryModal';
 import FailureModal from '../../../common/js/components-popups/FailureModal';
 import LoadingModal from '../../../common/js/components-popups/LoadingModal';
 import PreFlightModal from '../../../common/js/components-popups/PreFlightModal';
+import TransactionsHistoryPopup from '../components-popups/TransactionsHistoryPopup';
+import Button from '../../../common/js/components-inc/Button';
 
 import './../../css/components-pages/cudos-bridge-component.css';
+import PopupTransactionsHistoryStore from '../../../common/js/stores/PopupTransactionsHistoryStore';
 
 interface Props extends ContextPageComponentProps {
     networkStore?: NetworkStore;
+    popupTransactionsHistoryStore?: PopupTransactionsHistoryStore;
 }
 
 interface State {
@@ -70,7 +74,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
     inputTimeouts: any;
 
     static layout() {
-        const MobXComponent = inject('appStore', 'alertStore', 'networkStore')(observer(CudosBridgeComponent));
+        const MobXComponent = inject('appStore', 'alertStore', 'networkStore', 'popupTransactionsHistoryStore')(observer(CudosBridgeComponent));
         PageComponent.layout(<MobXComponent />);
     }
 
@@ -747,9 +751,24 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         return '';
     }
 
+    onClickTransactionHistory = () => {
+        const metamaskLedger = this.props.networkStore.networkHolders[0].ledger as MetamaskLedger;
+        const keplrLedger = this.props.networkStore.networkHolders[1].ledger as KeplrLedger;
+        this.props.popupTransactionsHistoryStore.showSignal(keplrLedger, metamaskLedger);
+    }
+
     renderContent() {
         return (
             <div>
+                { this.state.summary && (
+                    <Button
+                        className={'TransactionsHistoryButton'}
+                        type={Button.TYPE_ROUNDED}
+                        color={Button.COLOR_SCHEME_3}
+                        onClick = { this.onClickTransactionHistory } >
+                        Transactions History
+                    </Button>
+                ) }
                 <div className={'HeaderSection'}>
                     <div className={'Wrapper'}>
                         <div className={'CudosMainLogo'} style={ProjectUtils.makeBgImgStyle(cudosMainLogo)}></div>
@@ -843,6 +862,12 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                 </div>
             </div>
         )
+    }
+
+    renderPopups(): any[] {
+        return super.renderPopups().concat([
+            <TransactionsHistoryPopup key = { 1 } />,
+        ])
     }
 
 }

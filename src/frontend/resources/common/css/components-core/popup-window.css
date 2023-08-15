@@ -1,4 +1,4 @@
-/* version 2.0.1 */
+/* version 2.1.0 */
 .PopupWindowWrapper {
     width:100%; height:100%;
     display:flex;
@@ -11,6 +11,7 @@
 
 .PopupWindowWrapper > .PopupWindow {
     max-height:90%; line-height:normal;
+    display: flex; flex-direction: column;
     position:relative;
     background:#fff;
     box-shadow:0px 0px 17px 0px #bbb;
@@ -25,9 +26,14 @@
     text-align:center;
     font-size:24px;
     padding:8px;
-    transform:rotate(45deg);
     z-index:1;
     cursor:pointer;
+}
+
+.PopupWindowWrapper > .PopupWindow > .ScrollableWrapper {
+    scroll-behavior: smooth;
+    overflow-x:hidden;
+    overflow-y:auto;
 }
 
 /* project specific */
@@ -35,7 +41,9 @@
     max-width: calc(100% - 32px); max-height: 70%;
     background:transparent;
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.5);
-    border-radius: 4px;
+    border-radius: 20px;
+    scroll-behavior: smooth;
+    background: var(--color-body-background);
 }
 
 .PopupWindowWrapper > .PopupWindow .PopupWindowContent {
@@ -66,7 +74,7 @@
 
 .PopupWindowWrapper.PopupPadding > .PopupWindow .PopupWindowContent {
     box-sizing: border-box;
-    padding: 32px;
+    padding: var(--spacing-half);
 }
 
 .PopupWindowWrapper.PopupBox > .PopupWindow .PopupWindowContent {
@@ -77,17 +85,35 @@
 .PopupWindowWrapper > .Close {
     position:absolute;
     right:42px; top:42px;
+    color: #fff;
+}
+
+.PopupWindowWrapper > .PopupWindow > .Close {
+    color: var(--color-red);
+    padding: 14px;
 }
 
 .PopupWindowWrapper .ActionsBottom {
     margin-top: 32px;
 }
 
-.PopupWindowWrapper .PopupTitle {
-    text-align:center;
-    margin-bottom:30px;
+.PopupWindowWrapper .PopupTitleRow {
+    display: flex;
+    margin-bottom: var(--spacing-half);
+}
+
+.PopupWindowWrapper .PopupTitleRow .PopupTitle {
+    color: #fff;
+    font-size: 24px; font-weight: 700;
 }
 
 .PopupWindowWrapper .PopupSubtitle {
     text-align:center;
+}
+
+.PopupWindowWrapper hr {
+    height: 1px;
+    border: 0;
+    margin: var(--spacing-half) 0;
+    background-color: var(--color-gray);
 }

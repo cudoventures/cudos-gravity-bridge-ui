@@ -216,7 +216,7 @@ const Config = {
     ETHEREUM: {
         ETHEREUM_GAS: process.env.ETHEREUM_GAS,
         ETHEREUM_RPC: process.env.ETHEREUM_RPC,
-        ETHERSCAN_RINKEBY: 'https://rinkeby.etherscan.io/tx',
+        ETHERSCAN_SEPOLIA: 'https://sepolia.etherscan.io/tx',
         ETHERSCAN_MAINNET: 'https://etherscan.io/tx',
     },
 };

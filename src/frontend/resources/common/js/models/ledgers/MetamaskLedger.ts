@@ -7,6 +7,7 @@ import gravityContractAbi from '../../solidity/contract_interfaces/gravity.json'
 import Config from '../../../../../../../builds/dev-generated/Config';
 import { Ledger as CudosJsLedger, toHex, CudosNetworkConsts, fromBech32, StdSignature } from 'cudosjs';
 import BigNumber from 'bignumber.js';
+import TransactionHistoryModel from '../TransactionHistoryModel';
 
 declare let window: {
     web3: any;
@@ -162,5 +163,18 @@ export default class MetamaskLedger extends CudosJsLedger implements Ledger {
 
     getAccountAddress(): string {
         return this.accountAddress;
+    }
+
+    async fetchHistoryTransactions(): Promise < TransactionHistoryModel[] > {
+        const gravityContract = new window.web3.eth.Contract(gravityContractAbi, Config.ORCHESTRATOR.BRIDGE_CONTRACT_ADDRESS);
+        const events = await gravityContract.getPastEvents('SendToCosmosEvent', {
+            filter: { _sender: this.accountAddress },
+            fromBlock: 0,
+            toBlock: 'latest',
+        });
+
+        return events.map((event) => {
+            return TransactionHistoryModel.fromEthereumEvent(event);
+        });
     }
 }

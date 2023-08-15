@@ -4,6 +4,7 @@ import Config from '../../../../../../../builds/dev-generated/Config';
 import { Coin, coin, StargateClient, CudosNetworkConsts, StdFee, SigningStargateClient, assertIsDeliverTxSuccess, checkValidAddress, estimateFee, EncodeObject, GasPrice, KeplrWallet } from 'cudosjs';
 import BigNumber from 'bignumber.js';
 import Long from 'long';
+import TransactionHistoryModel from '../TransactionHistoryModel';
 
 declare let window: {
     keplr: any;
@@ -142,5 +143,19 @@ export default class KeplrLedger extends KeplrWallet implements Ledger {
 
     getAccountAddress(): string {
         return this.accountAddress;
+    }
+
+    async fetchHistoryTransactions(): Promise < TransactionHistoryModel[] > {
+        const client = await this.getKeplrClient();
+
+        // paging is done automatically by cosmjs
+        const txData = await client.searchTx([
+            { key: 'message.action', value: '/gravity.v1.MsgSendToEth' },
+            { key: 'message.sender', value: this.accountAddress },
+        ]);
+
+        return txData.map((indexedTx) => {
+            return TransactionHistoryModel.fromCudosTx(indexedTx);
+        }).reverse();
     }
 }

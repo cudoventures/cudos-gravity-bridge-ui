@@ -1,31 +1,35 @@
-// version 3.0.0
+// version 3.1.0
 import React, { MouseEvent } from 'react';
 
 import S from '../utilities/Main';
 
 import PopupStore from '../stores/PopupStore';
 
-import SvgClose from '../../svg/close-btn.svg';
+import SvgClose from '../../../../resources/common/img/favicon/close-icon-24x24.svg';
 import '../../css/components-core/popup-window.css';
 
+const outerClose = false;
 let popupCounter = 0;
 
 export interface PopupWindowProps {
-    popupStore: PopupStore;
+    popupStore?: PopupStore;
 }
 
-export default class PopupWindowComponent < Pr extends PopupWindowProps = PopupWindowProps > extends React.Component < Pr > {
+export default class PopupWindowComponent < Pr extends PopupWindowProps = PopupWindowProps, St = {} > extends React.Component < Pr, St > {
 
     visibleFlag: boolean = false;
-    nodes: {
-        popupWindow: React.RefObject < HTMLDivElement >,
+
+    onWheelTime: number = S.NOT_EXISTS;
+    onWheelTargetY: number = S.NOT_EXISTS;
+
+    popupNodes: {
+        scrollableCnt: React.RefObject < HTMLDivElement >,
     };
 
     constructor(props: Pr) {
         super(props);
-
-        this.nodes = {
-            'popupWindow': React.createRef(),
+        this.popupNodes = {
+            'scrollableCnt': React.createRef(),
         };
     }
 
@@ -53,12 +57,19 @@ export default class PopupWindowComponent < Pr extends PopupWindowProps = PopupW
     }
 
     isRemovable() {
-        return true;
+        return false;
     }
 
     onWheel = (e: React.WheelEvent < HTMLElement >) => {
         e.preventDefault();
-        this.nodes.popupWindow.current.scrollTop += e.deltaY * 10;
+
+        // 100 ms interval is just a randaom value, after which we should apply normal scrolling
+        const now = Date.now();
+        let scrollTop = this.onWheelTime + 100 >= now ? this.onWheelTargetY : this.popupNodes.scrollableCnt.current.scrollTop;
+        scrollTop += e.deltaY;
+        this.popupNodes.scrollableCnt.current.scrollTop = scrollTop;
+        this.onWheelTargetY = scrollTop;
+        this.onWheelTime = now;
     }
 
     onClickClose = (e: MouseEvent) => {
@@ -69,22 +80,35 @@ export default class PopupWindowComponent < Pr extends PopupWindowProps = PopupW
     render() {
         const { popupStore } = this.props;
 
+        const content = popupStore.visible === false ? null : this.renderContent();
+        const close = this.hasClose() === false ? null : (
+            <div
+                className = { 'Close SVG Clickable' }
+                onClick = { this.onClickClose }
+                dangerouslySetInnerHTML = {{ __html: SvgClose }} />
+        )
+
         return (
             <div
                 className = { `PopupWindowWrapper ${this.getCssClassName()} Transition ActiveVisibilityHidden ${S.CSS.getActiveClassName(popupStore.visible)}`}
                 onClick = { this.isRemovable() === true ? popupStore.hide : undefined }
                 onWheel = { this.onWheel } >
 
-                { this.hasClose() === true && (
-                    <div
-                        className = { 'Close SVG Clickable' }
-                        onClick = { this.onClickClose }
-                        dangerouslySetInnerHTML = {{ __html: SvgClose }} />
-                ) }
+                { outerClose === true && this.hasClose() === true && close }
 
-                <div ref = { this.nodes.popupWindow } className = { 'PopupWindow Scrolls' } onClick = { S.stopPropagation } onWheel = { S.stopPropagation } >
+                <div ref = { outerClose === true ? this.popupNodes.scrollableCnt : undefined } className = { 'PopupWindow Scrolls' } onClick = { S.stopPropagation } onWheel = { S.stopPropagation } >
 
-                    { popupStore.visible === true && this.renderContent() }
+                    { outerClose === true && content }
+                    { outerClose === false && (
+                        <>
+                            { close }
+                            <div ref = { outerClose === false ? this.popupNodes.scrollableCnt : undefined } className = { 'ScrollableWrapper Scrolls' } >
+
+                                { content }
+
+                            </div>
+                        </>
+                    ) }
 
                 </div>
 
