@@ -9,7 +9,7 @@ import S from '../utilities/Main';
 import '../../css/components-core/disable-actions.css';
 
 interface Props {
-    appStore: AppStore;
+    appStore?: AppStore;
 }
 
 class DisableActions extends React.Component < Props > {

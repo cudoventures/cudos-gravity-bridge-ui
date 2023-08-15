@@ -34,7 +34,7 @@ body {
 }
 
 .ReactBody > .Page {
-    background-color: #1B2031;
+    /* background-color: #1B2031; */
     width:100%; min-height:100%;
     display:flex; flex-direction:column;
 }
@@ -231,6 +231,7 @@ select::-ms-value {
 }
 
 .Background {
+    background-size: 1800px 750px;
+    background-position: top center;
     background-repeat: no-repeat;
-    background-size: 100% 100%;
 }

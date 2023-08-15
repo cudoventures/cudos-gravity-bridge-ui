@@ -1,32 +1,31 @@
-import React, { RefObject } from 'react';
+import React from 'react';
+import { Long } from 'long';
+import { inject, observer } from 'mobx-react';
+import BigNumber from 'bignumber.js';
+import { CudosNetworkConsts, generateMsg, GasPrice, StargateClient, coin, Ledger as CudosJsLedger } from 'cudosjs'
+import Web3 from 'web3';
 
+import Config from '../../../../../../builds/dev-generated/Config';
+import S from '../../../common/js/utilities/Main';
+import NetworkStore from '../../../common/js/stores/NetworkStore';
+import KeplrLedger from '../../../common/js/models/ledgers/KeplrLedger';
+import MetamaskLedger from '../../../common/js/models/ledgers/MetamaskLedger';
+import ERC20TokenAbi from '../../../common/js/solidity/contract_interfaces/ERC20_token.json';
+import ProjectUtils from '../../../common/js/ProjectUtils';
+
+import PageComponent from '../../../common/js/components-pages/PageComponent';
 import ContextPageComponent, { ContextPageComponentProps } from './common/ContextPageComponent';
-import TransferForm from './TransferForm';
-import SummaryForm from './SummaryForm';
+import TransferForm from '../components-inc/TransferForm';
+import SummaryForm from '../components-inc/SummaryForm';
 import SummaryModal from '../../../common/js/components-popups/SummaryModal';
 import FailureModal from '../../../common/js/components-popups/FailureModal';
 import LoadingModal from '../../../common/js/components-popups/LoadingModal';
 import PreFlightModal from '../../../common/js/components-popups/PreFlightModal';
 
-import Config from '../../../../../../builds/dev-generated/Config';
 import './../../css/components-pages/cudos-bridge-component.css';
-import PageComponent from '../../../common/js/components-pages/PageComponent';
-import { inject, observer } from 'mobx-react';
-import BigNumber from 'bignumber.js';
-
-import S from '../../../common/js/utilities/Main';
-import NetworkStore from '../../../common/js/stores/NetworkStore';
-import KeplrLedger from '../../../common/js/models/ledgers/KeplrLedger';
-import ProjectUtils from '../../../common/js/ProjectUtils';
-import { CudosNetworkConsts, generateMsg, GasPrice, StargateClient, coin, Ledger as CudosJsLedger } from 'cudosjs'
-import MetamaskLedger from '../../../common/js/models/ledgers/MetamaskLedger';
-import Web3 from 'web3';
-import ERC20TokenAbi from '../../../common/js/solidity/contract_interfaces/ERC20_token.json';
-
-import { Long } from 'long';
 
 interface Props extends ContextPageComponentProps {
-    networkStore: NetworkStore;
+    networkStore?: NetworkStore;
 }
 
 interface State {
@@ -63,14 +62,12 @@ interface State {
 }
 
 const cudosMainLogo = '../../../../resources/common/img/favicon/cudos-40x40.svg'
-const cudosFont = '../../../../resources/common/img/favicon/cudos-font.svg'
 const transferLogoAlt = '../../../../resources/common/img/favicon/transfer-logo-alt.svg'
 const keplrLink = 'https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap?hl=en'
 
 export default class CudosBridgeComponent extends ContextPageComponent<Props, State> {
 
     inputTimeouts: any;
-    root: RefObject<HTMLDivElement>;
 
     static layout() {
         const MobXComponent = inject('appStore', 'alertStore', 'networkStore')(observer(CudosBridgeComponent));
@@ -112,8 +109,6 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             validAmount: false,
             loadingModalAdditionalText: '',
         }
-
-        this.root = React.createRef();
 
         this.inputTimeouts = {
             'amount': null,
@@ -488,7 +483,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         }
     }
 
-    onChnageTransactionDirection = async (): Promise<void> => {
+    onChangeTransactionDirection = async (): Promise<void> => {
         const toNetwork = this.state.selectedToNetwork;
         const fromNetwork = this.state.selectedFromNetwork;
         const toConnected = this.state.isToConnected;
@@ -787,7 +782,6 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                         closeModal={() => this.setState({ isOpen: false, displayAmount: S.Strings.EMPTY })}
                         isOpen={this.state.isOpen}
                         onGetBalance={this.onGetBalance}
-                        // checkWalletConnected={this.checkWalletConnected}
                     />
                     <FailureModal
                         isOpen={this.state.isTransactionFail}
@@ -804,24 +798,29 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                         selectedFromNetwork={this.state.selectedFromNetwork}
                         selectedToNetwork={this.state.selectedToNetwork}
                     />
-                    {!this.state.summary
-                        ? <TransferForm
-                            selectedFromNetwork={this.state.selectedFromNetwork}
-                            selectedToNetwork={this.state.selectedToNetwork}
-                            isFromConnected={this.state.isFromConnected}
-                            isToConnected={this.state.isToConnected}
-                            onDisconnectFromNetwork={this.onDisconnectFromNetwork}
-                            onDisconnectToNetwork={this.onDisconnectToNetwork}
-                            onSelectFromNetwork={this.onSelectFromNetwork}
-                            onSelectToNetwork={this.onSelectToNetwork}
-                            onChnageTransactionDirection={this.onChnageTransactionDirection}
-                            getAddress={this.getAddress}
-                            goToTransactionSummary={this.goToTransactionSummary}
-                            onChangeAccount={this.onChangeAccount}
-                            // checkWalletConnected={this.checkWalletConnected}
-                            connectWallet={this.connectWallet}
-                        />
-                        : <SummaryForm
+                    { !this.state.summary ? (
+                        <>
+                            <TransferForm
+                                selectedFromNetwork={this.state.selectedFromNetwork}
+                                selectedToNetwork={this.state.selectedToNetwork}
+                                isFromConnected={this.state.isFromConnected}
+                                isToConnected={this.state.isToConnected}
+                                onDisconnectFromNetwork={this.onDisconnectFromNetwork}
+                                onDisconnectToNetwork={this.onDisconnectToNetwork}
+                                onSelectFromNetwork={this.onSelectFromNetwork}
+                                onSelectToNetwork={this.onSelectToNetwork}
+                                onChangeTransactionDirection={this.onChangeTransactionDirection}
+                                getAddress={this.getAddress}
+                                goToTransactionSummary={this.goToTransactionSummary}
+                                onChangeAccount={this.onChangeAccount}
+                                connectWallet={this.connectWallet}
+                            />
+                            <div className={'CreateAccount'}>
+                                <span>Need a {ProjectUtils.CUDOS_NETWORK_TEXT} account? Create one <a rel='noreferrer' target='_blank' style={{ color: 'rgba(78, 148, 238, 1)' }} href={keplrLink}>here</a></span>
+                            </div>
+                        </>
+                    ) : (
+                        <SummaryForm
                             selectedFromNetwork={this.state.selectedFromNetwork}
                             selectedToNetwork={this.state.selectedToNetwork}
                             isFromConnected={this.state.isFromConnected}
@@ -829,11 +828,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                             contractBalance={this.state.contractBalance}
                             walletBalance={this.state.walletBalance}
                             displayAmount={this.state.displayAmount}
-                            // onDisconnectFromNetwork={this.onDisconnectFromNetwork}
-                            // onDisconnectToNetwork={this.onDisconnectToNetwork}
-                            // onSelectFromNetwork={this.onSelectFromNetwork}
-                            // onSelectToNetwork={this.onSelectToNetwork}
-                            onChnageTransactionDirection={this.onChnageTransactionDirection}
+                            onChangeTransactionDirection={this.onChangeTransactionDirection}
                             getAddress={this.getAddress}
                             onChangeAmount={this.onChangeAmount}
                             onClickMaxAmount={this.onClickMaxAmount}
@@ -844,13 +839,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                             estimatedGasFees={this.state.estimatedGasFees}
                             validAmount={this.state.validAmount}
                         />
-                    }
-                    {this.state.summary
-                        ? null
-                        : <div className={'CreateAccount'}>
-                            <span>Need a {ProjectUtils.CUDOS_NETWORK_TEXT} account? Create one <a rel='noreferrer' target='_blank' style={{ color: 'rgba(78, 148, 238, 1)' }} href={keplrLink}>here</a></span>
-                        </div>
-                    }
+                    ) }
                 </div>
             </div>
         )

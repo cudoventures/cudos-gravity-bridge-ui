@@ -5,6 +5,10 @@ import { Coin, coin, StargateClient, CudosNetworkConsts, StdFee, SigningStargate
 import BigNumber from 'bignumber.js';
 import Long from 'long';
 
+declare let window: {
+    keplr: any;
+}
+
 export default class KeplrLedger extends KeplrWallet implements Ledger {
 
     walletError: string;

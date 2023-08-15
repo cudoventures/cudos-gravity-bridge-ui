@@ -8,6 +8,11 @@ import Config from '../../../../../../../builds/dev-generated/Config';
 import { Ledger as CudosJsLedger, toHex, CudosNetworkConsts, fromBech32, StdSignature } from 'cudosjs';
 import BigNumber from 'bignumber.js';
 
+declare let window: {
+    web3: any;
+    ethereum: any;
+}
+
 export default class MetamaskLedger extends CudosJsLedger implements Ledger {
     static NETWORK_NAME = 'Ethereum';
 

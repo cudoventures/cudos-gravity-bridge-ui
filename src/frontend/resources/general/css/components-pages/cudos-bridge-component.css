@@ -8,7 +8,6 @@
     margin-top: 50px;
     width: 473px;
     max-width: 90%;
-    height: 101vh;
 }
 
 .CudosBridge .SummaryContent {
@@ -17,7 +16,6 @@
     position:relative;
     margin: auto;
     margin-top: 50px;
-    height: 101vh;
     min-width: 850px;
     max-width: 850px;
 }

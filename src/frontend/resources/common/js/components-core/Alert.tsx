@@ -8,7 +8,7 @@ import S from '../utilities/Main';
 import '../../css/components-core/alert.css';
 
 interface Props {
-    alertStore: AlertStore;
+    alertStore?: AlertStore;
 }
 
 class Alert extends React.Component < Props > {

@@ -9,7 +9,7 @@ import '../../css/components-core/page-loading-indicator.css';
 import S from '../utilities/Main';
 
 interface Props {
-    appStore: AppStore;
+    appStore?: AppStore;
 }
 
 class PageLoadingIndicator extends React.Component < Props > {

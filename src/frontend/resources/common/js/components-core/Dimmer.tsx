@@ -9,7 +9,7 @@ import S from '../utilities/Main';
 import '../../css/components-core/dimmer.css';
 
 interface Props {
-    appStore: AppStore;
+    appStore?: AppStore;
 }
 
 class Dimmer extends React.Component < Props > {

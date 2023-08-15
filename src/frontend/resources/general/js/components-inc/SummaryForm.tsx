@@ -15,12 +15,11 @@ interface ISummaryFormProps {
     displayAmount: string
     onChangeAmount: any
     onClickMaxAmount: () => Promise < void >
-    onChnageTransactionDirection: any
+    onChangeTransactionDirection: any
     onClickSend: Function
     selectedToNetwork: number
     isToConnected: boolean
     getAddress: any
-    // isOpen: boolean
     isTransferring: boolean,
     minTransferAmount: BigNumber,
     minBridgeFeeAmount: BigNumber,
@@ -43,7 +42,7 @@ const SummaryForm = (props: ISummaryFormProps) => {
     const [animate, setAnimate] = useState<boolean>(false);
 
     const changeTransaction = (): void => {
-        props.onChnageTransactionDirection();
+        props.onChangeTransactionDirection();
         setAnimate(!animate);
     }
 
@@ -61,6 +60,7 @@ const SummaryForm = (props: ISummaryFormProps) => {
     useEffect(() => {
         api()
     }, [])
+
     return (
         <div className={'SummaryForm'}>
             <div className={'Row'}>

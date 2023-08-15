@@ -20,8 +20,8 @@ configure({
 })
 
 export interface PageComponentProps {
-    appStore: AppStore,
-    alertStore: AlertStore,
+    appStore?: AppStore,
+    alertStore?: AlertStore,
 }
 
 export default class PageComponent < Pr extends PageComponentProps, St = {}, SS = any > extends React.Component < Pr, St, SS > {
@@ -32,10 +32,10 @@ export default class PageComponent < Pr extends PageComponentProps, St = {}, SS 
                 appStore = { new AppStore() }
                 accountSessionStore = { new AccountSessionStore() }
                 alertStore = { new AlertStore() }
-                popupPasswordStore = { new PopupPasswordStore() } 
+                popupPasswordStore = { new PopupPasswordStore() }
                 networkStore = { new NetworkStore() }
-                >
-                
+            >
+
                 { componentNode }
 
             </Provider>
@@ -56,7 +56,7 @@ export default class PageComponent < Pr extends PageComponentProps, St = {}, SS 
     }
 
     loadData() {
-        return new Promise((resolve, reject) => {
+        return new Promise < void >((resolve, reject) => {
             const ajax = new Ajax();
 
             ajax.open(Ajax.GET, `${Config.URL.RESOURCES}/common/fonts/BasierCircle-Regular.woff2`, true);
