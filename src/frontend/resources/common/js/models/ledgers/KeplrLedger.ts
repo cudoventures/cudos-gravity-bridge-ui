@@ -130,7 +130,7 @@ export default class KeplrLedger implements Ledger {
                 }
               };
               
-            const offlineSigner = window.getOfflineSigner(Config.CUDOS_NETWORK.CHAIN_ID);
+            const offlineSigner = await window.getOfflineSignerAuto(Config.CUDOS_NETWORK.CHAIN_ID);
             this.account = (await offlineSigner.getAccounts())[0].address;
 
             this.connected = S.INT_TRUE;
@@ -165,7 +165,7 @@ export default class KeplrLedger implements Ledger {
       };
 
     GetKeplrClientAndAccount = async () => {
-        const offlineSigner = window.getOfflineSigner(this.chainID);
+        const offlineSigner = await window.getOfflineSignerAuto(this.chainID);
         const myRegistry = new Registry([
             ...defaultRegistryTypes,
             [CosmosNetworkH.MESSAGE_TYPE_URL, MsgSendToEth],
@@ -225,7 +225,7 @@ export default class KeplrLedger implements Ledger {
     async getBalance(): Promise<BigNumber> {
         this.walletError = null;
         try {
-            const offlineSigner = window.getOfflineSigner(Config.CUDOS_NETWORK.CHAIN_ID);
+            const offlineSigner = await window.getOfflineSignerAuto(Config.CUDOS_NETWORK.CHAIN_ID);
             const account = (await offlineSigner.getAccounts())[0];
 
             const url = `${Config.CUDOS_NETWORK.API}/cosmos/bank/v1beta1/balances/${account.address}/by_denom?denom=${CosmosNetworkH.CURRENCY_DENOM}`;
