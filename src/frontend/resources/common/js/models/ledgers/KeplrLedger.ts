@@ -8,6 +8,14 @@ import { EncodeObject } from 'cudosjs';
 import BigNumber from 'bignumber.js';
 import { GasPrice } from 'cudosjs';
 
+declare global {
+    interface Window {
+        keplr: any
+        getOfflineSignerAuto: any
+        meta: any
+    }
+}
+
 export default class KeplrLedger implements Ledger {
     @observable connected: number;
     @observable account: string;
@@ -16,6 +24,7 @@ export default class KeplrLedger implements Ledger {
     @observable bridgeFee: BigNumber;
     @observable chainID: string;
     @observable rpcEndpoint: string;
+    @observable txNonce: string;
     queryClient: StargateClient
 
     static NETWORK_NAME = 'Cudos';
@@ -146,18 +155,18 @@ export default class KeplrLedger implements Ledger {
     }
 
     async disconnect(): Promise<void> {
-        return new Promise < void >((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             resolve();
         });
     }
 
     GetKeplrSignerAndAccount = async (): Promise<[OfflineSigner, AccountData]> => {
-        const offlineSigner = await window.getOfflineSigner(this.chainID);
+        const offlineSigner = await window.getOfflineSignerAuto(this.chainID);
         const account = (await offlineSigner.getAccounts())[0];
         return [offlineSigner, account]
     }
 
-    GetKeplrSigningClient = async (offlineSigner:OfflineSigner): Promise < SigningStargateClient > => {
+    GetKeplrSigningClient = async (offlineSigner: OfflineSigner): Promise<SigningStargateClient> => {
         const client = await SigningStargateClient.connectWithSigner(this.rpcEndpoint, offlineSigner);
         return client
     }
@@ -170,15 +179,15 @@ export default class KeplrLedger implements Ledger {
         this.walletError = null;
         try {
 
-            const coinAmount:Coin = coin(
+            const coinAmount: Coin = coin(
                 amount.multipliedBy(CudosNetworkConsts.CURRENCY_1_CUDO).toString(10),
                 CudosNetworkConsts.CURRENCY_DENOM,
             )
-            const bridgeFeeAmount:Coin = coin(
+            const bridgeFeeAmount: Coin = coin(
                 this.bridgeFee.toString(10),
                 CudosNetworkConsts.CURRENCY_DENOM,
             )
-            const gasPrice:GasPrice = GasPrice.fromString(`${Config.CUDOS_NETWORK.GAS_PRICE}acudos`)
+            const gasPrice: GasPrice = GasPrice.fromString(`${Config.CUDOS_NETWORK.GAS_PRICE}acudos`)
 
             const result = await client.gravitySendToEth(
                 account.address,
@@ -197,7 +206,7 @@ export default class KeplrLedger implements Ledger {
     }
 
     async EstimateFee(client: SigningStargateClient, sender: string, messages: EncodeObject[], gasPrice: GasPrice,
-        memo?:string, gasMultiplier?: number):Promise<StdFee> {
+        memo?: string, gasMultiplier?: number): Promise<StdFee> {
         const fee = await estimateFee(client, sender, messages, gasPrice, gasMultiplier, memo)
         return fee
     }
