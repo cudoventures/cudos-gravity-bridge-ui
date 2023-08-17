@@ -29,7 +29,7 @@ const LoadingModal = ({
                 </div>
                 <div className={'Wrapper'}>
                     <div className={'Title Saving'}>
-                        Transfer in progress
+                        In progress
                         <span>.</span>
                         <span>.</span>
                         <span>.</span>

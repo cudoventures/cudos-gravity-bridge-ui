@@ -1,7 +1,7 @@
 import Ledger from './Ledger';
 import { action, makeObservable, observable } from 'mobx';
 import Config from '../../../../../../../builds/dev-generated/Config';
-import { Coin, coin, StargateClient, CudosNetworkConsts, StdFee, SigningStargateClient, assertIsDeliverTxSuccess, checkValidAddress, estimateFee, EncodeObject, GasPrice, KeplrWallet } from 'cudosjs';
+import { Coin, coin, StargateClient, CudosNetworkConsts, StdFee, SigningStargateClient, assertIsDeliverTxSuccess, checkValidAddress, estimateFee, EncodeObject, GasPrice, KeplrWallet, IndexedTx } from 'cudosjs';
 import BigNumber from 'bignumber.js';
 import Long from 'long';
 import TransactionHistoryModel from '../TransactionHistoryModel';
@@ -91,7 +91,7 @@ export default class KeplrLedger extends KeplrWallet implements Ledger {
         this.walletError = null;
         const gasPrice: GasPrice = GasPrice.fromString(`${Config.CUDOS_NETWORK.GAS_PRICE}acudos`);
         try {
-            const result = await client.gravityCancelSendToEth(transactionId, this.accountAddress, gasPrice);
+            const result = await client.gravityCancelSendToEth(transactionId, this.accountAddress, gasPrice, '', 1.5);
             this.txHash = result.transactionHash;
             assertIsDeliverTxSuccess(result);
         } catch (e) {
@@ -145,17 +145,51 @@ export default class KeplrLedger extends KeplrWallet implements Ledger {
         return this.accountAddress;
     }
 
-    async fetchHistoryTransactions(): Promise < TransactionHistoryModel[] > {
+    async fetchHistoryTransactions(lastKnownBatchHeight: number): Promise < TransactionHistoryModel[] > {
         const client = await this.getKeplrClient();
 
         // paging is done automatically by cosmjs
-        const txData = await client.searchTx([
+        // const sendTxDataPromise = client.searchTx([
+        //     { key: 'message.action', value: '/gravity.v1.MsgSendToEth' },
+        //     { key: 'message.sender', value: this.accountAddress },
+        // ]);
+
+        const sendTxDataPromise = client.searchTx(`${[
             { key: 'message.action', value: '/gravity.v1.MsgSendToEth' },
             { key: 'message.sender', value: this.accountAddress },
-        ]);
+        ].map((t) => `${t.key}='${t.value}'`).join(' AND ')} AND tx.height > ${lastKnownBatchHeight}`);
 
-        return txData.map((indexedTx) => {
-            return TransactionHistoryModel.fromCudosTx(indexedTx);
-        }).reverse();
+        const cancelSendTxDataPromise = client.searchTx(`${[
+            { key: 'message.action', value: '/gravity.v1.MsgCancelSendToEth' },
+            { key: 'message.sender', value: this.accountAddress },
+        ].map((t) => `${t.key}='${t.value}'`).join(' AND ')} AND tx.height > ${lastKnownBatchHeight}`);
+
+        const [sendTxData, cancelSendTxData] = await Promise.all([sendTxDataPromise, cancelSendTxDataPromise]);
+        const canceledTxIds = new Set < string >();
+
+        cancelSendTxData.forEach((indexTx: IndexedTx) => {
+            for (let i = indexTx.events.length; i-- > 0;) {
+                const event = indexTx.events[i];
+                if (event.type === 'message') {
+                    for (let j = event.attributes.length; j-- > 0;) {
+                        const attribute = event.attributes[j];
+                        if (attribute.key === 'outgoing_tx_id') {
+                            canceledTxIds.add(attribute.value);
+                            i = 0; // break outer loop
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+
+        return sendTxData
+            // .filter((indexedTx) => {
+            //     return indexedTx.height > lastKnownBatchHeight;
+            // })
+            .map((indexedTx) => {
+                return TransactionHistoryModel.fromCudosTx(indexedTx, canceledTxIds);
+            })
+            .reverse();
     }
 }

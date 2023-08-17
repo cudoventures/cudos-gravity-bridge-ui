@@ -17,9 +17,11 @@ import SvgCudosLogo from '../../../common/img/favicon/cudos-22x22.svg'
 import SvgEthLogo from '../../../common/img/favicon/eth-16x25.svg'
 import SvgTransferLogoAlt from '../../../common/img/favicon/transfer-logo-alt.svg'
 import '../../css/components-popups/transactions-history-popup.css';
+import AlertStore from '../../../common/js/stores/AlertStore';
 
 interface Props extends PopupWindowProps {
     popupStore?: PopupTransactionsHistoryStore;
+    alertStore?: AlertStore;
 }
 
 const ETHERSCAN_EXPLORER = Config.CUDOS_NETWORK.NETWORK_TYPE === 'mainnet'
@@ -41,13 +43,20 @@ class TransactionsHistoryPopup extends PopupWindow < Props > {
         return 'TransactionsHistoryPopup PopupPadding PopupBox';
     }
 
-    async onClickCancelSendToEth(transactionHistoryModel: TransactionHistoryModel) {
-        const ledger = this.props.popupStore.keplrLedger;
-        try {
-            await ledger.cancelSend(transactionHistoryModel.txId);
-        } catch (e) {
-            this.setState({ isTransactionFail: true, isLoading: false, errorMessage: ledger.getWalletError() });
+    onClickCancelSendToEth(transactionHistoryModel: TransactionHistoryModel) {
+        const alertStore = this.props.alertStore;
+        alertStore.hide();
+        alertStore.title = 'Do you want to Decline?';
+        alertStore.subtitle = 'Are you sure you want to decline the transaction? This action cannot be reversed.';
+        alertStore.positiveLabel = 'Yes, Decline';
+        alertStore.negativeLabel = 'No, Go Back';
+        alertStore.positiveListener = () => {
+            const callback = this.props.popupStore.onClickCancelSendToEnd
+            this.props.popupStore.hide();
+            callback(transactionHistoryModel);
+            return true;
         }
+        alertStore.visible = true;
     }
 
     renderContent() {
@@ -59,6 +68,7 @@ class TransactionsHistoryPopup extends PopupWindow < Props > {
                     <>
                         <div className = { 'PopupTitleRow' } >
                             <div className = { 'PopupTitle' }>Transactions History</div>
+                            <div className = { 'PopupSubtitle' }>Only transactions included in blocks from {popupStore.lastKnownBatchHeight} to {popupStore.lastKnownBatchHeight + 119} can be canceled.</div>
                         </div>
                         <Table
                             className = { 'TransactionsTable' }
@@ -111,12 +121,12 @@ class TransactionsHistoryPopup extends PopupWindow < Props > {
                     statusLabel = (
                         <>
                             <div className = { 'TxStatus TxStatusSuccess' }>Success</div>
-                            { transactionHistoryModel.isCancelable(popupStore.lastKnownBatchHeight) === true && (
-                                <div
-                                    className = { 'SVG SvgIconClose' }
-                                    onClick = { this.onClickCancelSendToEth.bind(this, transactionHistoryModel) }
-                                    dangerouslySetInnerHTML = {{ __html: SvgClose }} />
-                            ) }
+                            {/* { transactionHistoryModel.isCancelable(popupStore.lastKnownBatchHeight) === true && ( */}
+                            <div
+                                className = { 'SVG SvgIconClose' }
+                                onClick = { this.onClickCancelSendToEth.bind(this, transactionHistoryModel) }
+                                dangerouslySetInnerHTML = {{ __html: SvgClose }} />
+                            {/* ) } */}
                         </>
                     )
                     break;
@@ -143,6 +153,7 @@ class TransactionsHistoryPopup extends PopupWindow < Props > {
 
 export default inject((stores) => {
     return {
+        alertStore: stores.alertStore,
         popupStore: stores.popupTransactionsHistoryStore,
     }
 })(observer(TransactionsHistoryPopup));

@@ -3,6 +3,7 @@ import PopupStore from './PopupStore';
 import KeplrLedger from '../models/ledgers/KeplrLedger';
 import MetamaskLedger from '../models/ledgers/MetamaskLedger';
 import TransactionHistoryModel from '../models/TransactionHistoryModel';
+import ProjectUtils from '../ProjectUtils';
 
 export default class PopupTransactionsHistoryStore extends PopupStore {
 
@@ -10,6 +11,7 @@ export default class PopupTransactionsHistoryStore extends PopupStore {
     @observable metamaskLedger: MetamaskLedger = null;
     @observable transactions: TransactionHistoryModel[] = null;
     @observable lastKnownBatchHeight: number = 0;
+    @observable onClickCancelSendToEnd: (tx: TransactionHistoryModel) => void = null;
 
     requestId: number = 0;
 
@@ -19,49 +21,60 @@ export default class PopupTransactionsHistoryStore extends PopupStore {
     }
 
     @action
-    async showSignal(keplrLedger: KeplrLedger, metamaskLedger: MetamaskLedger) {
+    async showSignal(keplrLedger: KeplrLedger, metamaskLedger: MetamaskLedger, onClickCancelSendToEnd: (tx: TransactionHistoryModel) => void) {
         this.keplrLedger = keplrLedger;
         this.metamaskLedger = metamaskLedger;
+        this.onClickCancelSendToEnd = onClickCancelSendToEnd;
         this.visible = true;
 
         const requestId = ++this.requestId;
         const stargateClient = await keplrLedger.getKeplrClient();
-        const cudosTransactionsPromise = keplrLedger.fetchHistoryTransactions();
-        const ethTransactionsPromise = metamaskLedger.fetchHistoryTransactions();
 
-        const networkHeight = await stargateClient.getHeight();
-        this.lastKnownBatchHeight = Math.floor(networkHeight / 120) * 120;
+        const cudosNetworkHeight = await stargateClient.getHeight();
+        await ProjectUtils.runInActionAsync(() => {
+            this.lastKnownBatchHeight = Math.floor(cudosNetworkHeight / 120) * 120;
+        });
 
-        const [cudosTransactions, ethTransactions] = await Promise.all([cudosTransactionsPromise, ethTransactionsPromise]);
+        const cudosTransactionsPromise = keplrLedger.fetchHistoryTransactions(this.lastKnownBatchHeight);
+        // const ethTransactionsPromise = metamaskLedger.fetchHistoryTransactions();
+
+        // const [cudosTransactions, ethTransactions] = await Promise.all([cudosTransactionsPromise, ethTransactionsPromise]);
+        const [cudosTransactions] = await Promise.all([cudosTransactionsPromise]);
         if (requestId !== this.requestId) {
             return
         }
 
-        runInAction(async () => {
-            this.transactions = cudosTransactions.concat(ethTransactions);
+        await ProjectUtils.runInActionAsync(() => {
+            // this.transactions = cudosTransactions.concat(ethTransactions);
+            this.transactions = cudosTransactions;
+        });
 
-            for (let i = 0; i < this.transactions.length && requestId === this.requestId; ++i) {
-                if (this.transactions[i].isFromCudos() === true) {
-                    await this.transactions[i].loadCudosInfo(stargateClient);
-                } else {
-                    await this.transactions[i].loadEthInfo();
-                }
+        for (let i = 0; i < this.transactions.length && requestId === this.requestId; ++i) {
+            if (this.transactions[i].isFromCudos() === true) {
+                await this.transactions[i].loadCudosInfo(stargateClient);
+            } else {
+                await this.transactions[i].loadEthInfo();
+            }
 
+            await ProjectUtils.runInActionAsync(() => {
                 this.transactions.sort((tx1, tx2) => {
                     return tx2.timestamp - tx1.timestamp;
                 });
-            }
+            });
+        }
+
+        runInAction(() => {
+
         });
     }
 
-    hide = () => {
-        runInAction(() => {
-            super.hide();
-            this.keplrLedger = null;
-            this.metamaskLedger = null;
-            this.transactions = null;
-            ++this.requestId; // force stop pending queries
-        });
-    }
+    hide = action(() => {
+        this.visible = false; // super.hide is not a function
+        this.keplrLedger = null;
+        this.metamaskLedger = null;
+        this.transactions = null;
+        this.onClickCancelSendToEnd = null;
+        ++this.requestId; // force stop pending queries
+    })
 
 }

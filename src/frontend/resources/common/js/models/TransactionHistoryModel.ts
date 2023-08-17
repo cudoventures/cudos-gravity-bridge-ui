@@ -7,6 +7,7 @@ import { CudosNetworkConsts, IndexedTx, StargateClient, decodeTxRaw } from 'cudo
 import { formatCudos } from '../helpers/NumberFormatter';
 import S from '../utilities/Main';
 import { MsgSendToEth } from 'cudosjs/build/stargate/modules/gravity/proto-types/msgs';
+import ProjectUtils from '../ProjectUtils';
 
 export enum TxType {
     TYPE_CUDOS_ETH = 1,
@@ -41,7 +42,7 @@ export default class TransactionHistoryModel {
         makeAutoObservable(this);
     }
 
-    static fromCudosTx(indexTx: IndexedTx): TransactionHistoryModel {
+    static fromCudosTx(indexTx: IndexedTx, canceledTxIds: Set < string >): TransactionHistoryModel {
         const model = new TransactionHistoryModel();
         const rawTx = decodeTxRaw(indexTx.tx);
         const msgSendToEth = MsgSendToEth.decode(rawTx.body.messages[0].value);
@@ -67,6 +68,10 @@ export default class TransactionHistoryModel {
             if (model.txId.toNumber() !== 0) {
                 break;
             }
+        }
+
+        if (canceledTxIds.has(model.txId.toString())) {
+            model.txStatus = TxStatus.TYPE_ERROR;
         }
 
         return model;
@@ -124,21 +129,17 @@ export default class TransactionHistoryModel {
 
         const block = await client.getBlock(height);
 
-        const assignInAction = new Promise < void >((resolve, reject) => {
-            runInAction(() => {
-                this.height = rawTx.height;
-                this.timestamp = new Date(block.header.time).getTime();
+        await ProjectUtils.runInActionAsync(() => {
+            this.height = rawTx.height;
+            this.timestamp = new Date(block.header.time).getTime();
+            if (this.txStatus === TxStatus.TYPE_PENDING) {
                 this.txStatus = rawTx.code === 0 ? TxStatus.TYPE_SUCCESS : TxStatus.TYPE_ERROR;
-                resolve();
-            });
-        })
-
-        await assignInAction;
+            }
+        });
     }
 
     async loadEthInfo() {
         const block = await window.web3.eth.getBlock(this.height);
-        console.log(block);
         this.timestamp = block.timestamp * 1000;
     }
 

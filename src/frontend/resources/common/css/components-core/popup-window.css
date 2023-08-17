@@ -98,7 +98,7 @@
 }
 
 .PopupWindowWrapper .PopupTitleRow {
-    display: flex;
+    display: flex; align-items: center;
     margin-bottom: var(--spacing-half);
 }
 
@@ -107,8 +107,9 @@
     font-size: 24px; font-weight: 700;
 }
 
-.PopupWindowWrapper .PopupSubtitle {
-    text-align:center;
+.PopupWindowWrapper .PopupTitleRow .PopupSubtitle {
+    color: #636D8F;
+    margin-left: 16px;
 }
 
 .PopupWindowWrapper hr {

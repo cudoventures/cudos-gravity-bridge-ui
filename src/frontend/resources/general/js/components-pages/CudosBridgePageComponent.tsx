@@ -12,6 +12,7 @@ import KeplrLedger from '../../../common/js/models/ledgers/KeplrLedger';
 import MetamaskLedger from '../../../common/js/models/ledgers/MetamaskLedger';
 import ERC20TokenAbi from '../../../common/js/solidity/contract_interfaces/ERC20_token.json';
 import ProjectUtils from '../../../common/js/ProjectUtils';
+import PopupTransactionsHistoryStore from '../../../common/js/stores/PopupTransactionsHistoryStore';
 
 import PageComponent from '../../../common/js/components-pages/PageComponent';
 import ContextPageComponent, { ContextPageComponentProps } from './common/ContextPageComponent';
@@ -25,7 +26,9 @@ import TransactionsHistoryPopup from '../components-popups/TransactionsHistoryPo
 import Button from '../../../common/js/components-inc/Button';
 
 import './../../css/components-pages/cudos-bridge-component.css';
-import PopupTransactionsHistoryStore from '../../../common/js/stores/PopupTransactionsHistoryStore';
+import TransactionHistoryModel from '../../../common/js/models/TransactionHistoryModel';
+import SuccessModal from '../../../common/js/components-popups/SuccessModal';
+import SuccessAlertContent from '../../../common/js/components-inc/SuccessAlertContent';
 
 interface Props extends ContextPageComponentProps {
     networkStore?: NetworkStore;
@@ -754,7 +757,27 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
     onClickTransactionHistory = () => {
         const metamaskLedger = this.props.networkStore.networkHolders[0].ledger as MetamaskLedger;
         const keplrLedger = this.props.networkStore.networkHolders[1].ledger as KeplrLedger;
-        this.props.popupTransactionsHistoryStore.showSignal(keplrLedger, metamaskLedger);
+        this.props.popupTransactionsHistoryStore.showSignal(keplrLedger, metamaskLedger, async (transactionHistoryModel: TransactionHistoryModel) => {
+            this.props.alertStore.hide();
+            this.setState({ isTransferring: true, isLoading: true, loadingModalAdditionalText: '' })
+
+            try {
+                console.log('cancel tx with id: ', transactionHistoryModel.txId);
+                await keplrLedger.cancelSend(transactionHistoryModel.txId);
+
+                this.setState({ isTransferring: false, isLoading: false, loadingModalAdditionalText: '' })
+                this.props.alertStore.msg = (
+                    <SuccessAlertContent
+                        title = 'Transaction Declined!'
+                        subtitle = 'Transaction was successfully declined. You can check the updates in Transactions History.' />
+                )
+                this.props.alertStore.positiveLabel = 'To Transactions History'
+                this.props.alertStore.positiveListener = this.onClickTransactionHistory;
+                this.props.alertStore.visible = true;
+            } catch (e) {
+                this.setState({ isTransferring: false, isTransactionFail: true, isLoading: false, loadingModalAdditionalText: '', errorMessage: 'Transaction wasn’t declined. Check the details in Transactions History and try again.' });
+            }
+        });
     }
 
     renderContent() {
@@ -766,7 +789,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                         type={Button.TYPE_ROUNDED}
                         color={Button.COLOR_SCHEME_3}
                         onClick = { this.onClickTransactionHistory } >
-                        Transactions History
+                        View Cancelable Transactions
                     </Button>
                 ) }
                 <div className={'HeaderSection'}>

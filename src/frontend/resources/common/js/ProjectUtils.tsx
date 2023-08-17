@@ -1,3 +1,4 @@
+import { runInAction } from 'mobx';
 import S from './utilities/Main';
 
 const QUERY_PATTERN = '?p=';
@@ -136,6 +137,15 @@ export default class ProjectUtils {
     static requestAnimationFrame(callback: () => any) {
         requestAnimationFrame(() => {
             requestAnimationFrame(callback);
+        });
+    }
+
+    static runInActionAsync(callback: () => void) {
+        return new Promise < void >((resolve) => {
+            runInAction(() => {
+                callback();
+                resolve();
+            });
         });
     }
 
