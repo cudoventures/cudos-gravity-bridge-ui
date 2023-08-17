@@ -49,11 +49,14 @@
     --color-datepicker-content-background: #9FB0C5;
     --color-datepicker-selected: var(--color-primary);
 
-    --color-popup-background: #fff;
+    --color-popup-background: var(--color-dark-blue);
     /* theme */
     
     --mobile-spacing: 24px;
     --desktop-spacing: 32px;
+    --spacing-main: 48px;
+    --spacing-half: calc(var(--spacing-main) / 2);
+    --spacing-quarter: calc(var(--spacing-half) / 2);
 }
 
 html {
@@ -220,4 +223,8 @@ html.OverflowHidden {
 /* Mui font fix */
 *[class*="-root"], *[class^="Mui"] {
     font-family: inherit !important;
+}
+
+.ColorSecondary {
+    color: var(--color-secondary);
 }

@@ -1,0 +1,52 @@
+.SuccessAlertContent {
+    align-items:flex-start;
+    justify-content: flex-start;
+    position:relative;
+    margin: auto;
+    padding: 20px;
+}
+
+.SuccessAlertContent .TransactionSuccessLogo {
+    width: 70px;
+    height: 70px;
+}
+
+.SuccessAlertContent .Wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.SuccessAlertContent .Title {
+    font-family: Poppins, sans-serif;
+    margin-bottom: 5px;
+    font-size: 30px;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.SuccessAlertContent .Subheader {
+    font-size: 18px;
+    font-weight: 400;
+    text-align: center;
+    color: var(--color-gray);
+    margin-top: 25px;
+}
+
+.SuccessAlertContent .TryAgainBtn {
+    width: 257px;
+    height: 52px;
+    display: flex;
+    justify-content: center;
+}
+
+.SuccessAlertContent .BtnWrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.SuccessAlertContent .DoubleSpacing {
+    margin-top: 45px;
+    margin-bottom: 5px;
+}
+

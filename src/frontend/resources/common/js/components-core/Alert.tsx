@@ -58,18 +58,26 @@ class Alert extends React.Component < Props > {
         return (
             <div className = { `AlertWrapper Transition ActiveVisibilityHidden ${S.CSS.getActiveClassName(alertStore.isVisible())}` } >
                 <div className = { 'Alert ShadowDark' } >
-                    <div className = { 'Msg ScrollView' } >{alertStore.msg}</div>
-
-                    <div className = { 'FlexSplit' } >
-                        { alertStore.neutralLabel !== null && (
-                            <div
-                                className = { 'TextButton Neutral' }
-                                onClick = { this.onClickNeutral } >
-                                { alertStore.neutralLabel }
-                            </div>
+                    <div className = { 'Msg ScrollView' } >
+                        {alertStore.msg}
+                        { alertStore.title !== null && (
+                            <div className = { 'MsgTitle' } >{ alertStore.title }</div>
                         ) }
+                        { alertStore.subtitle !== null && (
+                            <div className = { 'MsgSubtitle' } >{ alertStore.subtitle }</div>
+                        ) }
+                    </div>
 
-                        <div className = { 'StartRight' } >
+                    { alertStore.hasAnyButton() === true && (
+                        <div className = { 'ButtonsCnt' } >
+                            { alertStore.neutralLabel !== null && (
+                                <div
+                                    className = { 'TextButton Neutral' }
+                                    onClick = { this.onClickNeutral } >
+                                    { alertStore.neutralLabel }
+                                </div>
+                            ) }
+
                             { alertStore.negativeLabel !== null && (
                                 <div
                                     className = { 'TextButton Negative' }
@@ -85,9 +93,9 @@ class Alert extends React.Component < Props > {
                                     { alertStore.positiveLabel }
                                 </div>
                             ) }
-
                         </div>
-                    </div>
+                    ) }
+
                 </div>
             </div>
         )

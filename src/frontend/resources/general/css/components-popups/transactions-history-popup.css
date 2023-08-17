@@ -1,0 +1,33 @@
+.TransactionsHistoryPopup .TransactionsTable .Destination .SvgCurrency {
+    margin-right: 8px;
+}
+
+.TransactionsHistoryPopup .TransactionsTable .Destination .SvgArrows {
+    margin:0 16px;
+}
+
+.TransactionsHistoryPopup .TransactionsTable .TxStatus {
+    text-transform: uppercase;
+    font-size: 12px;
+    padding: 6px 18px;
+    border-radius: 10px;
+}
+
+.TransactionsHistoryPopup .TransactionsTable .TxStatus.TxStatusPending {
+    color: #52A6F8;
+    background: rgba(82, 166, 248, 0.20);
+}
+
+.TransactionsHistoryPopup .TransactionsTable .TxStatus.TxStatusError {
+    color: #EA6161;
+    background: rgba(234, 97, 97, 0.20);
+}
+
+.TransactionsHistoryPopup .TransactionsTable .TxStatus.TxStatusSuccess {
+    color: #65B48F;
+    background: rgba(101, 180, 143, 0.20);
+}
+
+.TransactionsHistoryPopup .TransactionsTable .SvgIconClose {
+    margin-left: 12px;
+}

@@ -40,6 +40,13 @@
     justify-content: center;
 }
 
+.CudosBridge .TransactionsHistoryButton {
+    position: absolute !important;
+    top: 32px; right: 32px;
+    padding-left: 32px !important;
+    padding-right: 32px !important;
+}
+
 .Relative {
     position: relative;
 }

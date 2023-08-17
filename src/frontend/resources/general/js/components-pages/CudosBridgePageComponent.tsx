@@ -12,6 +12,7 @@ import KeplrLedger from '../../../common/js/models/ledgers/KeplrLedger';
 import MetamaskLedger from '../../../common/js/models/ledgers/MetamaskLedger';
 import ERC20TokenAbi from '../../../common/js/solidity/contract_interfaces/ERC20_token.json';
 import ProjectUtils from '../../../common/js/ProjectUtils';
+import PopupTransactionsHistoryStore from '../../../common/js/stores/PopupTransactionsHistoryStore';
 
 import PageComponent from '../../../common/js/components-pages/PageComponent';
 import ContextPageComponent, { ContextPageComponentProps } from './common/ContextPageComponent';
@@ -21,11 +22,17 @@ import SummaryModal from '../../../common/js/components-popups/SummaryModal';
 import FailureModal from '../../../common/js/components-popups/FailureModal';
 import LoadingModal from '../../../common/js/components-popups/LoadingModal';
 import PreFlightModal from '../../../common/js/components-popups/PreFlightModal';
+import TransactionsHistoryPopup from '../components-popups/TransactionsHistoryPopup';
+import Button from '../../../common/js/components-inc/Button';
 
 import './../../css/components-pages/cudos-bridge-component.css';
+import TransactionHistoryModel from '../../../common/js/models/TransactionHistoryModel';
+import SuccessModal from '../../../common/js/components-popups/SuccessModal';
+import SuccessAlertContent from '../../../common/js/components-inc/SuccessAlertContent';
 
 interface Props extends ContextPageComponentProps {
     networkStore?: NetworkStore;
+    popupTransactionsHistoryStore?: PopupTransactionsHistoryStore;
 }
 
 interface State {
@@ -70,7 +77,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
     inputTimeouts: any;
 
     static layout() {
-        const MobXComponent = inject('appStore', 'alertStore', 'networkStore')(observer(CudosBridgeComponent));
+        const MobXComponent = inject('appStore', 'alertStore', 'networkStore', 'popupTransactionsHistoryStore')(observer(CudosBridgeComponent));
         PageComponent.layout(<MobXComponent />);
     }
 
@@ -747,9 +754,44 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         return '';
     }
 
+    onClickTransactionHistory = () => {
+        const metamaskLedger = this.props.networkStore.networkHolders[0].ledger as MetamaskLedger;
+        const keplrLedger = this.props.networkStore.networkHolders[1].ledger as KeplrLedger;
+        this.props.popupTransactionsHistoryStore.showSignal(keplrLedger, metamaskLedger, async (transactionHistoryModel: TransactionHistoryModel) => {
+            this.props.alertStore.hide();
+            this.setState({ isTransferring: true, isLoading: true, loadingModalAdditionalText: '' })
+
+            try {
+                console.log('cancel tx with id: ', transactionHistoryModel.txId);
+                await keplrLedger.cancelSend(transactionHistoryModel.txId);
+
+                this.setState({ isTransferring: false, isLoading: false, loadingModalAdditionalText: '' })
+                this.props.alertStore.msg = (
+                    <SuccessAlertContent
+                        title = 'Transaction Declined!'
+                        subtitle = 'Transaction was successfully declined. You can check the updates in Transactions History.' />
+                )
+                this.props.alertStore.positiveLabel = 'To Transactions History'
+                this.props.alertStore.positiveListener = this.onClickTransactionHistory;
+                this.props.alertStore.visible = true;
+            } catch (e) {
+                this.setState({ isTransferring: false, isTransactionFail: true, isLoading: false, loadingModalAdditionalText: '', errorMessage: 'Transaction wasn’t declined. Check the details in Transactions History and try again.' });
+            }
+        });
+    }
+
     renderContent() {
         return (
             <div>
+                { this.state.summary && (
+                    <Button
+                        className={'TransactionsHistoryButton'}
+                        type={Button.TYPE_ROUNDED}
+                        color={Button.COLOR_SCHEME_3}
+                        onClick = { this.onClickTransactionHistory } >
+                        View Cancelable Transactions
+                    </Button>
+                ) }
                 <div className={'HeaderSection'}>
                     <div className={'Wrapper'}>
                         <div className={'CudosMainLogo'} style={ProjectUtils.makeBgImgStyle(cudosMainLogo)}></div>
@@ -843,6 +885,12 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                 </div>
             </div>
         )
+    }
+
+    renderPopups(): any[] {
+        return super.renderPopups().concat([
+            <TransactionsHistoryPopup key = { 1 } />,
+        ])
     }
 
 }

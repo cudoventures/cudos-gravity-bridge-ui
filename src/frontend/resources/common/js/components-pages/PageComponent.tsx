@@ -8,7 +8,7 @@ import Config from '../../../../../../builds/dev-generated/Config';
 import AppStore from '../stores/AppStore';
 import AlertStore from '../stores/AlertStore';
 import AccountSessionStore from '../stores/AcccountSessionStore';
-import PopupPasswordStore from '../stores/PopupPasswordStore';
+import PopupTransactionsHistoryStore from '../stores/PopupTransactionsHistoryStore';
 import Ajax from '../utilities/Ajax';
 import S from '../utilities/Main';
 
@@ -32,7 +32,7 @@ export default class PageComponent < Pr extends PageComponentProps, St = {}, SS 
                 appStore = { new AppStore() }
                 accountSessionStore = { new AccountSessionStore() }
                 alertStore = { new AlertStore() }
-                popupPasswordStore = { new PopupPasswordStore() }
+                popupTransactionsHistoryStore = { new PopupTransactionsHistoryStore() }
                 networkStore = { new NetworkStore() }
             >
 
