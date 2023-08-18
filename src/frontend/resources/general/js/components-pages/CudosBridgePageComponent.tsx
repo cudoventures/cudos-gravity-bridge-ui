@@ -21,12 +21,13 @@ import NetworkStore from '../../../common/js/stores/NetworkStore';
 import KeplrLedger from '../../../common/js/models/ledgers/KeplrLedger';
 import ProjectUtils from '../../../common/js/ProjectUtils';
 import Ledger from '../../../common/js/models/ledgers/Ledger';
-import CosmosNetworkH from '../../../common/js/models/ledgers/CosmosNetworkH';
+import { CudosNetworkConsts, generateMsg } from "cudosjs"
 import MetamaskLedger from '../../../common/js/models/ledgers/MetamaskLedger';
 import Web3 from 'web3';
 import ERC20TokenAbi from '../../../common/js/solidity/contract_interfaces/ERC20_token.json';
-import axios from 'axios';
-import { GasPrice } from '@cosmjs/launchpad';
+import { GasPrice } from 'cudosjs';
+import { StargateClient, coin } from 'cudosjs'
+import { Long } from "long";
 
 interface Props extends ContextPageComponentProps {
     networkStore: NetworkStore;
@@ -69,11 +70,6 @@ const cudosMainLogo = '../../../../resources/common/img/favicon/cudos-40x40.svg'
 const cudosFont = '../../../../resources/common/img/favicon/cudos-font.svg'
 const transferLogoAlt = '../../../../resources/common/img/favicon/transfer-logo-alt.svg'
 const keplrLink = 'https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap?hl=en'
-
-const GRAVITY_TX_BY_HASH_REST_ENDPOINT = '/cosmos/tx/v1beta1/txs/'
-const GRAVITY_TXS_RPC_ENDPOINT = '/tx_search?query="message.action=\'/gravity.v1.MsgSendToCosmosClaim\'"'
-const PARAMS_REST_ENDPOINT = '/gravity/v1beta/params'
-const BLOCK_HEIGHT__RPC_ENDPOINT = '/abci_info'
 
 export default class CudosBridgeComponent extends ContextPageComponent<Props, State> {
 
@@ -130,14 +126,15 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
     }
 
     getAccountBalance = async (account: string): Promise<string> => {
-        const url: string = `${Config.CUDOS_NETWORK.API}/bank/balances/${account}`;
-        const response = await axios.get(url);
-
         let accountBalance: string;
-        if (response.status === 200 && response.data.result[0]) {
-            accountBalance = response.data.result[0].amount;
-        } else {
-            accountBalance = '0';
+
+        const rpc: string = Config.CUDOS_NETWORK.RPC
+        const queryClient: StargateClient = this.props.networkStore.networkHolders[1].ledger.queryClient
+
+        try {
+            accountBalance = (await queryClient.getBalance(account, 'acudos')).amount
+        } catch (e) {
+            accountBalance = '0'
         }
         return accountBalance;
     }
@@ -148,7 +145,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             const balance = await this.getAccountBalance(gravityModuleAddress);
             let moduleBalance = new BigNumber(balance);
             if (moduleBalance.gt(0)) {
-                moduleBalance = moduleBalance.div(CosmosNetworkH.CURRENCY_1_CUDO);
+                moduleBalance = moduleBalance.div(CudosNetworkConsts.CURRENCY_1_CUDO);
             } else {
                 moduleBalance = new BigNumber(0);
             }
@@ -167,7 +164,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
 
             const balance = await erc20Contract.methods.balanceOf(contractWallet).call();
 
-            return (new BigNumber(balance)).div(CosmosNetworkH.CURRENCY_1_CUDO);
+            return (new BigNumber(balance)).div(CudosNetworkConsts.CURRENCY_1_CUDO);
         } catch (e) {
             throw new Error('Failed to fetch balance!');
         }
@@ -376,7 +373,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         });
 
         if (!bigAmount.isNaN()
-            && !bigAmount.isLessThan(new BigNumber(1).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO))
+            && !bigAmount.isLessThan(new BigNumber(1).dividedBy(CudosNetworkConsts.CURRENCY_1_CUDO))
             && this.validCudosNumber(amount)
         ) {
             this.inputTimeouts.amount = setTimeout(async () => {
@@ -454,7 +451,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         const ledger = this.props.networkStore.networkHolders[this.state.selectedFromNetwork].ledger;
 
         if (ledger instanceof KeplrLedger) {
-            ledger.setBridgeFee(new BigNumber(this.state.minBridgeFeeAmount).multipliedBy(CosmosNetworkH.CURRENCY_1_CUDO));
+            ledger.setBridgeFee(new BigNumber(this.state.minBridgeFeeAmount).multipliedBy(CudosNetworkConsts.CURRENCY_1_CUDO));
         }
 
         this.setState({
@@ -673,9 +670,11 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
 
     simulatedMsgsCost = async (amount: string): Promise<BigNumber> => {
         let simulatedCost = new BigNumber(0);
-        const stringifiedAmount = new BigNumber(amount).multipliedBy(CosmosNetworkH.CURRENCY_1_CUDO).toString(10);
+        const stringifiedAmount = new BigNumber(amount).multipliedBy(CudosNetworkConsts.CURRENCY_1_CUDO).toString(10);
         const ledger = this.props.networkStore.networkHolders[this.state.selectedFromNetwork].ledger;
-        const [client, account] = await ledger.GetKeplrClientAndAccount();
+        const [offlineSigner, account] = await ledger.GetKeplrSignerAndAccount()
+        const client = await ledger.GetKeplrSigningClient(offlineSigner)
+
         let destination: string;
         let sender: string;
 
@@ -687,41 +686,32 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             sender = this.getAddress(this.state.selectedToNetwork, 0);
         }
 
-        const simulatedMsg = [{
-            typeUrl: CosmosNetworkH.MESSAGE_TYPE_URL,
-            value: {
-                sender,
-                ethDest: destination,
-                amount: {
-                    amount: stringifiedAmount,
-                    denom: CosmosNetworkH.CURRENCY_DENOM,
-                },
-                bridgeFee: {
-                    amount: this.state.minBridgeFeeAmount.multipliedBy(CosmosNetworkH.CURRENCY_1_CUDO).toString(10),
-                    denom: CosmosNetworkH.CURRENCY_DENOM,
-                },
-            },
-
-        }];
+        const gasPrice = GasPrice.fromString(`${Config.CUDOS_NETWORK.GAS_PRICE}acudos`)
+        const simulatedMsg = generateMsg('msgSendToEth', {
+            sender,
+            ethDest: destination,
+            amount: coin(stringifiedAmount, CudosNetworkConsts.CURRENCY_DENOM),
+            bridgeFee: coin(this.state.minBridgeFeeAmount.multipliedBy(CudosNetworkConsts.CURRENCY_1_CUDO).toString(10), CudosNetworkConsts.CURRENCY_DENOM),
+        })
 
         const approxCost = await ledger.EstimateFee(
             client,
-            GasPrice.fromString(`${Config.CUDOS_NETWORK.GAS_PRICE}acudos`),
             account.address,
-            simulatedMsg,
+            [simulatedMsg],
+            gasPrice,
             'Fee Estimation Message',
         );
         const estimatedCost = approxCost.amount[0] ? approxCost.amount[0].amount : '0';
-        simulatedCost = new BigNumber(estimatedCost).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO)
+        simulatedCost = new BigNumber(estimatedCost).dividedBy(CudosNetworkConsts.CURRENCY_1_CUDO)
         return simulatedCost;
     }
 
     getMinTransferAndBridgeFeeAmounts = async (): Promise<void> => {
-        const response = await axios.get(Config.CUDOS_NETWORK.API + PARAMS_REST_ENDPOINT);
-        const minTransferAmount = response.data.params.minimum_transfer_to_eth;
-        const minBridgeFeeAmount = response.data.params.minimum_fee_transfer_to_eth;
+        const response = await this.props.networkStore.networkHolders[1].ledger.queryClient.gravityModule.getParams()
+        const minTransferAmount = response.params.minimumTransferToEth;
+        const minBridgeFeeAmount = response.params.minimumFeeTransferToEth;
 
-        if (minTransferAmount === undefined || minBridgeFeeAmount === undefined || response.status != 200) {
+        if (minTransferAmount === undefined || minBridgeFeeAmount === undefined) {
             this.setState({
                 isTransactionFail: true,
                 errorMessage: 'We cannot proceed with your request at the moment',
@@ -729,19 +719,22 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             throw new Error('Failed to fetch minimum transfer and minimum transfer fee amount');
         }
         this.setState({
-            minTransferAmount: new BigNumber(minTransferAmount).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO),
-            minBridgeFeeAmount: new BigNumber(minBridgeFeeAmount).dividedBy(CosmosNetworkH.CURRENCY_1_CUDO),
+            minTransferAmount: new BigNumber(minTransferAmount).dividedBy(CudosNetworkConsts.CURRENCY_1_CUDO),
+            minBridgeFeeAmount: new BigNumber(minBridgeFeeAmount).dividedBy(CudosNetworkConsts.CURRENCY_1_CUDO),
         })
     }
 
     getCosmosGravityTxByNonce = async (nonce: string): Promise<string> => {
         let result = '';
-        const heightRes = await (await fetch(Config.CUDOS_NETWORK.RPC + BLOCK_HEIGHT__RPC_ENDPOINT)).json();
-        let height = Number(heightRes.result.response.last_block_height);
+        const qClient = this.props.networkStore.networkHolders[1].ledger.queryClient
+        const heightRes = await qClient.getHeight();
+        let height = Number(heightRes);
         while (result === '') {
-            const txData = await (await fetch(Config.CUDOS_NETWORK.RPC + GRAVITY_TXS_RPC_ENDPOINT)).json();
+            const txData = await qClient.searchTx({
+                tags: [{ key: "message.action", value: "/gravity.v1.MsgSendToCosmosClaim" }],
+            })
 
-            const filteredTxs = txData.result.txs.filter((tx) => Number(tx.height) > height);
+            const filteredTxs = txData.filter((tx) => Number(tx.height) > height);
             if (filteredTxs.length > 0) {
                 const txHashes: string[] = filteredTxs.map((tx) => tx.hash);
 
@@ -752,10 +745,11 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                 for (let i = 0; i < txHashes.length; i++) {
                     const hash = txHashes[i];
 
-                    const res = await (await fetch(Config.CUDOS_NETWORK.API + GRAVITY_TX_BY_HASH_REST_ENDPOINT + hash)).json();
-                    const txEventNonce = res.tx.body.messages[0].event_nonce;
+                    const res = await qClient.getTx(hash)
+                    const decodedRes = await qClient.decodeQryResponse(res)
+                    const txEventNonce:Long = decodedRes.tx.body.messages[0].eventNonce;
 
-                    if (nonce === txEventNonce) {
+                    if (nonce === `${txEventNonce.low}`) {
                         result = hash;
                         return result;
                     }
@@ -774,10 +768,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                     <div className={'Wrapper'}>
                         <div className={'CudosMainLogo'} style={ProjectUtils.makeBgImgStyle(cudosMainLogo)}></div>
                     </div>
-                    <div className={'Wrapper'}>
-                        <div className={'CudosFont'} style={ProjectUtils.makeBgImgStyle(cudosFont)}></div>
-                    </div>
-                    <div className={'Header'} >Gravity Bridge</div>
+                    <div className={'Header'} >Cudos Bridge</div>
                     <div className={'Wrapper'}>
                         <span className={'TransferInfoBox'}>{this.state.selectedFromNetwork ? ProjectUtils.CUDOS_NETWORK_TEXT : ProjectUtils.ETHEREUM_NETWORK_TEXT}</span>
                         <div className={'TransferWrapper'}>

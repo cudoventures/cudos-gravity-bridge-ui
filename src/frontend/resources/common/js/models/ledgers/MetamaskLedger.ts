@@ -8,8 +8,7 @@ import gravityContractAbi from '../../solidity/contract_interfaces/gravity.json'
 import Config from '../../../../../../../builds/dev-generated/Config';
 import BigNumber from 'bignumber.js';
 
-import { Bech32, toBase64, toHex } from '@cosmjs/encoding';
-import CosmosNetworkH from './CosmosNetworkH';
+import { Bech32, toBase64, toHex, CudosNetworkConsts } from 'cudosjs';
 
 export default class MetamaskLedger implements Ledger {
     static NETWORK_NAME = 'Ethereum';
@@ -80,7 +79,7 @@ export default class MetamaskLedger implements Ledger {
                 });
                 const erc20Instance = new window.web3.eth.Contract(ERC20TokenAbi, Config.ORCHESTRATOR.ERC20_CONTRACT_ADDRESS);
 
-                const stringAmount = amount.multipliedBy(CosmosNetworkH.CURRENCY_1_CUDO).toString(10);
+                const stringAmount = amount.multipliedBy(CudosNetworkConsts.CURRENCY_1_CUDO).toString(10);
 
                 erc20Instance.methods.approve(Config.ORCHESTRATOR.BRIDGE_CONTRACT_ADDRESS, stringAmount)
                     .send({ from: account },
@@ -118,7 +117,7 @@ export default class MetamaskLedger implements Ledger {
 
             const balance = await erc20Contract.methods.balanceOf(wallet).call();
 
-            return (new BigNumber(balance)).div(CosmosNetworkH.CURRENCY_1_CUDO);
+            return (new BigNumber(balance)).div(CudosNetworkConsts.CURRENCY_1_CUDO);
         } catch (e) {
             this.walletError = 'Failed to fetch balance';
         }
