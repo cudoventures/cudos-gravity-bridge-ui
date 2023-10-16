@@ -149,20 +149,23 @@ export default class KeplrLedger extends KeplrWallet implements Ledger {
         const client = await this.getKeplrClient();
 
         // paging is done automatically by cosmjs
-        // const sendTxDataPromise = client.searchTx([
+        // const sendTxDataPromise = client.searchTx(`${[
         //     { key: 'message.action', value: '/gravity.v1.MsgSendToEth' },
         //     { key: 'message.sender', value: this.accountAddress },
-        // ]);
-
-        const sendTxDataPromise = client.searchTx(`${[
+        // ].map((t) => `${t.key}='${t.value}'`).join(' AND ')} AND tx.height > ${lastKnownBatchHeight}`);
+        const sendTxDataPromise = client.searchTxLegacy([
             { key: 'message.action', value: '/gravity.v1.MsgSendToEth' },
             { key: 'message.sender', value: this.accountAddress },
-        ].map((t) => `${t.key}='${t.value}'`).join(' AND ')} AND tx.height > ${lastKnownBatchHeight}`);
+        ], lastKnownBatchHeight + 1);
 
-        const cancelSendTxDataPromise = client.searchTx(`${[
+        // const cancelSendTxDataPromise = client.searchTx(`${[
+        //     { key: 'message.action', value: '/gravity.v1.MsgCancelSendToEth' },
+        //     { key: 'message.sender', value: this.accountAddress },
+        // ].map((t) => `${t.key}='${t.value}'`).join(' AND ')} AND tx.height > ${lastKnownBatchHeight}`);
+        const cancelSendTxDataPromise = client.searchTxLegacy([
             { key: 'message.action', value: '/gravity.v1.MsgCancelSendToEth' },
             { key: 'message.sender', value: this.accountAddress },
-        ].map((t) => `${t.key}='${t.value}'`).join(' AND ')} AND tx.height > ${lastKnownBatchHeight}`);
+        ], lastKnownBatchHeight + 1);
 
         const [sendTxData, cancelSendTxData] = await Promise.all([sendTxDataPromise, cancelSendTxDataPromise]);
         const canceledTxIds = new Set < string >();

@@ -723,7 +723,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         const heightRes = await qClient.getHeight();
         let height = Number(heightRes);
         while (result === '') {
-            const txData = await qClient.searchTx(
+            const txData = await qClient.searchTxLegacy(
                 [{ key: 'message.action', value: '/gravity.v1.MsgSendToCosmosClaim' }],
             );
 
