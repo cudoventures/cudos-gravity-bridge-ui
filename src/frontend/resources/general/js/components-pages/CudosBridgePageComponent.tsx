@@ -725,29 +725,30 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         while (result === '') {
             const txData = await qClient.searchTxLegacy(
                 [{ key: 'message.action', value: '/gravity.v1.MsgSendToCosmosClaim' }],
+                height + 1,
             );
 
-            const filteredTxs = txData.filter((tx) => Number(tx.height) > height);
-            if (filteredTxs.length > 0) {
-                const txHashes: string[] = filteredTxs.map((tx) => tx.hash);
+            // const filteredTxs = txData.filter((tx) => Number(tx.height) > height);
+            // if (filteredTxs.length > 0) {
+            const txHashes: string[] = txData.map((tx) => tx.hash);
 
-                height = filteredTxs.reduce((a, b) => {
-                    return Number(a.height) > Number(b.height) ? a : b;
-                }, { height: 0 }).height;
+            height = txData.reduce((a, b) => {
+                return Number(a.height) > Number(b.height) ? a : b;
+            }, { height: 0 }).height;
 
-                for (let i = 0; i < txHashes.length; i++) {
-                    const hash = txHashes[i];
+            for (let i = 0; i < txHashes.length; i++) {
+                const hash = txHashes[i];
 
-                    const res = await qClient.getTx(hash)
-                    const decodedRes = await qClient.decodeQryResponse(res)
-                    const txEventNonce:Long = decodedRes.tx.body.messages[0].eventNonce;
+                const res = await qClient.getTx(hash)
+                const decodedRes = await qClient.decodeQryResponse(res)
+                const txEventNonce:Long = decodedRes.tx.body.messages[0].eventNonce;
 
-                    if (nonce === `${txEventNonce.low}`) {
-                        result = hash;
-                        return result;
-                    }
+                if (nonce === `${txEventNonce.low}`) {
+                    result = hash;
+                    return result;
                 }
             }
+            // }
             await new Promise((resolve) => setTimeout(resolve, 5000));
         }
 
