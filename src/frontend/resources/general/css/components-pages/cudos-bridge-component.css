@@ -128,7 +128,9 @@
 .CudosBridge .AttentionIcon {
     width: 16px;
     height: 16px;
+    position: relative;
     margin-left: 5px;
+    cursor: pointer;
 }
 
 .CudosBridge .Wrapper .CudosFont {
@@ -140,12 +142,20 @@
 .CudosBridge .Header {
     font-size: 30px;
     font-family: Poppins, sans-serif;
-    line-height: 45px;
-    padding-left: 5px;
     align-items: flex-start;
     text-align: center;
     font-weight: 700;
     margin-bottom: 10px;
+}
+
+.CudosBridge .Header .HeaderText {
+    line-height: 45px;
+}
+
+.CudosBridge .Header .Version {
+    color: var(--color-gray);
+    text-align: center;
+    font-size: 12px;
 }
 
 .CudosBridge .Subheader {

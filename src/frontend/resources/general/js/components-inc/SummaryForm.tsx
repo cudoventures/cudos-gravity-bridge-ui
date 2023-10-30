@@ -201,7 +201,7 @@ const SummaryForm = (props: ISummaryFormProps) => {
                                 <span className={'FlexStart'}>
                                     Estimated Gas Fee
                                     <div className={'AttentionIcon'} style={ProjectUtils.makeBgImgStyle(attentionIcon)}>
-                                        <span className="tooltiptext">(Estimated GAS * 1.3 multiplier) * GAS price</span>
+                                        <span className="tooltiptext">(Estimated GAS * 1.5 multiplier) * GAS price</span>
                                     </div>
                                 </span>
                                 <span className={'FlexEnd'}>{props.estimatedGasFees.toFixed(4)} {CosmosNetworkH.CURRENCY_DISPLAY_NAME}</span>

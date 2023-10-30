@@ -4,6 +4,7 @@ import { inject, observer } from 'mobx-react';
 import BigNumber from 'bignumber.js';
 import { CudosNetworkConsts, generateMsg, GasPrice, StargateClient, coin, Ledger as CudosJsLedger } from 'cudosjs'
 import Web3 from 'web3';
+import PackageJson from '../../../../../../package.json'
 
 import Config from '../../../../../../builds/dev-generated/Config';
 import S from '../../../common/js/utilities/Main';
@@ -27,7 +28,6 @@ import Button from '../../../common/js/components-inc/Button';
 
 import './../../css/components-pages/cudos-bridge-component.css';
 import TransactionHistoryModel from '../../../common/js/models/TransactionHistoryModel';
-import SuccessModal from '../../../common/js/components-popups/SuccessModal';
 import SuccessAlertContent from '../../../common/js/components-inc/SuccessAlertContent';
 
 interface Props extends ContextPageComponentProps {
@@ -797,7 +797,10 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                     <div className={'Wrapper'}>
                         <div className={'CudosMainLogo'} style={ProjectUtils.makeBgImgStyle(cudosMainLogo)}></div>
                     </div>
-                    <div className={'Header'} >Cudos Bridge</div>
+                    <div className={'Header'} >
+                        <div className={'HeaderText'}>Cudos Bridge</div>
+                        <div className = { 'Version' }>v{PackageJson.version}</div>
+                    </div>
                     <div className={'Wrapper'}>
                         <span className={'TransferInfoBox'}>{this.state.selectedFromNetwork ? ProjectUtils.CUDOS_NETWORK_TEXT : ProjectUtils.ETHEREUM_NETWORK_TEXT}</span>
                         <div className={'TransferWrapper'}>
