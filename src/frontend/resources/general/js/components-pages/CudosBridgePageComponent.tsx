@@ -313,23 +313,33 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
     onClickMaxAmount = async () => {
         const ledger = await this.checkWalletConnected();
         const fromNetwork = this.state.selectedFromNetwork;
-        const maxButtonMultiplier = 1.05; // Fixing issue, when fee estimates are less for MAX amount than smaller number entered by hand.
+        // const maxButtonMultiplier = 1.05; // Fixing issue, when fee estimates are less for MAX amount than smaller number entered by hand.
         const balance = await ledger.getBalance();
         let simulatedCost = new BigNumber(0);
 
-        if (!balance) { return }
+        if (!balance) {
+            return
+        }
 
         let maximumAmount = BigNumber.min(balance, this.state.contractBalance);
 
-        if (maximumAmount.gt(0) && this.isFromCosmos(fromNetwork)) {
-            maximumAmount = maximumAmount.minus(this.state.minBridgeFeeAmount);
-            if (maximumAmount.lte(0)) { return }
-
-            simulatedCost = await this.simulatedMsgsCost(maximumAmount.toFixed());
-            maximumAmount = maximumAmount.minus(simulatedCost.multipliedBy(maxButtonMultiplier));
+        if (maximumAmount.lte(0)) {
+            return
         }
 
-        if (maximumAmount.lte(0)) { return }
+        if (this.isFromCosmos(fromNetwork)) {
+            if (maximumAmount.lt(this.state.minTransferAmount)) {
+                return;
+            }
+
+            // maximumAmount = maximumAmount.minus(this.state.minBridgeFeeAmount);
+            // if (maximumAmount.lte(0)) {
+            //     return
+            // }
+
+            simulatedCost = await this.simulatedMsgsCost(maximumAmount.toFixed());
+            // maximumAmount = maximumAmount.minus(simulatedCost.multipliedBy(maxButtonMultiplier));
+        }
 
         maximumAmount = maximumAmount.dp(18, BigNumber.ROUND_FLOOR);
 
@@ -337,7 +347,8 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             amount: maximumAmount,
             displayAmount: maximumAmount.toFixed(),
             walletBalance: balance,
-            estimatedGasFees: simulatedCost.multipliedBy(maxButtonMultiplier),
+            // estimatedGasFees: simulatedCost.multipliedBy(maxButtonMultiplier),
+            estimatedGasFees: simulatedCost,
             validAmount: true,
             amountError: S.INT_FALSE,
         })
@@ -349,6 +360,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         if (!balance) {
             balance = new BigNumber(0);
         }
+
         this.setState({
             walletBalance: balance,
         })
@@ -356,38 +368,50 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
 
     onChangeAmount = async (amount: string) => {
         clearTimeout(this.inputTimeouts.amount);
-        let bigAmount = new BigNumber(amount);
+
         const fromNetwork = this.state.selectedFromNetwork;
+        const bigAmount = new BigNumber(amount);
+        let simulatedCost = new BigNumber(0);
         let validAmount = false;
         let amountError = S.INT_TRUE;
-        let simulatedCost = new BigNumber(0);
+
         this.setState({
             amount: bigAmount,
             displayAmount: amount,
         });
 
-        if (!bigAmount.isNaN()
-            && !bigAmount.isLessThan(new BigNumber(1).dividedBy(CudosNetworkConsts.CURRENCY_1_CUDO))
-            && this.validCudosNumber(amount)
-        ) {
+        if (!bigAmount.isNaN() && !bigAmount.isLessThan(new BigNumber(1).dividedBy(CudosNetworkConsts.CURRENCY_1_CUDO)) && this.validCudosNumber(amount)) {
             this.inputTimeouts.amount = setTimeout(async () => {
-                if (this.isFromCosmos(fromNetwork)) {
-                    if (bigAmount.plus(this.state.minBridgeFeeAmount).isLessThanOrEqualTo(this.state.walletBalance)) {
-                        simulatedCost = await this.simulatedMsgsCost(bigAmount.toString());
-                        bigAmount = bigAmount.plus(simulatedCost);
-                    }
-
-                    bigAmount = bigAmount.plus(this.state.minBridgeFeeAmount);
-                }
-
-                if (
-                    bigAmount.isLessThanOrEqualTo(this.state.walletBalance)
-                    && (!this.isFromCosmos(fromNetwork) || bigAmount.isLessThanOrEqualTo(this.state.contractBalance))
-                ) {
-
+                const maximumAmount = BigNumber.min(this.state.walletBalance, this.state.contractBalance);
+                if (bigAmount.isLessThanOrEqualTo(maximumAmount)) {
                     validAmount = true
                     amountError = S.INT_FALSE
                 }
+                if (this.isFromCosmos(fromNetwork) === true) {
+                    if (bigAmount.lt(this.state.minTransferAmount)) {
+                        validAmount = false
+                        amountError = S.INT_TRUE;
+                    }
+
+                    if (validAmount === true) {
+                        const bigAmountPlusBridgeFree = bigAmount.plus(this.state.minBridgeFeeAmount);
+                        simulatedCost = await this.simulatedMsgsCost(bigAmountPlusBridgeFree.toString());
+                    }
+                }
+
+                // if (this.isFromCosmos(fromNetwork)) {
+                //     if (bigAmount.plus(this.state.minBridgeFeeAmount).isLessThanOrEqualTo(this.state.walletBalance)) {
+                //         simulatedCost = await this.simulatedMsgsCost(bigAmount.toString());
+                //         bigAmount = bigAmount.plus(simulatedCost);
+                //     }
+
+                //     bigAmount = bigAmount.plus(this.state.minBridgeFeeAmount);
+                // }
+
+                // if (bigAmount.isLessThanOrEqualTo(this.state.walletBalance) && (!this.isFromCosmos(fromNetwork) || bigAmount.isLessThanOrEqualTo(this.state.contractBalance))) {
+                //     validAmount = true
+                //     amountError = S.INT_FALSE
+                // }
 
                 this.setState({
                     validAmount,

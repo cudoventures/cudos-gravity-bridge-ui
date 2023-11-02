@@ -17,22 +17,23 @@ if (result.error) {
 // required environment variables
 const envVariables = [
     'NODE_ENV',
+    'NETWORK_TYPE',
     'BACKEND_PORT',
     'FRONTEND_PORT',
     'URL',
     'SESSION_UNIQUE_KEY',
     'CHAIN_NAME',
     'CHAIN_ID',
-    'GRAVITY_MODULE_ADDRESS',
     'RPC',
     'API',
     'GAS_PRICE',
+    'STAKING',
+    'BLOCK_EXPLORER',
+    'GRAVITY_MODULE_ADDRESS',
     'ERC20_CONTRACT_ADDRESS',
     'BRIDGE_CONTRACT_ADDRESS',
     'ETHEREUM_GAS',
-    'STAKING',
-    'BLOCK_EXPLORER',
-    'NETWORK_TYPE',
+    'ETHEREUM_RPC',
 ];
 
 if (process.env.NODE_ENV === 'production') {
@@ -56,14 +57,14 @@ const Config = {
         DEV: process.env.NODE_ENV === 'dev',
         PRODUCTION: process.env.NODE_ENV === 'production',
     },
-    Database: {
-        HOST: process.env.DATABASE_HOST,
-        PORT: process.env.DATABASE_PORT,
-        USER: process.env.DATABASE_USER,
-        PASSWORD: process.env.DATABASE_PASS,
-        NAME: process.env.DATABASE_NAME,
-        LIMIT: process.env.DATABASE_CONNECTION_LIMIT,
-    },
+    // Database: {
+    //     HOST: process.env.DATABASE_HOST,
+    //     PORT: process.env.DATABASE_PORT,
+    //     USER: process.env.DATABASE_USER,
+    //     PASSWORD: process.env.DATABASE_PASS,
+    //     NAME: process.env.DATABASE_NAME,
+    //     LIMIT: process.env.DATABASE_CONNECTION_LIMIT,
+    // },
     Logger: {
         LEVEL: process.env.LOG_LEVEL || 'info',
         ENABLED: process.env.BOOLEAN ? process.env.BOOLEAN.toLowerCase() === 'true' : false,
@@ -72,8 +73,6 @@ const Config = {
         BACKEND_PORT: Number(process.env.BACKEND_PORT),
         FRONTEND_PORT: Number(process.env.FRONTEND_PORT),
         SESSION_UNIQUE_KEY: process.env.SESSION_UNIQUE_KEY,
-        SESSION_STORE_TCP_ADDR: process.env.SESSION_STORE_TCP_ADDR,
-        SESSION_STORE_PORT: process.env.SESSION_STORE_PORT,
     },
     Path: {
         ROOT: path.join(__dirname, '..'),

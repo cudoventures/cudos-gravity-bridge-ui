@@ -13,7 +13,7 @@ const Config = require('../config/config');
 
 let sessionStore;
 // if (Config.Build.DEV === true) {
-    sessionStore = new FileSessionStore();
+sessionStore = new FileSessionStore();
 // } else {
 //     sessionStore = new RedisSessionStore({ 'host': Config.Server.SESSION_STORE_ADDR, 'port': Config.Server.SESSION_STORE_PORT });
 // }
