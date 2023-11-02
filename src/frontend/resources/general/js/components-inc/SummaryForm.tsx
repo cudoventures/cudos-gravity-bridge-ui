@@ -164,9 +164,9 @@ const SummaryForm = (props: ISummaryFormProps) => {
                                     onClick={props.onClickMaxAmount}
                                     disabled={props.selectedToNetwork === S.NOT_EXISTS || props.walletBalance.toFixed() === '0' || props.isTransferring}>
                                     MAX
-                                    {props.selectedFromNetwork && (
+                                    {props.selectedFromNetwork === 1 && (
                                         <div className={'AttentionIcon'} style={ProjectUtils.makeBgImgStyle(attentionIcon)}>
-                                            <span className="tooltiptext">Your MAX balance minus approximate fees</span>
+                                            <span className="tooltiptext">Your MAX balance excluding fees</span>
                                         </div>
                                     ) }
                                 </Button>
