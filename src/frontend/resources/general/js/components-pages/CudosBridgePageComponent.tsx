@@ -177,7 +177,6 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             balance = resp.unbatchedTransfers.reduce((accu: BigNumber, tx) => {
                 return accu.plus(new BigNumber(tx.erc20Fee?.amount ?? 0)).plus(new BigNumber(tx.erc20Token?.amount ?? 0));
             }, balance);
-            console.log(resp);
             return balance.div(CudosNetworkConsts.CURRENCY_1_CUDO);
         } catch (e) {
             throw new Error('Failed to fetch pending tx balance!');
@@ -187,7 +186,6 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
     async getAvailableContractBalanceForTx(): Promise < BigNumber > {
         const contractBalance = await this.getContractBalance();
         const pendingTxBalance = await this.getPendingTxFromCudosBalance();
-        console.log(pendingTxBalance.toFixed());
         return contractBalance.minus(pendingTxBalance);
     }
 
@@ -261,7 +259,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                 balance = await ledger.getBalance();
             } catch (ex) {
             }
-            if (this.isFromCosmos(fromNetwork) === true) {
+            if (this.isFromCosmos() === true) {
                 contractBalance = await this.getAvailableContractBalanceForTx();
             } else {
                 contractBalance = await this.getModuleBalance();
@@ -291,7 +289,6 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         let balance = new BigNumber(0);
         let ledger = null;
         let toNetwork = null;
-        const fromNetwork = null;
         let contractBalance;
         let connectionError = false;
 
@@ -311,7 +308,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             if (!balance) {
                 balance = new BigNumber(0);
             }
-            if (this.isFromCosmos(toNetwork) === true) {
+            if (this.isFromCosmos() === true) {
                 contractBalance = await this.getAvailableContractBalanceForTx();
             } else {
                 contractBalance = await this.getModuleBalance();
@@ -331,6 +328,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                 amountError: S.INT_FALSE,
                 destinationAddress: S.Strings.EMPTY,
                 destiantionAddressError: S.INT_FALSE,
+                contractBalance,
             })
         }
     }
@@ -386,8 +384,16 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             balance = new BigNumber(0);
         }
 
+        let contractBalance;
+        if (this.isFromCosmos() === true) {
+            contractBalance = await this.getAvailableContractBalanceForTx();
+        } else {
+            contractBalance = await this.getModuleBalance();
+        }
+
         this.setState({
             walletBalance: balance,
+            contractBalance,
         })
     }
 
@@ -423,20 +429,6 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                         simulatedCost = await this.simulatedMsgsCost(bigAmountPlusBridgeFree.toString());
                     }
                 }
-
-                // if (this.isFromCosmos(fromNetwork)) {
-                //     if (bigAmount.plus(this.state.minBridgeFeeAmount).isLessThanOrEqualTo(this.state.walletBalance)) {
-                //         simulatedCost = await this.simulatedMsgsCost(bigAmount.toString());
-                //         bigAmount = bigAmount.plus(simulatedCost);
-                //     }
-
-                //     bigAmount = bigAmount.plus(this.state.minBridgeFeeAmount);
-                // }
-
-                // if (bigAmount.isLessThanOrEqualTo(this.state.walletBalance) && (!this.isFromCosmos(fromNetwork) || bigAmount.isLessThanOrEqualTo(this.state.contractBalance))) {
-                //     validAmount = true
-                //     amountError = S.INT_FALSE
-                // }
 
                 this.setState({
                     validAmount,
@@ -517,7 +509,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             const txHash = ledger.getTxHash()
 
             let destTxHash = '';
-            if (!this.isFromCosmos(this.state.selectedFromNetwork)) {
+            if (!this.isFromCosmos()) {
                 this.setState({ loadingModalAdditionalText: `Transaction confirmed on ${ProjectUtils.ETHEREUM_NETWORK_TEXT} with HASH: ${txHash}. Awaiting TX confirmation on ${ProjectUtils.CUDOS_NETWORK_TEXT} - it may take a few minutes.` })
                 destTxHash = await this.getCosmosGravityTxByNonce((ledger as MetamaskLedger).txNonce);
             }
@@ -719,7 +711,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
         let destination: string;
         let sender: string;
 
-        if (this.isFromCosmos(this.state.selectedFromNetwork) === true) {
+        if (this.isFromCosmos() === true) {
             sender = this.getAddress(this.state.selectedFromNetwork, 0);
             destination = this.getAddress(this.state.selectedToNetwork, 0);
         } else {
