@@ -162,8 +162,33 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
 
             return (new BigNumber(balance)).div(CudosNetworkConsts.CURRENCY_1_CUDO);
         } catch (e) {
-            throw new Error('Failed to fetch balance!');
+            throw new Error('Failed to fetch contract balance!');
         }
+    }
+
+    async getPendingTxFromCudosBalance(): Promise < BigNumber > {
+        try {
+            const queryClient: StargateClient = await (this.props.networkStore.networkHolders[1].ledger as KeplrLedger).getKeplrClient();
+
+            const resp = await queryClient.gravityModule.getPendingSendToEth();
+            let balance = resp.transfersInBatches.reduce((accu: BigNumber, tx) => {
+                return accu.plus(new BigNumber(tx.erc20Fee?.amount ?? 0)).plus(new BigNumber(tx.erc20Token?.amount ?? 0));
+            }, new BigNumber(0));
+            balance = resp.unbatchedTransfers.reduce((accu: BigNumber, tx) => {
+                return accu.plus(new BigNumber(tx.erc20Fee?.amount ?? 0)).plus(new BigNumber(tx.erc20Token?.amount ?? 0));
+            }, balance);
+            console.log(resp);
+            return balance.div(CudosNetworkConsts.CURRENCY_1_CUDO);
+        } catch (e) {
+            throw new Error('Failed to fetch pending tx balance!');
+        }
+    }
+
+    async getAvailableContractBalanceForTx(): Promise < BigNumber > {
+        const contractBalance = await this.getContractBalance();
+        const pendingTxBalance = await this.getPendingTxFromCudosBalance();
+        console.log(pendingTxBalance.toFixed());
+        return contractBalance.minus(pendingTxBalance);
     }
 
     getPageLayoutComponentCssClassName() {
@@ -237,7 +262,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
             } catch (ex) {
             }
             if (this.isFromCosmos(fromNetwork) === true) {
-                contractBalance = await this.getContractBalance();
+                contractBalance = await this.getAvailableContractBalanceForTx();
             } else {
                 contractBalance = await this.getModuleBalance();
             }
@@ -287,7 +312,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                 balance = new BigNumber(0);
             }
             if (this.isFromCosmos(toNetwork) === true) {
-                contractBalance = await this.getContractBalance();
+                contractBalance = await this.getAvailableContractBalanceForTx();
             } else {
                 contractBalance = await this.getModuleBalance();
             }
@@ -535,7 +560,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                 }
             }
             if (this.isFromCosmos(toNetwork) === true) {
-                contractBalance = await this.getContractBalance();
+                contractBalance = await this.getAvailableContractBalanceForTx();
             } else {
                 contractBalance = await this.getModuleBalance();
             }
@@ -599,7 +624,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<Props, St
                 }
             }
             if (this.isFromCosmos(fromNetwork) === true) {
-                contractBalance = await this.getContractBalance();
+                contractBalance = await this.getAvailableContractBalanceForTx();
             } else {
                 contractBalance = await this.getModuleBalance();
             }
