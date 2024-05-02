@@ -1,6 +1,6 @@
 # cudos-gravity-bridge-ui
 
-UI for the Cudos Bridge
+UI for the CUDOS Bridge
 
 ## To run locally
 
