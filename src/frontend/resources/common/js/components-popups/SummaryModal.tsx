@@ -168,7 +168,7 @@ const SummaryModal = ({
                     rel='noreferrer'
                     target='_blank'
                   >
-                    {selectedFromNetwork ? "Cudos" : "Ethereum"} Bridge
+                    {selectedFromNetwork ? "CUDOS" : "Ethereum"} Bridge
                     transaction link
                   </a>
                   <div
@@ -187,7 +187,7 @@ const SummaryModal = ({
                       rel='noreferrer'
                       target='_blank'
                     >
-                      Cudos Bridge transaction link
+                      CUDOS Bridge transaction link
                     </a>
                     <div
                       className={"LinkIcon"}

@@ -40,7 +40,7 @@ export default class KeplrLedger implements Ledger {
   @observable txNonce: string;
   queryClient: StargateClient;
 
-  static NETWORK_NAME = "Cudos";
+  static NETWORK_NAME = "CUDOS";
 
   constructor() {
     this.connected = S.INT_FALSE;

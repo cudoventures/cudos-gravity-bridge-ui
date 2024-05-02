@@ -863,7 +863,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<
               style={ProjectUtils.makeBgImgStyle(cudosMainLogo)}
             ></div>
           </div>
-          <div className={"Header"}>Cudos Bridge</div>
+          <div className={"Header"}>CUDOS Bridge</div>
           <div className={"Wrapper"}>
             <span className={"TransferInfoBox"}>
               {this.state.selectedFromNetwork

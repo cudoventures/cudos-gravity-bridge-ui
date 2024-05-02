@@ -4,7 +4,7 @@ const QUERY_PATTERN = "?p=";
 
 export default class ProjectUtils {
   static TRANSITION_DURATION: number = 400;
-  static CUDOS_NETWORK_TEXT: string = "Cudos Network";
+  static CUDOS_NETWORK_TEXT: string = "CUDOS Network";
   static ETHEREUM_NETWORK_TEXT: string = "Ethereum";
 
   static makeBgImgStyle(url: string) {
