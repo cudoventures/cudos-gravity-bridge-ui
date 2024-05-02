@@ -12,7 +12,7 @@
     "migrate-db": "node ./src/backend/db/cli/ExecuteMigrations.js"
   },
   "engines": {
-    "node": ">=12"
+    "node": ">=16"
   },
   "dependencies": {
     "@cosmjs/encoding": "^0.25.5",
