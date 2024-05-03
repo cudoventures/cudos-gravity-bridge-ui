@@ -678,7 +678,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<
     this.props.alertStore.show(<div className={"Success"}>{msg}</div>);
   }
 
-  isAddressValid = (address) => {
+  isAddressValid = address => {
     const ledger =
       this.props.networkStore.networkHolders[this.state.selectedToNetwork]
         .ledger;
@@ -686,7 +686,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<
     return ledger.isAddressValid(address);
   };
 
-  getLogoName = (network) => {
+  getLogoName = network => {
     if (network) {
       return `${network.name.toLowerCase()}-logo.png`;
     }
@@ -823,9 +823,9 @@ export default class CudosBridgeComponent extends ContextPageComponent<
         ],
       });
 
-      const filteredTxs = txData.filter((tx) => Number(tx.height) > height);
+      const filteredTxs = txData.filter(tx => Number(tx.height) > height);
       if (filteredTxs.length > 0) {
-        const txHashes: string[] = filteredTxs.map((tx) => tx.hash);
+        const txHashes: string[] = filteredTxs.map(tx => tx.hash);
 
         height = filteredTxs.reduce(
           (a, b) => {
@@ -847,7 +847,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<
           }
         }
       }
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      await new Promise(resolve => setTimeout(resolve, 5000));
     }
 
     return "";
@@ -981,8 +981,8 @@ export default class CudosBridgeComponent extends ContextPageComponent<
               <span>
                 Need a {ProjectUtils.CUDOS_NETWORK_TEXT} account? Create one{" "}
                 <a
-                  rel="noreferrer"
-                  target="_blank"
+                  rel='noreferrer'
+                  target='_blank'
                   style={{ color: "rgba(78, 148, 238, 1)" }}
                   href={keplrLink}
                 >

@@ -165,8 +165,8 @@ const SummaryModal = ({
                     href={`${
                       selectedFromNetwork ? CUDOS_EXPLORER : ETHERSCAN_EXPLORER
                     }/${txHash}`}
-                    rel="noreferrer"
-                    target="_blank"
+                    rel='noreferrer'
+                    target='_blank'
                   >
                     {selectedFromNetwork ? "CUDOS" : "Ethereum"} Bridge
                     transaction link
@@ -184,8 +184,8 @@ const SummaryModal = ({
                   <div className={"LinkContent"}>
                     <a
                       href={`${CUDOS_EXPLORER}/${destTxHash}`}
-                      rel="noreferrer"
-                      target="_blank"
+                      rel='noreferrer'
+                      target='_blank'
                     >
                       CUDOS Bridge transaction link
                     </a>

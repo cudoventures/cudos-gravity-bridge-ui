@@ -2,16 +2,18 @@
   "env": {
     "browser": true,
     "node": true,
-    "es6": true,
+    "es2021": true,
     "jest": true
   },
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended",
     "airbnb-base",
     "plugin:import/errors",
     "plugin:import/warnings",
-    "plugin:import/typescript"
+    "plugin:import/typescript",
+    "prettier"
   ],
   "rules": {
     "linebreak-style": "off",
@@ -30,6 +32,7 @@
     "no-plusplus": "off",
     "no-bitwise": "off",
     "no-undef": ["error"],
+    "operator-linebreak": "off",
     "prefer-destructuring": [
       "error",
       { "array": false, "object": false },
@@ -41,7 +44,6 @@
     "no-console": ["warn", { "allow": ["log", "warn", "error"] }],
     "no-empty": ["error", { "allowEmptyCatch": true }],
     "no-fallthrough": "warn",
-    "quotes": ["warn", "double"],
     "one-var": "off",
     "one-var-declaration-per-line": "off",
     "nonblock-statement-body-position": "off",
@@ -82,7 +84,7 @@
     },
     "allowImportExportEverywhere": true
   },
-  "plugins": ["react"],
+  "plugins": ["react", "@typescript-eslint"],
   "settings": {
     "import/resolver": {
       "node": {

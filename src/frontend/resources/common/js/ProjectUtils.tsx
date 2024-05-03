@@ -49,12 +49,7 @@ export default class ProjectUtils {
     document.body.removeChild(a);
   }
 
-  static makeUrl(
-    page: string,
-    keys: string | string[],
-    values: string | string[],
-    wipe = false
-  ) {
+  static makeUrl(page: string, keys: string | string[], values: string | string[], wipe = false) {
     if (keys === undefined) {
       window.location.href = page;
     }
@@ -94,12 +89,7 @@ export default class ProjectUtils {
     return page + QUERY_PATTERN + btoa(queryArray.join("&"));
   }
 
-  static redirect(
-    page: string,
-    keys: string | string[],
-    values: string | string[],
-    wipe: boolean
-  ) {
+  static redirect(page: string, keys: string | string[], values: string | string[], wipe: boolean) {
     window.location.href = ProjectUtils.makeUrl(page, keys, values, wipe);
   }
 
@@ -137,19 +127,11 @@ export default class ProjectUtils {
   }
 
   static isLandscape() {
-    return (
-      document.documentElement.clientWidth /
-        document.documentElement.clientHeight >
-      1.0
-    );
+    return document.documentElement.clientWidth / document.documentElement.clientHeight > 1.0;
   }
 
   static isPortrait() {
-    return (
-      document.documentElement.clientWidth /
-        document.documentElement.clientHeight <
-      1.0
-    );
+    return document.documentElement.clientWidth / document.documentElement.clientHeight < 1.0;
   }
 
   static requestAnimationFrame(callback: () => any) {
@@ -161,16 +143,13 @@ export default class ProjectUtils {
 
 function getQueryArray() {
   const hashIndex = document.URL.indexOf("#");
-  const url =
-    hashIndex === -1 ? document.URL : document.URL.substring(0, hashIndex);
+  const url = hashIndex === -1 ? document.URL : document.URL.substring(0, hashIndex);
 
   const queryStringStartIndex = url.indexOf(QUERY_PATTERN);
   if (queryStringStartIndex === -1) {
     return [];
   }
 
-  const queryString = url.substring(
-    queryStringStartIndex + QUERY_PATTERN.length
-  );
+  const queryString = url.substring(queryStringStartIndex + QUERY_PATTERN.length);
   return atob(queryString).split("&");
 }
