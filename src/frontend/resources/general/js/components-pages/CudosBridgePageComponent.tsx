@@ -564,7 +564,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<
     }
   };
 
-  onChnageTransactionDirection = async (): Promise<void> => {
+  onChangeTransactionDirection = async (): Promise<void> => {
     const toNetwork = this.state.selectedToNetwork;
     const fromNetwork = this.state.selectedFromNetwork;
     const toConnected = this.state.isToConnected;
@@ -944,7 +944,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<
               onDisconnectToNetwork={this.onDisconnectToNetwork}
               onSelectFromNetwork={this.onSelectFromNetwork}
               onSelectToNetwork={this.onSelectToNetwork}
-              onChnageTransactionDirection={this.onChnageTransactionDirection}
+              onChangeTransactionDirection={this.onChangeTransactionDirection}
               getAddress={this.getAddress}
               goToTransactionSummary={this.goToTransactionSummary}
               onChangeAccount={this.onChangeAccount}
@@ -964,7 +964,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<
               onDisconnectToNetwork={this.onDisconnectToNetwork}
               onSelectFromNetwork={this.onSelectFromNetwork}
               onSelectToNetwork={this.onSelectToNetwork}
-              onChnageTransactionDirection={this.onChnageTransactionDirection}
+              onChangeTransactionDirection={this.onChangeTransactionDirection}
               getAddress={this.getAddress}
               onChangeAmount={this.onChangeAmount}
               onClickMaxAmount={this.onClickMaxAmount}
