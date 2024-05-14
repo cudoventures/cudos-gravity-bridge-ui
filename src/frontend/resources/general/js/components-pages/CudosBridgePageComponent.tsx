@@ -75,7 +75,6 @@ interface State {
 
 const cudosMainLogo =
   "../../../../resources/common/img/favicon/cudos-40x40.svg";
-const cudosFont = "../../../../resources/common/img/favicon/cudos-font.svg";
 const transferLogoAlt =
   "../../../../resources/common/img/favicon/transfer-logo-alt.svg";
 const keplrLink =
