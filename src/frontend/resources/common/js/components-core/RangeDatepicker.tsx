@@ -85,12 +85,12 @@ export default class RangeDatepicker extends React.Component<Props, State> {
           onChange={this.onChange}
           customInput={
             <div className={"DatePickerInput FlexRow FlexSplit"}>
-              <div className={"DatePickerSmallLetters"}>от</div>
+              <div className={"DatePickerSmallLetters"}>from</div>
               <div className={"DatePickerInputText"}>
                 {" "}
                 {this.formatDate(this.props.datepickerState.startDate)}{" "}
               </div>
-              <div className={"DatePickerSmallLetters"}>до</div>
+              <div className={"DatePickerSmallLetters"}>to</div>
               <div className={"DatePickerInputText"}>
                 {" "}
                 {this.formatDate(this.props.datepickerState.endDate)}{" "}
