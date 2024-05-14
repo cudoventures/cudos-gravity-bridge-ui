@@ -4,7 +4,7 @@ import React, { MouseEvent } from "react";
 import S from "../utilities/Main";
 
 import PopupStore from "../stores/PopupStore";
-
+//@ts-ignore
 import SvgClose from "../../svg/close-btn.svg";
 import "../../css/components-core/popup-window.css";
 
@@ -15,7 +15,7 @@ export interface PopupWindowProps {
 }
 
 export default class PopupWindowComponent<
-  Pr extends PopupWindowProps = PopupWindowProps
+  Pr extends PopupWindowProps = PopupWindowProps,
 > extends React.Component<Pr> {
   visibleFlag: boolean = false;
   nodes: {
