@@ -65,13 +65,13 @@ export default class MetamaskLedger implements Ledger {
     });
   }
 
-  async send(amount: BigNumber, destiantionAddress: string) {
+  async send(amount: BigNumber, destinationAddress: string) {
     this.walletError = null;
     return new Promise<void>((resolve, reject) => {
       const run = async () => {
         const account = (await window.web3.eth.requestAccounts())[0];
 
-        const addressByteArray = Bech32.decode(destiantionAddress).data;
+        const addressByteArray = Bech32.decode(destinationAddress).data;
         const addressBytes32Array = new Uint8Array(32);
         addressByteArray.forEach((byte, i) => {
           addressBytes32Array[32 - addressByteArray.length + i] = byte;
