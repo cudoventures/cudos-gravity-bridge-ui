@@ -56,7 +56,7 @@ interface State {
   walletBalance: BigNumber;
   amountError: number;
   destinationAddress: string;
-  destiantionAddressError: number;
+  destinationAddressError: number;
   contractBalance: BigNumber;
   summary: boolean;
   isOpen: boolean;
@@ -115,7 +115,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<
       walletBalance: new BigNumber(0),
       amountError: S.INT_FALSE,
       destinationAddress: S.Strings.EMPTY,
-      destiantionAddressError: S.INT_FALSE,
+      destinationAddressError: S.INT_FALSE,
       contractBalance: new BigNumber(0),
       summary: false,
       isOpen: false,
@@ -136,7 +136,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<
 
     this.inputTimeouts = {
       amount: null,
-      destiantionAddress: null,
+      destinationAddress: null,
     };
   }
 
@@ -281,7 +281,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<
         displayAmount: S.Strings.EMPTY,
         amountError: S.INT_FALSE,
         destinationAddress: S.Strings.EMPTY,
-        destiantionAddressError: S.INT_FALSE,
+        destinationAddressError: S.INT_FALSE,
         walletBalance: balance,
         contractBalance,
       });
@@ -331,7 +331,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<
         displayAmount: S.Strings.EMPTY,
         amountError: S.INT_FALSE,
         destinationAddress: S.Strings.EMPTY,
-        destiantionAddressError: S.INT_FALSE,
+        destinationAddressError: S.INT_FALSE,
       });
     }
   };
@@ -448,21 +448,21 @@ export default class CudosBridgeComponent extends ContextPageComponent<
   };
 
   onChangeDestinationAddress = (address: string) => {
-    clearTimeout(this.inputTimeouts.destiantionAddress);
+    clearTimeout(this.inputTimeouts.destinationAddress);
 
     this.setState({
       destinationAddress: address,
-      destiantionAddressError: S.INT_FALSE,
+      destinationAddressError: S.INT_FALSE,
     });
 
-    this.inputTimeouts.destiantionAddress = setTimeout(() => {
+    this.inputTimeouts.destinationAddress = setTimeout(() => {
       if (address === S.Strings.EMPTY) {
         return;
       }
 
       if (!this.isAddressValid(this.state.destinationAddress)) {
         this.setState({
-          destiantionAddressError: S.INT_TRUE,
+          destinationAddressError: S.INT_TRUE,
         });
       }
     }, 1000);
@@ -556,7 +556,7 @@ export default class CudosBridgeComponent extends ContextPageComponent<
         isLoading: false,
         amountError: S.INT_FALSE,
         destinationAddress: S.Strings.EMPTY,
-        destiantionAddressError: S.INT_FALSE,
+        destinationAddressError: S.INT_FALSE,
       });
 
       this.props.appStore.enableActions();
