@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from "react";
+/* import React, { ChangeEvent } from "react";
 import PropTypes from "prop-types";
 
 import { FormControl } from "@material-ui/core";
@@ -12,9 +12,28 @@ export const InputType = {
   REAL: 2,
   TEXT: 3,
   PHONE: 4,
-};
+}; */
 
-export const InputMargin = {
+import * as React from "react";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+
+export default function Input() {
+  return (
+    <Box
+      component='form'
+      sx={{
+        "& > :not(style)": { m: 1, width: "25ch" },
+      }}
+      noValidate
+      autoComplete='off'
+    >
+      <TextField id='standard-basic' label='Standard' variant='standard' />
+    </Box>
+  );
+}
+
+/* export const InputMargin = {
   NORMAL: 1,
   DENSE: 2,
 };
@@ -40,9 +59,9 @@ interface Props extends TextFieldProps {
 
 interface State {
   focused: boolean;
-}
+} */
 
-export default class Input extends React.Component<Props, State> {
+/* export default class Input extends React.Component<Props, State> {
   nodes: any;
   sState: State;
 
@@ -64,10 +83,10 @@ export default class Input extends React.Component<Props, State> {
 
   getInputNode() {
     return this.nodes.input.current;
-  }
+  } */
 
-  /* listeners */
-  onChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+/* listeners */
+/*   onChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     switch (this.props.inputType) {
       case InputType.INTEGER:
         if (filterInteger(event.target.value) === false) {
@@ -121,10 +140,10 @@ export default class Input extends React.Component<Props, State> {
 
   value() {
     return this.nodes.input.current.value;
-  }
+  } */
 
-  /* render */
-  render() {
+/* render */
+/*   render() {
     const margin = this.getMargin();
     const { inputType, decimalLength, ...props } = this.props;
     return (
@@ -144,9 +163,9 @@ export default class Input extends React.Component<Props, State> {
       </div>
     );
   }
-}
+} */
 
-Input.defaultProps = {
+/* Input.defaultProps = {
   className: S.Strings.EMPTY,
   inputType: InputType.TEXT,
   decimalLength: Number.MAX_SAFE_INTEGER,
@@ -154,7 +173,7 @@ Input.defaultProps = {
   readOnly: false,
   onChange: null,
 };
-
+ */
 function filterInteger(value: string) {
   if (value.length === 0) {
     return true;

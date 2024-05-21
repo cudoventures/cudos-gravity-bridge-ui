@@ -3,8 +3,8 @@ import React from "react";
 import S from "../utilities/Main";
 import TableHelper from "../helpers/TableHelper";
 
-import SvgArrowLeft from "@material-ui/icons/KeyboardArrowLeft";
-import SvgArrowRight from "@material-ui/icons/KeyboardArrowRight";
+import SvgArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
+import SvgArrowRight from "@mui/icons-material/KeyboardArrowRight";
 
 import "../../css/components-inc/paging.css";
 

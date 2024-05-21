@@ -1,4 +1,36 @@
-import React from "react";
+import * as React from "react";
+import { styled } from "@mui/material/styles";
+import MUIButton, { ButtonProps } from "@mui/material/Button";
+
+import { purple } from "@mui/material/colors";
+
+const ColorButton = styled(MUIButton)<ButtonProps>(({ theme }) => ({
+  color: theme.palette.getContrastText(purple[500]),
+  backgroundColor: purple[500],
+  "&:hover": {
+    backgroundColor: purple[700],
+  },
+}));
+
+export default function StyledButton({
+  children,
+  disabled,
+  onClick,
+  href,
+}: {
+  children: any;
+  disabled: any;
+  onClick: any;
+  href: any;
+}) {
+  return (
+    <ColorButton disabled={disabled} onClick={onClick} href={href}>
+      <div className={"ButtonContent FlexRow"}>{children}</div>
+    </ColorButton>
+  );
+}
+
+/* import React from 'react';
 
 import { createTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
@@ -122,3 +154,4 @@ Button.defaultProps = {
   disabled: false,
   onClick: null,
 };
+ */

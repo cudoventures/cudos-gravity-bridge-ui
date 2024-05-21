@@ -1,5 +1,8 @@
 import React from "react";
-import { Backdrop, Box, Modal, Fade } from "@material-ui/core/";
+import Box from "@mui/material/Box";
+import Modal from "@mui/material/Modal";
+import Fade from "@mui/material/Fade";
+import Backdrop from "@mui/material/Backdrop";
 
 import "../../css/components-popups/summary-modal.css";
 

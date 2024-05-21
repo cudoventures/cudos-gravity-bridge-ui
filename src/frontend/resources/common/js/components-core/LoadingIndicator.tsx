@@ -1,7 +1,7 @@
 import React from "react";
 import S from "../utilities/Main";
 
-import SvgLoading from "../../svg/loading.svg";
+import Loading from "../../svg/loading";
 import "./../../css/components-core/loading-indicator.css";
 
 interface Props {
@@ -11,12 +11,13 @@ interface Props {
 }
 
 export default class LoadingIndicator extends React.Component<Props> {
+  static defaultProps: { className: string; size: any };
   render() {
     const style = {
       marginTop: this.props.margin,
       marginBottom: this.props.margin,
     };
-    const svgStyle = {};
+    const svgStyle: { width?: string | number; height?: string | number } = {};
 
     if (this.props.size !== null) {
       svgStyle.width = this.props.size;
@@ -28,11 +29,7 @@ export default class LoadingIndicator extends React.Component<Props> {
         className={`LoadingIndicator FlexSingleCenter ${this.props.className}`}
         style={style}
       >
-        <div
-          className={"SVG Size"}
-          style={svgStyle}
-          dangerouslySetInnerHTML={{ __html: SvgLoading }}
-        />
+        <Loading className={"SVG Size"} style={svgStyle} />
       </div>
     );
   }
