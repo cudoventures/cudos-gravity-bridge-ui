@@ -1,98 +1,100 @@
 // version 2.0.0
-import React from 'react';
-import { inject, observer } from 'mobx-react';
+import React from "react";
+import { inject, observer } from "mobx-react";
 
-import AlertStore from '../stores/AlertStore';
-import S from '../utilities/Main';
+import AlertStore from "../stores/AlertStore";
+import S from "../utilities/Main";
 
-import '../../css/components-core/alert.css';
+import "../../css/components-core/alert.css";
 
 interface Props {
-    alertStore: AlertStore;
+  alertStore: AlertStore;
 }
 
-class Alert extends React.Component < Props > {
+class Alert extends React.Component<Props> {
+  onClickPositive = () => {
+    const { alertStore } = this.props;
 
-    onClickPositive = () => {
-        const { alertStore } = this.props;
-
-        let handled: boolean | void = false;
-        if (alertStore.positiveListener !== null) {
-            handled = alertStore.positiveListener();
-        }
-
-        if (handled !== true) {
-            alertStore.hide();
-        }
+    let handled: boolean | void = false;
+    if (alertStore.positiveListener !== null) {
+      handled = alertStore.positiveListener();
     }
 
-    onClickNegative = () => {
-        const { alertStore } = this.props;
+    if (handled !== true) {
+      alertStore.hide();
+    }
+  };
 
-        let handled: boolean | void = false;
-        if (alertStore.negativeListener !== null) {
-            handled = alertStore.negativeListener();
-        }
+  onClickNegative = () => {
+    const { alertStore } = this.props;
 
-        if (handled !== true) {
-            alertStore.hide();
-        }
+    let handled: boolean | void = false;
+    if (alertStore.negativeListener !== null) {
+      handled = alertStore.negativeListener();
     }
 
-    onClickNeutral = () => {
-        const { alertStore } = this.props;
+    if (handled !== true) {
+      alertStore.hide();
+    }
+  };
 
-        let handled: boolean | void = false;
-        if (alertStore.neutralListener !== null) {
-            handled = alertStore.neutralListener();
-        }
+  onClickNeutral = () => {
+    const { alertStore } = this.props;
 
-        if (handled !== true) {
-            alertStore.hide();
-        }
+    let handled: boolean | void = false;
+    if (alertStore.neutralListener !== null) {
+      handled = alertStore.neutralListener();
     }
 
-    render() {
-        const { alertStore } = this.props;
+    if (handled !== true) {
+      alertStore.hide();
+    }
+  };
 
-        return (
-            <div className = { `AlertWrapper Transition ActiveVisibilityHidden ${S.CSS.getActiveClassName(alertStore.isVisible())}` } >
-                <div className = { 'Alert ShadowDark' } >
-                    <div className = { 'Msg ScrollView' } >{alertStore.msg}</div>
+  render() {
+    const { alertStore } = this.props;
 
-                    <div className = { 'FlexSplit' } >
-                        { alertStore.neutralLabel !== null && (
-                            <div
-                                className = { 'TextButton Neutral' }
-                                onClick = { this.onClickNeutral } >
-                                { alertStore.neutralLabel }
-                            </div>
-                        ) }
+    return (
+      <div
+        className={`AlertWrapper Transition ActiveVisibilityHidden ${S.CSS.getActiveClassName(alertStore.isVisible())}`}
+      >
+        <div className={"Alert ShadowDark"}>
+          <div className={"Msg ScrollView"}>{alertStore.msg}</div>
 
-                        <div className = { 'StartRight' } >
-                            { alertStore.negativeLabel !== null && (
-                                <div
-                                    className = { 'TextButton Negative' }
-                                    onClick = { this.onClickNegative } >
-                                    { alertStore.negativeLabel }
-                                </div>
-                            ) }
+          <div className={"FlexSplit"}>
+            {alertStore.neutralLabel !== null && (
+              <div
+                className={"TextButton Neutral"}
+                onClick={this.onClickNeutral}
+              >
+                {alertStore.neutralLabel}
+              </div>
+            )}
 
-                            { alertStore.positiveLabel !== null && (
-                                <div
-                                    className = { 'TextButton Positive' }
-                                    onClick = { this.onClickPositive } >
-                                    { alertStore.positiveLabel }
-                                </div>
-                            ) }
-
-                        </div>
-                    </div>
+            <div className={"StartRight"}>
+              {alertStore.negativeLabel !== null && (
+                <div
+                  className={"TextButton Negative"}
+                  onClick={this.onClickNegative}
+                >
+                  {alertStore.negativeLabel}
                 </div>
-            </div>
-        )
-    }
+              )}
 
+              {alertStore.positiveLabel !== null && (
+                <div
+                  className={"TextButton Positive"}
+                  onClick={this.onClickPositive}
+                >
+                  {alertStore.positiveLabel}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
 
-export default inject('alertStore')(observer(Alert));
+export default inject("alertStore")(observer(Alert));
