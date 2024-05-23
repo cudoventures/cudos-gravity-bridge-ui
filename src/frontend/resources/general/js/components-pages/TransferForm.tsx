@@ -62,7 +62,9 @@ const TransferForm = ({
 
   useEffect((): void => {
     localStorage.setItem("manualAccountChange", "false");
+    /*  @ts-ignore */
     if (window.ethereum) {
+      /*  @ts-ignore */
       window.ethereum.on("accountsChanged", async () => {
         localStorage.setItem("manualAccountChange", "true");
         await connectWallet(METAMASK_WALLET);
@@ -125,7 +127,7 @@ const TransferForm = ({
               ? onDisconnectToNetwork()
               : onSelectToNetwork(selectedToNetwork)
           }
-          color={isToConnected ? "primary" : "secondary"}
+          color={isToConnected ? "secondary" : "primary"}
         >
           {isToConnected ? "Disconnect" : "Connect"}
         </Button>
@@ -133,7 +135,7 @@ const TransferForm = ({
       <div className={"FormRow Wrapper"}>
         <Button
           disabled={!isFromConnected || !isToConnected}
-          className={"TransferBtn"}
+          size='large'
           color='primary'
           onClick={() => goToTransactionSummary()}
         >

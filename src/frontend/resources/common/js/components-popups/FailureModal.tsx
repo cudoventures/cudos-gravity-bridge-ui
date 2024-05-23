@@ -40,8 +40,7 @@ const FailureModal = ({
         <div className={"Flex DoubleSpacing BtnWrapper"}>
           <Button
             className={"TryAgainBtn"}
-            type={Button.TYPE_ROUNDED}
-            color={Button.COLOR_SCHEME_1}
+            color={"primary"}
             onClick={() => closeModal()}
           >
             Try again
