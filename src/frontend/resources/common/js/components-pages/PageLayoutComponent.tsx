@@ -19,6 +19,8 @@ interface Props {
   children?: any;
 }
 
+const background =
+  "../../../../resources/common/img/favicon/background-image.svg";
 export default class PageLayoutComponent extends React.Component<Props> {
   render() {
     return (
@@ -39,9 +41,6 @@ export default class PageLayoutComponent extends React.Component<Props> {
     );
   }
 }
-
-const background =
-  "http://localhost:3000/resources/common/img/favicon/background-image.svg";
 
 PageLayoutComponent.defaultProps = {
   className: S.Strings.EMPTY,

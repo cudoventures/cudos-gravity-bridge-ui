@@ -324,8 +324,7 @@ const SummaryForm = (props: ISummaryFormProps) => {
                       isNaN(+props.displayAmount)
                 }
                 className={"TransferBtn Flex DoubleSpacing"}
-                type={Button.TYPE_ROUNDED}
-                color={Button.COLOR_SCHEME_1}
+                color='primary'
                 onClick={() => props.onClickSend()}
               >
                 Transfer
