@@ -14,7 +14,7 @@ interface ISummaryFormProps {
   walletBalance: BigNumber;
   displayAmount: string;
   onChangeAmount: any;
-  onClickMaxAmount: void;
+  onClickMaxAmount: () => void;
   onChangeTransactionDirection: any;
   onClickSend: Function;
   selectedToNetwork: number;
@@ -153,7 +153,7 @@ const SummaryForm = (props: ISummaryFormProps) => {
                   placeholder='0'
                 ></input>
                 <Button
-                  color={Button.COLOR_SCHEME_4}
+                  color={"info"}
                   className={"MaxBtn"}
                   onClick={props.onClickMaxAmount}
                   disabled={
