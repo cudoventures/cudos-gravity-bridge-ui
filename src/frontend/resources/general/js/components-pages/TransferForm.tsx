@@ -91,10 +91,7 @@ const TransferForm = ({
               ? onDisconnectFromNetwork()
               : onSelectFromNetwork(selectedFromNetwork)
           }
-          type={Button.TYPE_ROUNDED}
-          color={
-            isFromConnected ? Button.COLOR_SCHEME_2 : Button.COLOR_SCHEME_1
-          }
+          color={isFromConnected ? "secondary" : "primary"}
         >
           {isFromConnected ? "Disconnect" : "Connect"}
         </Button>
@@ -128,8 +125,7 @@ const TransferForm = ({
               ? onDisconnectToNetwork()
               : onSelectToNetwork(selectedToNetwork)
           }
-          type={Button.TYPE_ROUNDED}
-          color={isToConnected ? Button.COLOR_SCHEME_2 : Button.COLOR_SCHEME_1}
+          color={isToConnected ? "primary" : "secondary"}
         >
           {isToConnected ? "Disconnect" : "Connect"}
         </Button>
@@ -138,8 +134,7 @@ const TransferForm = ({
         <Button
           disabled={!isFromConnected || !isToConnected}
           className={"TransferBtn"}
-          type={Button.TYPE_ROUNDED}
-          color={Button.COLOR_SCHEME_1}
+          color='primary'
           onClick={() => goToTransactionSummary()}
         >
           Begin new transfer

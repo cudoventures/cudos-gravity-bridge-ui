@@ -197,7 +197,7 @@ const SummaryModal = ({
                 </div>
               )}
               <div className={"Row DoubleSpacing"}>
-                <div className={"TransactionMesasge FlexRow"}>
+                <div className={"TransactionMessage FlexRow"}>
                   <div
                     className={"AttentionIcon SVG Size"}
                     dangerouslySetInnerHTML={{ __html: SvgAttention }}
@@ -212,8 +212,7 @@ const SummaryModal = ({
               <div className={"Flex DoubleSpacing BtnWrapper"}>
                 <Button
                   className={"TransferBtn"}
-                  type={Button.TYPE_ROUNDED}
-                  color={Button.COLOR_SCHEME_1}
+                  color='primary'
                   onClick={() => onCloseModal()}
                 >
                   Transfer again

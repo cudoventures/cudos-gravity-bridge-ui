@@ -1,5 +1,5 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { Provider } from "mobx-react";
 import { configure } from "mobx";
 
@@ -24,13 +24,15 @@ export interface PageComponentProps {
   alertStore: AlertStore;
 }
 
+const container = document.getElementById("app");
+const root = createRoot(container);
 export default class PageComponent<
   Pr extends PageComponentProps,
   St = {},
   SS = any,
 > extends React.Component<Pr, St, SS> {
   static layout(componentNode: React.ReactNode) {
-    ReactDOM.render(
+    root.render(
       <Provider
         appStore={new AppStore()}
         accountSessionStore={new AccountSessionStore()}
@@ -39,8 +41,7 @@ export default class PageComponent<
         networkStore={new NetworkStore()}
       >
         {componentNode}
-      </Provider>,
-      document.querySelector(".ReactEntryPoint")
+      </Provider>
     );
   }
 
