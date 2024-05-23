@@ -1,37 +1,38 @@
 .TableMobile {
-    /* border: 1px solid var(--color-dark-minus-02); */
-    /* border-radius: 4px; */
-    color: var(--color-dark-gray);
+  /* border: 1px solid var(--color-dark-minus-02); */
+  /* border-radius: 4px; */
+  color: var(--color-dark-gray);
 }
 
 .TableMobile .Empty {
-    height:128px;
-    color:#fff;
-    background: #262b310f;
+  height: 128px;
+  color: #fff;
+  background: #262b310f;
 }
 
 .TableMobile .TableRow {
-    display: flex; flex-direction: column;
-    padding:6px 12px;
-    transition-property:background;
+  display: flex;
+  flex-direction: column;
+  padding: 6px 12px;
+  transition-property: background;
 }
 
 .TableMobile .TableRow:nth-child(even) {
-    background: #262b3106;
+  background: #262b3106;
 }
 
 .TableMobile .TableRow:not(:last-child) {
-    /* margin-bottom: 1px; */
-    /* border-bottom: 1px solid var(--color-dark-minus-02); */
-    /* border-bottom: 1px solid #0d0d0d !important; */
+  /* margin-bottom: 1px; */
+  /* border-bottom: 1px solid var(--color-dark-minus-02); */
+  /* border-bottom: 1px solid #0d0d0d !important; */
 }
 
 .TableMobileHeaderSortOptions {
-    text-align: right;
+  text-align: right;
 }
 
 .TableMobileHeaderSortOptions > :not(:last-child) {
-    padding-bottom: 12px;
+  padding-bottom: 12px;
 }
 
 /* .TableMobile > :first-child {
@@ -45,14 +46,15 @@
 } */
 
 .TableMobile .TableRow:not(.Legend) {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .TableMobile .TableRow.Legend {
-    color: #515D79;
-    text-transform: uppercase;
-    font-size: 12px; font-weight: 700;
-    /* background: var(--color-dark-minus-02); */
+  color: #515d79;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 500;
+  /* background: var(--color-dark-minus-02); */
 }
 
 /* .TableMobile .TableRow:not(.Legend):hover {
@@ -60,26 +62,28 @@
 } */
 
 .TableMobile .TableCell {
-    display: flex;
-    align-items:center; justify-content: space-between;
-    box-sizing: border-box;
-    padding:6px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  padding: 6px 0;
 }
 
 .TableMobile .TableCell > div {
-    width: 0px;
-    display: flex; align-items: center;
-    flex:1 1 auto;
+  width: 0px;
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
 }
 
 .TableMobile .TableCell > div:first-child {
-    justify-content: flex-start;
-    text-align: left;
-    margin-right: 6px;
+  justify-content: flex-start;
+  text-align: left;
+  margin-right: 6px;
 }
 
 .TableMobile .TableCell > div:last-child:not(:first-child) {
-    justify-content: flex-end;
-    text-align: right;
-    margin-left: 6px;
+  justify-content: flex-end;
+  text-align: right;
+  margin-left: 6px;
 }

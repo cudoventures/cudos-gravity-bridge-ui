@@ -78,8 +78,7 @@ const PreFlightModal = ({
         <div className={"Flex DoubleSpacing BtnWrapper"}>
           <Button
             className={"ConfirmButton"}
-            type={Button.TYPE_ROUNDED}
-            color={Button.COLOR_SCHEME_1}
+            color='primary'
             onClick={() => closeModal()}
           >
             Start transfer
@@ -88,8 +87,7 @@ const PreFlightModal = ({
         <div className={"Flex DoubleSpacing BtnWrapper"}>
           <Button
             className={"BackButton"}
-            type={Button.TYPE_ROUNDED}
-            color={Button.COLOR_SCHEME_1}
+            color='tertiary'
             onClick={() => rejectModal()}
           >
             Back

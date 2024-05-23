@@ -14,7 +14,7 @@ const ModalComponent = ({
 }: {
   isOpen: boolean;
   closeModal: Function;
-  errorMessage: string;
+  errorMessage?: string;
   children: React.ReactNode;
 }) => {
   return (
