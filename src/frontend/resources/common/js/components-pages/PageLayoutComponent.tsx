@@ -19,8 +19,8 @@ interface Props {
   children?: any;
 }
 
-const background =
-  "../../../../resources/common/img/favicon/background-image.svg";
+const background = "";
+/*   "../../../../resources/common/img/favicon/background-image.svg"; */
 export default class PageLayoutComponent extends React.Component<Props> {
   render() {
     return (

@@ -325,6 +325,7 @@ const SummaryForm = (props: ISummaryFormProps) => {
                 }
                 className={"TransferBtn Flex DoubleSpacing"}
                 color='primary'
+                size='large'
                 onClick={() => props.onClickSend()}
               >
                 Transfer

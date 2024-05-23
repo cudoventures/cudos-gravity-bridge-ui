@@ -85,7 +85,9 @@ const TransferForm = ({
               : ProjectUtils.makeBgImgStyle(ethLogo)
           }
         />
-        {isFromConnected ? getAddress(selectedFromNetwork, 18) : fromNetwork}
+        <div className='AddressName'>
+          {isFromConnected ? getAddress(selectedFromNetwork, 18) : fromNetwork}
+        </div>
         <Button
           className={isFromConnected ? "DisconnectBtn" : "ConnectBtn"}
           onClick={() =>
@@ -119,7 +121,9 @@ const TransferForm = ({
               : ProjectUtils.makeBgImgStyle(ethLogo)
           }
         />
-        {isToConnected ? getAddress(selectedToNetwork, 18) : toNetwork}
+        <div className='AddressName'>
+          {isToConnected ? getAddress(selectedToNetwork, 18) : toNetwork}
+        </div>
         <Button
           className={isToConnected ? "DisconnectBtn" : "ConnectBtn"}
           onClick={() =>
