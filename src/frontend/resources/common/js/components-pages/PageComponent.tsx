@@ -59,12 +59,12 @@ export default class PageComponent<
   }
 
   loadData() {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       const ajax = new Ajax();
 
       ajax.open(
         Ajax.GET,
-        `${Config.URL.RESOURCES}/common/fonts/BasierCircle-Regular.woff2`,
+        `${Config.URL.RESOURCES}/common/fonts/Sailec-Regular.woff2`,
         true
       );
       ajax.onResponse = () => {
