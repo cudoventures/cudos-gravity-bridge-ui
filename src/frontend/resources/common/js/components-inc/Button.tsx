@@ -1,17 +1,43 @@
 import * as React from "react";
 import MuiButton, { ButtonProps } from "@mui/material/Button";
 
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import {
+  createTheme,
+  ThemeProvider,
+  PaletteColorOptions,
+} from "@mui/material/styles";
+
+declare module "@mui/material/styles" {
+  interface CustomPalette {
+    tertiary: PaletteColorOptions;
+  }
+  interface Palette extends CustomPalette {}
+  interface PaletteOptions extends CustomPalette {}
+}
+
+declare module "@mui/material/Button" {
+  interface ButtonPropsColorOverrides {
+    tertiary: true;
+  }
+}
 
 const theme = createTheme({
   palette: {
+    action: {
+      disabled: "#fff",
+      disabledBackground: "rgba(54, 62, 89, 1)",
+    },
     primary: {
       main: "rgb(85, 146, 247)",
       contrastText: "#fff",
-  },
+    },
     secondary: {
       main: "rgb(27, 32, 49)",
       contrastText: "#fff",
+    },
+    tertiary: {
+      main: "rgba(82, 166, 248, 0.2)",
+      contrastText: "#52A6F8",
     },
     info: {
       main: "rgba(78, 148, 238, 0.2)",
@@ -27,21 +53,15 @@ const theme = createTheme({
           textTransform: "initial",
           fontWeight: "500",
         },
+        sizeLarge: {
+          padding: "16px 62px",
+          fontSize: "14px",
+          fontWeight: "500",
+        },
       },
     },
   },
 });
-
-/* action: {
-  disabledBackground: "rgba(54, 62, 89, 1)",
-  disabled: "#fff",
-}, */
-/*  secondary: {
-      main: "rgb(27, 32, 49)",
-      contrastText: "#fff",
-    }, */
-
-/* info is theme 4 */
 
 export interface StyledButtonProps {
   className?: string;
@@ -69,11 +89,11 @@ export default function Button({
 }: ButtonProps) {
   return (
     <ThemeProvider theme={theme}>
-          <MuiButton
+      <MuiButton
         disabled={disabled}
         onClick={onClick}
         href={href}
-            className={className}
+        className={className}
         color={color}
         variant={variant}
         disableElevation
@@ -81,7 +101,7 @@ export default function Button({
         endIcon={endIcon}
       >
         {children}
-          </MuiButton>
-        </ThemeProvider>
-    );
-  }
+      </MuiButton>
+    </ThemeProvider>
+  );
+}
