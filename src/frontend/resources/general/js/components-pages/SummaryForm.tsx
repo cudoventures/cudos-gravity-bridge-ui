@@ -305,7 +305,7 @@ const SummaryForm = (props: ISummaryFormProps) => {
             </div>
           ) : null}
           <div>
-            <div style={{ marginTop: "25px" }} className={"FormRow Wrapper"}>
+            <div className={"WFull DoubleSpacing"}>
               <Button
                 disabled={
                   props.selectedToNetwork
@@ -323,7 +323,7 @@ const SummaryForm = (props: ISummaryFormProps) => {
                       props.minTransferAmount.gte(props.displayAmount) ||
                       isNaN(+props.displayAmount)
                 }
-                className={"TransferBtn Flex DoubleSpacing"}
+                className={"TransferBtn WFull"}
                 color='primary'
                 size='large'
                 onClick={() => props.onClickSend()}

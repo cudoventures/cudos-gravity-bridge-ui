@@ -4,7 +4,7 @@
   position: relative;
   margin: auto;
   margin-top: 50px;
-  width: 473px;
+  width: 500px;
   max-width: 90%;
   height: 101vh;
 }
@@ -154,7 +154,6 @@
   color: rgb(255, 255, 255);
   border-radius: 5px;
   border-width: 1px;
-  max-width: 393px;
   height: 52px;
   display: flex;
   align-items: center;
@@ -287,6 +286,7 @@
   border-radius: 25px;
   height: 280px;
   box-shadow: 0px 4px 50px 0px rgba(2, 6, 20, 0.3);
+  position: relative;
 }
 
 .CudosBridge .SummaryContent .SummaryForm {
@@ -368,6 +368,7 @@ input[type="number"] {
   border-left: 1px solid rgba(99, 109, 143, 0.3);
   margin-left: 35px;
   padding-left: 35px;
+  position: relative;
 }
 
 .CudosBridge .SummaryContent .SummaryForm .TopBorder {
@@ -381,7 +382,6 @@ input[type="number"] {
   color: rgb(255, 255, 255);
   border-radius: 5px;
   border-width: 1px;
-  max-width: 393px;
   min-width: 150px;
   height: 52px;
   display: flex;
@@ -396,7 +396,7 @@ input[type="number"] {
   position: relative;
   margin: auto;
   margin-top: 50px;
-  width: 473px;
+  width: 500px;
   max-width: 90%;
 }
 
@@ -404,11 +404,20 @@ input[type="number"] {
   margin-top: 30px;
 }
 
+.TransferButton {
+  position: absolute;
+  bottom: 20px;
+}
+
 .CudosBridge .PageContent .SendForm .TransferBtn {
   width: 257px;
   height: 52px;
   display: flex;
   justify-content: center;
+  position: absolute;
+  bottom: 20px;
+  right: 0;
+  width: 100%;
 }
 
 .CudosBridge .PageContent .SendForm .NetworkSelectMenu {
