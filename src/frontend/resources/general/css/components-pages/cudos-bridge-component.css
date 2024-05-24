@@ -202,7 +202,6 @@
 
 .CudosBridge .Amount {
   display: flex;
-  margin-left: 15px;
   margin-top: 3px;
 }
 
@@ -302,8 +301,6 @@
 
 .CudosBridge .SummaryContent .SummaryForm .SummaryInput {
   background-color: rgb(45, 53, 78);
-  border: none;
-  color: #fff;
   flex: 1;
   max-width: 241px;
 }
