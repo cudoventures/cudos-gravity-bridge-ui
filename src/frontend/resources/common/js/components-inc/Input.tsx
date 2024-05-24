@@ -11,7 +11,7 @@ const Input = React.forwardRef(function CustomInput(
 
 const InputElement = styled("input")(
   () => `
-  width: 320px;
+  width: 241px;
   font-family: 'Sailec', sans-serif;
   font-size: 0.875rem;
   font-weight: 400;
@@ -19,7 +19,7 @@ const InputElement = styled("input")(
   padding: 8px 12px;
   border-radius: 8px;
   color: #fff;
-  background: rgba(99, 109, 143, 0.2);
+  background: rgb(45, 53, 78);
   border: none;
   box-shadow: none;
 

@@ -3,6 +3,7 @@ import { api } from "../../../common/js/api/GasOracleAPI";
 
 import Button from "../../../common/js/components-inc/Button";
 import ProjectUtils from "../../../common/js/ProjectUtils";
+import Input from "../../../common/js/components-inc/Input";
 import S from "../../../common/js/utilities/Main";
 import BigNumber from "bignumber.js";
 import CosmosNetworkH from "../../../common/js/models/ledgers/CosmosNetworkH";
@@ -143,15 +144,14 @@ const SummaryForm = (props: ISummaryFormProps) => {
           </div>
           <div className={"Flex"}>
             <div className={"SummaryAddress"}>
-              <div className={"Amount Flex"}>
-                <input
-                  inputMode='decimal'
-                  type='text'
+              <div className={"Amount Flex SummaryInput"}>
+                <Input
+                  type='number'
                   value={props.displayAmount}
                   onChange={e => props.onChangeAmount(e.target.value)}
                   className={"SummaryInput"}
                   placeholder='0'
-                ></input>
+                />
                 <Button
                   color={"info"}
                   className={"MaxBtn"}
