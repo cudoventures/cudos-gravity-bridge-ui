@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Prompt:wght@700&display=swap");
-
 .CudosBridge .PageContent {
   align-items: flex-start;
   justify-content: flex-start;
@@ -242,10 +240,11 @@
 }
 
 .Rotate {
-  -moz-transition: all 0.5s linear;
-  -webkit-transition: all 0.5s linear;
-  transition: all 0.5s linear;
+  -moz-transition: all 0.3s linear;
+  -webkit-transition: all 0.3s linear;
+  transition: all 0.3s linear;
 }
+
 .Rotate.Down {
   -moz-transform: rotate(180deg);
   -webkit-transform: rotate(180deg);
@@ -253,9 +252,9 @@
 }
 
 .Rotate.Up {
-  -moz-transform: rotate(-180deg);
-  -webkit-transform: rotate(-180deg);
-  transform: rotate(-180deg);
+  -moz-transform: rotate(0deg);
+  -webkit-transform: rotate(0deg);
+  transform: rotate(0deg);
 }
 
 .CudosBridge .TransferLogoSmall {
@@ -280,22 +279,6 @@
   display: flex;
   align-items: center;
 }
-
-/* .TransactionPopover .PopupText {
-    margin-bottom: 20px;
-}
-
-.TransactionPopover .Button{
-    padding: 6px 16px !important;
-}
-
-.TransactionPopover .Error {
-    color: var(--color-red);
-}
-
-.TransactionPopover .Success {
-    color: var(--color-green);
-} */
 
 .CudosBridge .PageContent .SendForm {
   background-color: var(--color-dark-blue);
@@ -500,7 +483,8 @@ input[type="number"] {
   color: var(--color-light-gray);
 }
 
-/**Pulse Animation */
+/* Pulse Animation */
+
 .Pulsing:before {
   position: absolute;
   top: 8px;
