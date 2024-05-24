@@ -105,7 +105,7 @@ export default class PageComponent<
 }
 
 function initHover() {
-  if (navigator.maxTouchPoints === 0 || navigator.msMaxTouchPoints === 0) {
+  if (navigator.maxTouchPoints === 0 || navigator.maxTouchPoints === 0) {
     return;
   }
 
