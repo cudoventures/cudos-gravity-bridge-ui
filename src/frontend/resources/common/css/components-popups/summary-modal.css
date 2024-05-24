@@ -135,6 +135,7 @@
   text-align: center;
   padding: 5px 0;
   border-radius: 6px;
+  font-size: 10px;
 
   /* Position the tooltip text */
   position: absolute;
@@ -180,11 +181,20 @@
 .ModalContent .SummaryForm .BtnWrapper {
   display: flex;
   justify-content: center;
+  width: 100%;
 }
 
 .ModalContent .SummaryForm .TransferBtn {
-  width: 257px;
   height: 52px;
+  position: absolute;
+  right: 0;
+  width: 100% !important;
+  margin-top: 25px;
+  bottom: 0;
+}
+
+.WFull {
+  width: 100%;
 }
 
 .ModalContent .SummaryForm .TransactionMessage {

@@ -209,7 +209,7 @@ const SummaryModal = ({
                   </div>
                 </div>
               </div>
-              <div className={"Flex DoubleSpacing BtnWrapper"}>
+              <div className={" BtnWrapper"}>
                 <Button
                   className={"TransferBtn"}
                   color='primary'
