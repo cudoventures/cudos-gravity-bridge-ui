@@ -136,11 +136,12 @@ const TransferForm = ({
           {isToConnected ? "Disconnect" : "Connect"}
         </Button>
       </div>
-      <div className={"FormRow Wrapper"}>
+      <div className={"FormRow Wrapper WFull"}>
         <Button
           disabled={!isFromConnected || !isToConnected}
           size='large'
           color='primary'
+          className='WFull'
           onClick={() => goToTransactionSummary()}
         >
           Begin new transfer

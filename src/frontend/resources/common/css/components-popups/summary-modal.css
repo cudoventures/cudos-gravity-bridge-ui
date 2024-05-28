@@ -186,15 +186,9 @@
 
 .ModalContent .SummaryForm .TransferBtn {
   height: 52px;
-  position: absolute;
-  right: 0;
   width: 100% !important;
   margin-top: 25px;
-  bottom: 0;
-}
-
-.WFull {
-  width: 100%;
+  margin-bottom: 25px;
 }
 
 .ModalContent .SummaryForm .TransactionMessage {

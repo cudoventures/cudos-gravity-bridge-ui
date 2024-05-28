@@ -209,10 +209,11 @@ const SummaryModal = ({
                   </div>
                 </div>
               </div>
-              <div className={"BtnWrapper"}>
+              <div className={"Flex DoubleSpacing BtnWrapper WFull"}>
                 <Button
-                  className={"TransferBtn"}
+                  className={"TransferBtn WFull"}
                   color='primary'
+                  size='large'
                   onClick={() => onCloseModal()}
                 >
                   Transfer again
