@@ -124,6 +124,7 @@
   width: 30px;
   height: 30px;
   flex: 0 0 auto;
+  position: relative;
 }
 
 /* Tooltip text */

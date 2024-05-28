@@ -119,6 +119,7 @@
 }
 
 .CudosBridge .AttentionIcon {
+  position: relative;
   width: 16px;
   height: 16px;
   margin-left: 5px;
