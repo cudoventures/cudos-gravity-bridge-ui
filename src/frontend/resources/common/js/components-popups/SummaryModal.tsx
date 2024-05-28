@@ -7,7 +7,6 @@ import Config from "../../../../../../builds/dev-generated/Config";
 import Button from "../components-inc/Button";
 import ProjectUtils from "../ProjectUtils";
 import CosmosNetworkH from "../models/ledgers/CosmosNetworkH";
-import SvgAttention from "../../../../resources/common/img/favicon/attention.svg";
 
 const SummaryModal = ({
   closeModal,
@@ -41,6 +40,7 @@ const SummaryModal = ({
   const closeIcon =
     "../../../../resources/common/img/favicon/close-icon-24x24.svg";
   const linkIcon = "../../../../resources/common/img/favicon/link-icon.svg";
+  const SvgAttention = "../../../../resources/common/img/favicon/attention.svg";
 
   const fromNetwork = selectedFromNetwork
     ? ProjectUtils.CUDOS_NETWORK_TEXT

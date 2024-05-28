@@ -4,11 +4,12 @@ import React, { MouseEvent } from "react";
 import S from "../utilities/Main";
 
 import PopupStore from "../stores/PopupStore";
-//@ts-ignore
-import SvgClose from "../../svg/close-btn.svg";
+
 import "../../css/components-core/popup-window.css";
 
 let popupCounter = 0;
+
+const SvgClose = "../../svg/close-btn.svg";
 
 export interface PopupWindowProps {
   popupStore: PopupStore;
