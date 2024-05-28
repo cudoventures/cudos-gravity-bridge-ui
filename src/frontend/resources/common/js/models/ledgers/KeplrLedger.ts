@@ -20,6 +20,7 @@ import {
 import { EncodeObject } from "cudosjs";
 import BigNumber from "bignumber.js";
 import { GasPrice } from "cudosjs";
+import { deprecate } from "util";
 
 declare global {
   interface Window {
@@ -119,6 +120,11 @@ export default class KeplrLedger implements Ledger {
             // (Optional) Keplr can show the fiat value of the coin if a coingecko id is provided.
             // You can get id from https://api.coingecko.com/api/v3/coins/list if it is listed.
             // coinGeckoId: Meteor.settings.public.coingeckoId,
+            gasPriceStep: {
+              low: Number(Config.CUDOS_NETWORK.GAS_PRICE),
+              average: Number(Config.CUDOS_NETWORK.GAS_PRICE) * 2,
+              high: Number(Config.CUDOS_NETWORK.GAS_PRICE) * 4,
+            },
           },
         ],
         // (Optional) The number of the coin type.
@@ -126,16 +132,12 @@ export default class KeplrLedger implements Ledger {
         // Ideally, it is recommended to be the same with BIP44 path's coin type.
         // However, some early chains may choose to use the Cosmos Hub BIP44 path of '118'.
         // So, this is separated to support such chains.
-        coinType: CudosNetworkConsts.LEDGER_COIN_TYPE,
+        /*  deprecated */
+        /*    coinType: CudosNetworkConsts.LEDGER_COIN_TYPE, */
         // (Optional) This is used to set the fee of the transaction.
         // If this field is not provided, Keplr extension will set the default gas price as (low: 0.01, average: 0.025, high: 0.04).
         // Currently, Keplr doesn't support dynamic calculation of the gas prices based on on-chain data.
         // Make sure that the gas prices are higher than the minimum gas prices accepted by chain validators and RPC/REST endpoint.
-        gasPriceStep: {
-          low: Number(Config.CUDOS_NETWORK.GAS_PRICE),
-          average: Number(Config.CUDOS_NETWORK.GAS_PRICE) * 2,
-          high: Number(Config.CUDOS_NETWORK.GAS_PRICE) * 4,
-        },
       });
     } catch (ex) {
       this.walletError = "Failed to suggest the chain";
