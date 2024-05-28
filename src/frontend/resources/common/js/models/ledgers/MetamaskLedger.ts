@@ -8,7 +8,7 @@ import gravityContractAbi from "../../solidity/contract_interfaces/gravity.json"
 import Config from "../../../../../../../builds/dev-generated/Config";
 import BigNumber from "bignumber.js";
 
-import { Bech32, toBase64, toHex, CudosNetworkConsts } from "cudosjs";
+import { fromBech32, toHex, CudosNetworkConsts } from "cudosjs";
 
 export default class MetamaskLedger implements Ledger {
   static NETWORK_NAME = "Ethereum";
@@ -71,7 +71,7 @@ export default class MetamaskLedger implements Ledger {
       const run = async () => {
         const account = (await window.web3.eth.requestAccounts())[0];
 
-        const addressByteArray = Bech32.decode(destinationAddress).data;
+        const addressByteArray = fromBech32(destinationAddress).data;
         const addressBytes32Array = new Uint8Array(32);
         addressByteArray.forEach((byte, i) => {
           addressBytes32Array[32 - addressByteArray.length + i] = byte;
