@@ -47,7 +47,16 @@ export default class MetamaskLedger implements Ledger {
       }
       localStorage.setItem("manualAccountChange", "false");
       window.web3 = new Web3(window.ethereum);
-      this.account = window.ethereum.selectedAddress;
+      if (window.ethereum) {
+        try {
+          const accounts = await window.ethereum.request({
+            method: "eth_requestAccounts",
+          });
+          this.account = accounts[0];
+        } catch (error) {
+          console.log(error);
+        }
+      }
       this.connected = S.INT_TRUE;
     } catch (e) {
       if (!window.ethereum) {
