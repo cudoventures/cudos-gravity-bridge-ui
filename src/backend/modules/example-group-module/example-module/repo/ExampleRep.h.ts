@@ -1,3 +1,1 @@
-export default class ExampleRepoH {
-
-}
+export default class ExampleRepoH {}

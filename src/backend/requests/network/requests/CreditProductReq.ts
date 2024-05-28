@@ -1,3 +1,1 @@
-export default class CreditProductReq {
-
-}
+export default class CreditProductReq {}

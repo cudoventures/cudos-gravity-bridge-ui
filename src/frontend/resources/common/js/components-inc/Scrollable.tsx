@@ -1,33 +1,33 @@
-import React from 'react';
+import React from "react";
 
-import S from '../utilities/Main';
+import S from "../utilities/Main";
 
-import '../../css/components-inc/scrollable.css';
+import "../../css/components-inc/scrollable.css";
 
 interface Props {
-    className?: string;
-    classNameContent?: string;
+  className?: string;
+  classNameContent?: string;
 }
 
-export default class Scrollable extends React.Component < Props > {
+export default class Scrollable extends React.Component<Props> {
+  static defaultProps: any;
 
-    static defaultProps: any;
-
-    render() {
-        return (
-            <div className = { `${this.props.className} Scrollable` } >
-                <div className = { 'ScrollableWrapper' } >
-                    <div className = { `ScrollableContent Scrolls ${this.props.classNameContent}` } >
-                        {this.props.children}
-                    </div>
-                </div>
-            </div>
-        )
-    }
-
+  render() {
+    return (
+      <div className={`${this.props.className} Scrollable`}>
+        <div className={"ScrollableWrapper"}>
+          <div
+            className={`ScrollableContent Scrolls ${this.props.classNameContent}`}
+          >
+            {this.props.children}
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
 
 Scrollable.defaultProps = {
-    className: S.Strings.EMPTY,
-    classNameContent: S.Strings.EMPTY,
+  className: S.Strings.EMPTY,
+  classNameContent: S.Strings.EMPTY,
 };

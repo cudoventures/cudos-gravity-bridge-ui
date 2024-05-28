@@ -1,4 +1,3 @@
-import ExampleModelG from './ExampleModel.g';
+import ExampleModelG from "./ExampleModel.g";
 
-export default class ExampleModel extends ExampleModelG {
-}
+export default class ExampleModel extends ExampleModelG {}

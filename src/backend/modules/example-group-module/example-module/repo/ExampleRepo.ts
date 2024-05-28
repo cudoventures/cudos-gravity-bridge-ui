@@ -1,5 +1,3 @@
-import ExampleRepoG from './ExampleRepo.g';
+import ExampleRepoG from "./ExampleRepo.g";
 
-export default class ExampleRepo extends ExampleRepoG {
-
-}
+export default class ExampleRepo extends ExampleRepoG {}

@@ -1,5 +1,5 @@
 const TR = {
-    'EN': {},
-}
+  EN: {},
+};
 
 export default TR;

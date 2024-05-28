@@ -1,12 +1,9 @@
-import Context from '../../utilities/network/Context';
+import Context from "../../utilities/network/Context";
 
 export default class Api {
+  async onRequest(context: Context) {
+    await this.processRequest(context);
+  }
 
-    async onRequest(context: Context) {
-        await this.processRequest(context);
-    }
-
-    async processRequest(context: Context) {
-    }
-
+  async processRequest(context: Context) {}
 }

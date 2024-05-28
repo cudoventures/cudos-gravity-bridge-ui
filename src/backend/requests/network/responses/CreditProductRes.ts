@@ -1,3 +1,1 @@
-export default class CreditProductRes {
-
-}
+export default class CreditProductRes {}

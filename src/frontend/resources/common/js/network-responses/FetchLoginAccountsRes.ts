@@ -1,11 +1,9 @@
-import AccountModel from '../models/AccountModel';
+import AccountModel from "../models/AccountModel";
 
 export default class FetchLoginAccountsRes {
+  account: AccountModel;
 
-    account: AccountModel;
-
-    constructor(json) {
-        this.account = AccountModel.fromJSON(json.account);
-    }
-
+  constructor(json) {
+    this.account = AccountModel.fromJSON(json.account);
+  }
 }

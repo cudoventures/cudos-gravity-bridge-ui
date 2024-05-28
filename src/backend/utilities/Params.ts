@@ -1,9 +1,7 @@
 const Params = {
-
-    ACTION: 'ac',
-    PAYLOAD: 'pl',
-    ID: 'id',
-
+  ACTION: "ac",
+  PAYLOAD: "pl",
+  ID: "id",
 };
 
 export default Params;

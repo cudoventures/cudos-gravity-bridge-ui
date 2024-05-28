@@ -1,11 +1,9 @@
-import Database from './Database';
+import Database from "./Database";
 
 export default class RepoFactory {
+  db: Database;
 
-    db: Database;
-
-    constructor(db: Database) {
-        this.db = db;
-    }
-
+  constructor(db: Database) {
+    this.db = db;
+  }
 }

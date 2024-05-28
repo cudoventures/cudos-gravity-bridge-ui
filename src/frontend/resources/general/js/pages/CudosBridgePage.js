@@ -1,3 +1,3 @@
-import CudosBridgePageComponent from '../components-pages/CudosBridgePageComponent';
+import CudosBridgePageComponent from "../components-pages/CudosBridgePageComponent";
 
 CudosBridgePageComponent.layout();

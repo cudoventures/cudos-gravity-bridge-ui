@@ -1,11 +1,10 @@
-import Page from '../../Page';
+import Page from "../../Page";
 
-const Config = require('../../../../../../config/config');
+const Config = require("../../../../../../config/config");
 
 export default class PageNotFoundH extends Page {
-
-    static URL: string;
-    static TEMPLATE_PATH: string;
+  static URL: string;
+  static TEMPLATE_PATH: string;
 }
 
 PageNotFoundH.URL = `${Config.URL.GENERAL}/not-found`;

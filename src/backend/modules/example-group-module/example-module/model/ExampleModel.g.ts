@@ -1,5 +1,3 @@
-import ExampleModelH from './ExampleModel.h';
+import ExampleModelH from "./ExampleModel.h";
 
-export default class ExampleModelG extends ExampleModelH {
-
-}
+export default class ExampleModelG extends ExampleModelH {}

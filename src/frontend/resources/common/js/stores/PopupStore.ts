@@ -1,15 +1,13 @@
-import { makeObservable, observable } from 'mobx';
+import { makeObservable, observable } from "mobx";
 
 export default class PopupStore {
+  @observable visible: boolean = false;
 
-    @observable visible: boolean = false;
+  constructor() {
+    makeObservable(this);
+  }
 
-    constructor() {
-        makeObservable(this);
-    }
-
-    hide = () => {
-        this.visible = false;
-    }
-
+  hide = () => {
+    this.visible = false;
+  };
 }

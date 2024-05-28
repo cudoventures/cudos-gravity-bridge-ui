@@ -1,11 +1,5 @@
 module.exports = class Migration {
+  async up(db) {}
 
-    async up(db) {
-
-    }
-
-    async down(db) {
-
-    }
-
-}
+  async down(db) {}
+};
