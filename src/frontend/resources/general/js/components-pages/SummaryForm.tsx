@@ -15,7 +15,7 @@ interface ISummaryFormProps {
   displayAmount: string;
   onChangeAmount: any;
   onClickMaxAmount: void;
-  onChnageTransactionDirection: any;
+  onChangeTransactionDirection: any;
   onClickSend: Function;
   selectedToNetwork: number;
   isToConnected: boolean;
@@ -49,7 +49,7 @@ const SummaryForm = (props: ISummaryFormProps) => {
   const [animate, setAnimate] = useState<boolean>(false);
 
   const changeTransaction = (): void => {
-    props.onChnageTransactionDirection();
+    props.onChangeTransactionDirection();
     setAnimate(!animate);
   };
 

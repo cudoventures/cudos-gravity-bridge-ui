@@ -9,7 +9,7 @@ const METAMASK_WALLET = 0;
 const TransferForm = ({
   selectedFromNetwork,
   isFromConnected,
-  onChnageTransactionDirection,
+  onChangeTransactionDirection,
   selectedToNetwork,
   isToConnected,
   getAddress,
@@ -23,7 +23,7 @@ const TransferForm = ({
 }: {
   selectedFromNetwork: number;
   isFromConnected: boolean;
-  onChnageTransactionDirection: any;
+  onChangeTransactionDirection: any;
   selectedToNetwork: number;
   isToConnected: boolean;
   getAddress: any;
@@ -49,7 +49,7 @@ const TransferForm = ({
   const [animate, setAnimate] = useState<boolean>(false);
 
   const changeTransaction = () => {
-    onChnageTransactionDirection();
+    onChangeTransactionDirection();
     setAnimate(!animate);
   };
 
