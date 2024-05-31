@@ -1,0 +1,87 @@
+name: Build and Deploy Gravity Bridge UI on public testnet
+
+#on:
+#  push:
+#    branches:
+#      - cudos-master
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: cudos-public-testnet-explorer-02
+
+    steps:
+    - name: Check out the Cudos Builders repository
+      uses: actions/checkout@v2
+      with:
+        repository: CudoVentures/cudos-builders
+        ref: cudos-master
+        path: CudosBuilders
+
+    - name: Check out the Cudos Gravity Bridge UI repository
+      uses: actions/checkout@v2
+      with:
+        repository: CudoVentures/cudos-gravity-bridge-ui
+        ref: cudos-master
+        path: CudosGravityBridgeUI
+
+    - name: Set up gravity-bridge-ui.testnet.public.env
+      run: |
+        cd CudosBuilders/docker/gravity-bridge-ui
+        cat << EOF > gravity-bridge-ui.testnet.public.env
+        NODE_ENV=production
+        BACKEND_PORT=5000
+        FRONTEND_PORT=" "
+        URL=https://bridge.testnet.cudos.org
+        SESSION_UNIQUE_KEY=${{ secrets.SESSION_UNIQUE_KEY }}
+        SESSION_STORE_TCP_ADDR=
+        SESSION_STORE_PORT=
+
+        DATABASE_HOST=
+        DATABASE_PORT=
+        DATABASE_USER=
+        DATABASE_PASS=
+        DATABASE_NAME=
+        DATABASE_CONNECTION_LIMIT=
+
+        #cudos network variables
+        CHAIN_NAME=CudosTestnet-Public-v4
+        CHAIN_ID=cudos-testnet-public-4
+        RPC=https://rpc.testnet.cudos.org/
+        API=https://rest.testnet.cudos.org/
+        GRAVITY_MODULE_ADDRESS=cudos16n3lc7cywa68mg50qhp847034w88pntq8823tx
+        GAS_PRICE=0.02
+        GAS=180000
+        FEE=5000000000000
+        STAKING=https://explorer.testnet.cudos.org/validators
+
+        #orchestrator variables
+        ERC20_CONTRACT_ADDRESS=0x28ea52f3ee46cac5a72f72e8b3a387c0291d586d
+        BRIDGE_CONTRACT_ADDRESS=0xc8E22fB82Cd569DDD75bC2f366D83809608Deb82
+
+        #ethereum variables
+        ETHEREUM_GAS_PRICE=2000000008
+        ETHEREUM_GAS=2000000
+        ETHEREUM_RPC=https://ethereum-sepolia.hosts.cudos.org:8545
+
+        PARAMS_ENDPOINT=https://rest.testnet.cudos.org/gravity/v1beta/params
+        BLOCK_EXPLORER=https://explorer.testnet.cudos.org/transactions
+
+        NETWORK_TYPE=testnet
+        EOF
+
+    - name: Stop and remove old container
+      run: |
+        sudo docker stop cudos-gravity-bridge-ui || true
+        sudo docker rm cudos-gravity-bridge-ui || true
+
+    - name: Install and run docker-compose
+      run: |
+        cd CudosBuilders/docker/gravity-bridge-ui
+        sudo docker-compose \
+          --env-file ./gravity-bridge-ui.testnet.public.env \
+          -f ./gravity-bridge-ui.release.yml \
+          -p cudos-gravity-bridge-ui up \
+          --build -d
