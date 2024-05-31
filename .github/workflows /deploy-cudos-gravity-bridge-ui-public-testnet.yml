@@ -35,7 +35,7 @@ jobs:
         BACKEND_PORT=5000
         FRONTEND_PORT=" "
         URL=https://bridge.testnet.cudos.org
-        SESSION_UNIQUE_KEY=cudos-secret-session
+        SESSION_UNIQUE_KEY=${{ secrets.SESSION_UNIQUE_KEY }}
         SESSION_STORE_TCP_ADDR=
         SESSION_STORE_PORT=
 
