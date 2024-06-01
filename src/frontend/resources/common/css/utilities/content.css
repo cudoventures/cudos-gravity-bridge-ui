@@ -1,193 +1,204 @@
 :root {
-    --color-primary: rgb(24, 24, 25);
-    --color-secondary: rgb(85, 146, 247);
-    --color-red:#ff3838;
-    --color-green:#2AD791;
-    --color-dark-blue: rgb(32,39,62);
-    --color-dark-gray: #2e2e2e;
-    --color-gray: rgb(99, 109, 143);
-    --color-light-gray: rgb(114, 126, 139);
-    --color-darker-gray: #636D8F1A;
-    --color-blue: #4E94EE;
+  --color-primary: rgb(24, 24, 25);
+  --color-secondary: rgb(85, 146, 247);
+  --color-red: #ff3838;
+  --color-green: #2ad791;
+  --color-dark-blue: rgb(32, 39, 62);
+  --color-dark-gray: #2e2e2e;
+  --color-gray: rgb(99, 109, 143);
+  --color-light-gray: rgb(114, 126, 139);
+  --color-darker-gray: #636d8f1a;
+  --color-blue: #4e94ee;
 
+  --color-body-background: #2e2e2e;
 
-    --color-body-background:#2e2e2e;
+  /* theme */
+  --color-input-text: #fff;
+  --color-input-label: var(--color-light-gray);
+  --color-input-focused: var(--color-light-gray);
+  --color-input-border: var(--color-light-gray);
+  --color-input-border-hover: #fff;
 
-    /* theme */
-    --color-input-text: #FFF;
-    --color-input-label: var(--color-light-gray);
-    --color-input-focused: var(--color-light-gray);
-    --color-input-border: var(--color-light-gray);
-    --color-input-border-hover: #FFF;
+  --color-select-font: #fff;
+  --color-select-border: var(--color-light-gray);
+  --color-select-border-focused: var(--color-secondary);
+  --color-select-icon: #fff;
+  --color-select-icon-focused: #fff;
+  --color-select-highlight: rgb(255, 255, 255, 0.1);
+  --color-select-background: var(--color-dark-gray);
+  --color-select-multi-item-color: #fff;
+  --color-select-multi-item-background: #9fb0c5;
+  --color-select-multi-delete-icon: #fff;
 
-    --color-select-font: #FFF;
-    --color-select-border: var(--color-light-gray);
-    --color-select-border-focused: var(--color-secondary);
-    --color-select-icon: #FFF;
-    --color-select-icon-focused: #FFF;
-    --color-select-highlight: rgb(255, 255, 255, 0.1);
-    --color-select-background: var(--color-dark-gray);
-    --color-select-multi-item-color: #fff;
-    --color-select-multi-item-background: #9FB0C5;
-    --color-select-multi-delete-icon: #fff;
+  --color-popover-text: #fff;
+  --color-popover-border: var(--color-dark-gray);
+  --color-popover-background: var(--color-dark-gray);
 
-    --color-popover-text: #FFF;
-    --color-popover-border: var(--color-dark-gray);
-    --color-popover-background: var(--color-dark-gray);
+  --color-tooltip-text: var(--color-dark-gray);
+  --color-tooltip-border: var(--color-dark-gray);
+  --color-tooltip-background: #fff;
 
-    --color-tooltip-text: var(--color-dark-gray);
-    --color-tooltip-border: var(--color-dark-gray);
-    --color-tooltip-background: #fff;
+  --color-checkbox-fill: #fff;
+  --color-checkbox-background: #262b31;
+  --color-checkbox-border: #262b31;
+  --color-checkbox-border-active: #262b31;
 
-    --color-checkbox-fill: #fff;
-    --color-checkbox-background: #262b31;
-    --color-checkbox-border: #262b31;
-    --color-checkbox-border-active: #262b31;
+  --color-datepicker-foreground: var(--color-dark-gray);
+  --color-datepicker-background: #fff;
+  --color-datepicker-content-background: #9fb0c5;
+  --color-datepicker-selected: var(--color-primary);
 
-    --color-datepicker-foreground: var(--color-dark-gray);
-    --color-datepicker-background: #fff;
-    --color-datepicker-content-background: #9FB0C5;
-    --color-datepicker-selected: var(--color-primary);
+  --color-popup-background: #fff;
+  /* theme */
 
-    --color-popup-background: #fff;
-    /* theme */
-    
-    --mobile-spacing: 24px;
-    --desktop-spacing: 32px;
+  --mobile-spacing: 24px;
+  --desktop-spacing: 32px;
 }
 
 html {
-	color:#FFF;
-    font-family:BeseirCircle, sans-serif; font-weight:400; font-size:16px;
-    scroll-behavior: smooth;
-    background:var(--color-body-background);
+  color: #fff;
+  font-family: Sailec, sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  scroll-behavior: smooth;
+  background: var(--color-body-background);
 }
 
 body {
-    background: transparent !important;
+  background: transparent !important;
 }
 
 /* SVG */
 .SVG {
-    display:inline-flex;
-    align-items:center; justify-content:center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .SVG.Size > svg {
-    width:100%; height:100%;
+  width: 100%;
+  height: 100%;
 }
 
 .ImgCoverNode {
-    background-position:center;
-    background-size:cover;
-    background-repeat:no-repeat;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 .ImgContainNode {
-    background-position:center;
-    background-size:contain;
-    background-repeat:no-repeat;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
 }
 
 img.CoverNode {
-    width: 100%; height: 100%;
-    object-fit: cover;
-    object-position: center;
-    border-radius: inherit;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: inherit;
 }
 
 /* Site */
 .SiteContent {
-    width:100%; min-width:calc(1200px + 2 * var(--desktop-spacing)); max-width:calc(1600px + 2 *  var(--desktop-spacing));
-    box-sizing:border-box;
-    padding-left:var(--desktop-spacing); padding-right:var(--desktop-spacing);
-    margin-left:auto; margin-right:auto;
+  width: 100%;
+  min-width: calc(1200px + 2 * var(--desktop-spacing));
+  max-width: calc(1600px + 2 * var(--desktop-spacing));
+  box-sizing: border-box;
+  padding-left: var(--desktop-spacing);
+  padding-right: var(--desktop-spacing);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .SiteContent.SmallContent {
-    width:370px; min-width:auto;
+  width: 370px;
+  min-width: auto;
 }
 
 html.OverflowHidden {
-    overflow:hidden;
+  overflow: hidden;
 }
 
 .Heading1 {
-    font-size: 54px; font-weight: 700;
+  font-size: 54px;
+  font-weight: 500;
 }
 
 .Heading2 {
-    font-size: 42px; font-weight: 700;
+  font-size: 42px;
+  font-weight: 500;
 }
 
 .Heading3 {
-    font-size: 32px;
+  font-size: 32px;
 }
 
 .Heading4 {
-    text-transform: uppercase;
-    font-size: 24px; font-weight: 700;
+  text-transform: uppercase;
+  font-size: 24px;
+  font-weight: 500;
 }
 
 .Heading5 {
-    font-size: 22px;
+  font-size: 22px;
 }
 
 .Heading6 {
-    font-size: 14px;
+  font-size: 14px;
 }
 
 @media (max-width: 749px) {
+  .Heading1 {
+    font-size: 30px;
+  }
 
-    .Heading1 {
-        font-size: 30px;
-    }
-    
-    .Heading2 {
-        font-size: 24px;
-    }
-    
-    .Heading3 {
-        font-size: 18px;
-    }
-    
-    .Heading4 {
-        font-size: 14px;
-    }
-    
-    .Heading5 {
-        font-size: 12px;
-    }
-    
-    .Heading6 {
-        font-size: 5px;
-    }
+  .Heading2 {
+    font-size: 24px;
+  }
 
+  .Heading3 {
+    font-size: 18px;
+  }
+
+  .Heading4 {
+    font-size: 14px;
+  }
+
+  .Heading5 {
+    font-size: 12px;
+  }
+
+  .Heading6 {
+    font-size: 5px;
+  }
 }
 
 .LabelInfo {
-    color: #fff;
-    text-transform: uppercase;
-    font-size: 12px; font-weight: 700;
-    opacity: 0.6;
+  color: #fff;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.6;
 }
 
 .P {
-    /* font-family:'IBMPlexSans'; */
+  /* font-family:'IBMPlexSans'; */
 }
 
 .PSmall {
-    font-family:'IBMPlexSans';
-    font-size: 14px;
+  font-family: "IBMPlexSans";
+  font-size: 14px;
 }
 
 /* PageContent */
 .PageMarginTop {
-    margin-top:98px;
+  margin-top: 98px;
 }
 
 .PageMarginBottom {
-    margin-top:112px;
+  margin-top: 112px;
 }
 
 /* .Page {
@@ -200,24 +211,26 @@ html.OverflowHidden {
 
 /* Scrolls */
 .Scrolls {
-    scrollbar-color:var(--color-primary) transparent;
-    scrollbar-width:thin;
+  scrollbar-color: var(--color-primary) transparent;
+  scrollbar-width: thin;
 }
 
 .Scrolls::-webkit-scrollbar {
-    width:6px; height:6px;
+  width: 6px;
+  height: 6px;
 }
 
 .Scrolls::-webkit-scrollbar-track {
-    background:none;
+  background: none;
 }
- 
+
 .Scrolls::-webkit-scrollbar-thumb {
-    border-radius:3px;
-    background:var(--color-primary);
+  border-radius: 3px;
+  background: var(--color-primary);
 }
 
 /* Mui font fix */
-*[class*="-root"], *[class^="Mui"] {
-    font-family: inherit !important;
+*[class*="-root"],
+*[class^="Mui"] {
+  font-family: inherit !important;
 }

@@ -1,43 +1,41 @@
-import React from 'react';
-import S from '../utilities/Main';
+import React from "react";
+import S from "../utilities/Main";
 
-import SvgLoading from '../../svg/loading.svg';
-import './../../css/components-core/loading-indicator.css';
+import Loading from "../../svg/loading";
+import "./../../css/components-core/loading-indicator.css";
 
 interface Props {
-    className?: string;
-    margin: string;
-    size?: string;
+  className?: string;
+  margin: string;
+  size?: string;
 }
 
-export default class LoadingIndicator extends React.Component < Props > {
+export default class LoadingIndicator extends React.Component<Props> {
+  static defaultProps: { className: string; size: any };
+  render() {
+    const style = {
+      marginTop: this.props.margin,
+      marginBottom: this.props.margin,
+    };
+    const svgStyle: { width?: string | number; height?: string | number } = {};
 
-    render() {
-        const style = {
-            'marginTop': this.props.margin,
-            'marginBottom': this.props.margin,
-        };
-        const svgStyle = {};
-
-        if (this.props.size !== null) {
-            svgStyle.width = this.props.size;
-            svgStyle.height = this.props.size;
-        }
-
-        return (
-            <div
-                className = { `LoadingIndicator FlexSingleCenter ${this.props.className}` }
-                style = { style } >
-
-                <div className = { 'SVG Size' } style = { svgStyle } dangerouslySetInnerHTML = {{ __html: SvgLoading }} />
-
-            </div>
-        );
+    if (this.props.size !== null) {
+      svgStyle.width = this.props.size;
+      svgStyle.height = this.props.size;
     }
 
+    return (
+      <div
+        className={`LoadingIndicator FlexSingleCenter ${this.props.className}`}
+        style={style}
+      >
+        <Loading className={"SVG Size"} style={svgStyle} />
+      </div>
+    );
+  }
 }
 
 LoadingIndicator.defaultProps = {
-    className: S.Strings.EMPTY,
-    size: null,
-}
+  className: S.Strings.EMPTY,
+  size: null,
+};

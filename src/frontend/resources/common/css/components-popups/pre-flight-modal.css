@@ -1,73 +1,72 @@
 .PreFlightForm {
-    align-items:flex-start;
-    justify-content: flex-start;
-    position:relative;
-    margin: auto;
-    max-width: 500px !important;
-    padding: 20px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  position: relative;
+  margin: auto;
+  max-width: 500px !important;
+  padding: 20px;
 }
 
 .PreFlightForm .CloseIcon {
-    position: absolute;
-    right: 25px;
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
+  position: absolute;
+  right: 25px;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
 }
 
 .PreFlightForm .Title {
-    font-family: Poppins, sans-serif;
-    margin-bottom: 5px;
-    font-size: 30px;
-    font-weight: 600;
-    text-align: center;
-    margin-top: 20px;
+  font-family: Sailec, sans-serif;
+  margin-bottom: 5px;
+  font-size: 30px;
+  font-weight: 500;
+  text-align: center;
+  margin-top: 20px;
 }
 
 .PreFlightForm .Subheader {
-    font-size: 18px;
-    font-weight: 400;
-    text-align: center;
-    color: var(--color-gray);
-    margin-bottom: 25px;
-    margin-top: 25px;
+  font-size: 18px;
+  font-weight: 400;
+  text-align: center;
+  color: var(--color-gray);
+  margin-bottom: 25px;
+  margin-top: 25px;
 }
 
-.PreFlightForm .warningMessage ul{
-    line-height:180%;
-    font-size: 15px;
+.PreFlightForm .warningMessage ul {
+  line-height: 180%;
+  font-size: 15px;
 }
 
 .PreFlightForm .transactionMessage {
-    margin: 30px 10px 0px 40px;
-    font-size: 17px;
+  margin: 30px 10px 0px 40px;
+  font-size: 17px;
 }
 
 .PreFlightForm .spanRed {
-    color: var(--color-red);
+  color: var(--color-red);
 }
 
 .PreFlightForm .ConfirmButton {
-    width: 257px;
-    height: 52px;
-    display: flex;
-    justify-content: center;
+  width: 257px;
+  height: 52px;
+  display: flex;
+  justify-content: center;
 }
 
 .PreFlightForm .BackButton {
-    width: 257px;
-    height: 52px;
-    display: flex;
-    justify-content: center;
+  width: 257px;
+  height: 52px;
+  display: flex;
+  justify-content: center;
 }
 
 .PreFlightForm .BtnWrapper {
-    display: flex;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
 }
 
 .PreFlightForm .DoubleSpacing {
-    margin-top: 45px;
-    margin-bottom: 5px;
+  margin-top: 45px;
+  margin-bottom: 5px;
 }
-
